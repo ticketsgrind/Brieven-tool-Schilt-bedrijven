@@ -1,28 +1,182 @@
 """Toetst de laag die het Word-bestand schrijft.
 
-docxtpl zelf wordt hier niet gedraaid; wel de twee dingen die eromheen fout
-kunnen gaan: welke gegevens het sjabloon te zien krijgt, en de reparatie van
-tabtekens.
+De nadruk ligt op het briefpapier. De brief moet niet alleen de juiste tekst
+bevatten, maar ook de briefkop met de Schilt-gegevens rechtsboven op de eerste
+pagina, de drie voetteksten en alle afbeeldingen. Dat gaat stil mis: een
+Word-bestand dat een namespace kwijtraakt opent Word als beschadigd, en een
+ontbrekende titlePg laat de hele eerste pagina anders opmaken.
 """
 
+import re
 import unittest
 import zipfile
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
 import yaml
 
 from brieventool import laad, stel_samen
-from brieventool.sjabloon import (KOPSECTIES, PARAGRAAFTAG, Wq, context,
+from brieventool.sjabloon import (KOPSECTIES, PARAGRAAFTAG, context,
                                   schrijf_docx, tabs_naar_word)
 
 WORTEL = Path(__file__).resolve().parent.parent
-W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+BRON = WORTEL / "bronbrieven" / "wand enkelvoud.dotx"
+SJABLOON = WORTEL / "sjablonen" / "brief.docx"
+W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 
 def brief(naam="particulier-wand-enkelvoud.yaml"):
     offerte = yaml.safe_load((WORTEL / "voorbeelden" / naam).read_text(encoding="utf-8"))
     return stel_samen(offerte, laad(WORTEL))
+
+
+def document_van(pad):
+    with zipfile.ZipFile(pad) as z:
+        return z.read("word/document.xml").decode("utf-8"), set(z.namelist())
+
+
+class BriefpapierMixin:
+    """De controles die voor het sjabloon én voor een gemaakte brief gelden."""
+
+    def test_alle_namespaces_zijn_bewaard(self):
+        # Een XML-lezer die het document opnieuw wegschrijft hernoemt prefixen
+        # die hij niet kent. mc:Ignorable verwijst er dan naar prefixen die niet
+        # meer bestaan en Word beschouwt het bestand als beschadigd.
+        bron, _ = document_van(BRON)
+        self.assertEqual(self._namespaces(self.xml), self._namespaces(bron))
+
+    def test_ignorable_verwijst_naar_bestaande_prefixen(self):
+        kop = re.search(r"<w:document\b[^>]*>", self.xml).group(0)
+        genoemd = re.search(r'Ignorable="([^"]*)"', kop)
+        self.assertIsNotNone(genoemd, "mc:Ignorable ontbreekt")
+        ontbrekend = set(genoemd.group(1).split()) - self._namespaces(self.xml)
+        self.assertEqual(ontbrekend, set(), f"niet gedeclareerd: {sorted(ontbrekend)}")
+
+    def test_briefkop_rechtsboven_op_de_eerste_pagina(self):
+        # headerReference type="first" wijst naar header1.xml met de
+        # Schilt-gegevens; titlePg zet aan dat pagina 1 die kop gebruikt.
+        self.assertIn('w:type="first"', self.xml)
+        self.assertRegex(self.xml, r'<w:headerReference[^>]*w:type="first"')
+        self.assertIn("<w:titlePg", self.xml,
+                      "zonder titlePg krijgt pagina 1 de gewone kop en verdwijnt de briefkop")
+
+    def test_alle_drie_de_voetteksten(self):
+        soorten = set(re.findall(r'<w:footerReference[^>]*w:type="(\w+)"', self.xml))
+        self.assertEqual(soorten, {"even", "default", "first"})
+
+    def test_kop_en_voetteksten_zitten_in_het_bestand(self):
+        onderdelen = {n for n in self.namen if re.match(r"word/(header|footer)\d*\.xml", n)}
+        self.assertEqual(len(onderdelen), 4, f"gevonden: {sorted(onderdelen)}")
+
+    def test_afbeeldingen_zijn_meegekomen(self):
+        _, bronnamen = document_van(BRON)
+        eigen = {n for n in self.namen if n.startswith("word/media/")}
+        origineel = {n for n in bronnamen if n.startswith("word/media/")}
+        self.assertEqual(eigen, origineel)
+
+    def test_relaties_van_kop_en_voet_zijn_intact(self):
+        # Zonder de rels-bestanden verwijst de briefkop naar niets en toont Word
+        # een leeg kader in plaats van het logo.
+        self.assertIn("word/_rels/document.xml.rels", self.namen)
+        self.assertIn("word/_rels/header1.xml.rels", self.namen)
+
+    def test_paginaformaat_en_marges_zijn_bewaard(self):
+        self.assertIn("<w:sectPr", self.xml)
+        self.assertIn("<w:pgSz", self.xml)
+        self.assertIn("<w:pgMar", self.xml)
+
+    def test_stijlen_en_nummering_zijn_meegekomen(self):
+        self.assertIn("word/styles.xml", self.namen)
+        self.assertIn("word/numbering.xml", self.namen)
+
+    def test_is_een_document_en_geen_sjabloon(self):
+        # Een .dotx opent Word als "nieuw document op basis van".
+        with zipfile.ZipFile(self.pad) as z:
+            types = z.read("[Content_Types].xml").decode("utf-8")
+        self.assertIn("wordprocessingml.document.main+xml", types)
+        self.assertNotIn("wordprocessingml.template.main+xml", types)
+
+    @staticmethod
+    def _namespaces(xml):
+        kop = re.search(r"<w:document\b[^>]*>", xml)
+        return set(re.findall(r"xmlns:([A-Za-z0-9]+)=", kop.group(0) if kop else ""))
+
+
+class TestSjabloon(BriefpapierMixin, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.pad = SJABLOON
+        cls.xml, cls.namen = document_van(cls.pad)
+
+    def test_sjabloon_bestaat(self):
+        self.assertTrue(self.pad.is_file(), "draai eerst: python3 tools/maak_sjabloon.py")
+
+    def test_elke_lus_is_gesloten(self):
+        tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", self.xml))
+        self.assertEqual(tekst.count("{%p for"), tekst.count("{%p endfor %}"))
+        self.assertEqual(tekst.count("{%p if"), tekst.count("{%p endif %}"))
+
+    def test_verwijst_alleen_naar_bestaande_secties(self):
+        tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", self.xml))
+        genoemd = set(re.findall(r"secties\.(\w+)", tekst))
+        bestaand = {b.sectie for b in laad(WORTEL).blokken}
+        self.assertTrue(genoemd <= bestaand, f"onbekende secties: {genoemd - bestaand}")
+
+
+class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
+    """Schrijft echt een .docx en leest hem terug."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tempfile
+        cls.map = tempfile.TemporaryDirectory()
+        cls.pad = schrijf_docx(brief("zakelijk-cassette-meervoud.yaml"),
+                               SJABLOON, Path(cls.map.name) / "brief.docx")
+        cls.xml, cls.namen = document_van(cls.pad)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.map.cleanup()
+
+    def regels(self):
+        uit = []
+        for alinea in re.findall(r"<w:p\b.*?</w:p>|<w:p\b[^>]*/>", self.xml, re.S):
+            delen = re.findall(r"<w:t[^>]*>([^<]*)</w:t>|(<w:tab/>)", alinea)
+            uit.append("".join(t or "\t" for t, _ in
+                               [(a, b) for a, b in delen]))
+        return uit
+
+    def test_geen_sjabloontags_meer_over(self):
+        tekst = "".join(self.regels())
+        self.assertNotIn("{{", tekst)
+        self.assertNotIn("{%", tekst)
+
+    def test_witregels_tussen_de_secties(self):
+        # Een zelfsluitende <w:p /> werd eerder door het tagpatroon opgeslokt,
+        # waardoor de brief één doorlopend blok tekst werd.
+        self.assertGreater(len([r for r in self.regels() if not r.strip()]), 10)
+
+    def test_tabs_zijn_word_tabs_geworden(self):
+        losse = [t for t in re.findall(r"<w:t[^>]*>([^<]*)</w:t>", self.xml) if "\t" in t]
+        self.assertEqual(losse, [], "er staan nog tabtekens in de tekst")
+        self.assertIn("<w:tab/>", self.xml)
+
+    def test_betreft_en_termijnen_zijn_uitgelijnd(self):
+        regels = self.regels()
+        self.assertTrue(any(r.startswith("Betreft\t") for r in regels))
+        self.assertTrue(any(r.startswith("\t\t") for r in regels), "termijnen niet ingesprongen")
+
+    def test_opsommingen_hebben_de_lijststijl(self):
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            if "betonboringen, hak-" in alinea:
+                self.assertIn('w:val="Lijstalinea"', alinea)
+                return
+        self.fail("de opsommingsregel is niet gevonden")
+
+    def test_de_brief_bevat_de_juiste_inhoud(self):
+        tekst = "\n".join(self.regels())
+        for verwacht in ["Voorbeeld Vastgoed B.V.", "exclusief 21% btw", "€ 24.750,- netto",
+                         "Kredietwaardigheid:", "De binnenunits zijn", "John van de Weetering"]:
+            self.assertIn(verwacht, tekst)
 
 
 class TestContext(unittest.TestCase):
@@ -31,23 +185,17 @@ class TestContext(unittest.TestCase):
         cls.c = context(brief())
 
     def test_romp_slaat_de_briefkop_over(self):
-        # De briefkop staat los in het sjabloon; die mag niet dubbel komen.
-        namen = [n for n, a in brief().secties.items() if a]
-        romp_namen = [n for n in namen if n not in KOPSECTIES]
-        self.assertEqual(len(self.c["romp"]), len(romp_namen))
+        namen = [n for n, a in brief().secties.items() if a and n not in KOPSECTIES]
+        self.assertEqual(len(self.c["romp"]), len(namen))
 
     def test_romp_bevat_geen_lege_secties(self):
-        # Een lege sectie zou een lege regel in de brief opleveren.
         for sectie in self.c["romp"]:
             self.assertTrue(sectie)
 
     def test_romp_houdt_de_volgorde_aan(self):
-        eerste = self.c["romp"][0][0].tekst
-        self.assertTrue(eerste.startswith("Naar aanleiding"), eerste)
+        self.assertTrue(self.c["romp"][0][0].tekst.startswith("Naar aanleiding"))
 
     def test_geen_functies_in_de_context(self):
-        # telwoord() zit in de context voor de plaatshouders, maar docxtpl hoeft
-        # hem niet te krijgen.
         for waarde in self.c.values():
             self.assertFalse(callable(waarde))
 
@@ -57,18 +205,16 @@ class TestContext(unittest.TestCase):
 
 
 class TestParagraaftag(unittest.TestCase):
-    """Het patroon dat {%p ... %}-alinea's uit het sjabloon haalt."""
-
     def uitpakken(self, xml):
         return PARAGRAAFTAG.sub(lambda m: "{%" + m.group(1) + "%}", xml)
 
     def test_tagalinea_verdwijnt_de_tag_blijft(self):
-        xml = "<w:p><w:r><w:t>{%p endfor %}</w:t></w:r></w:p>"
-        self.assertEqual(self.uitpakken(xml), "{% endfor %}")
+        self.assertEqual(
+            self.uitpakken("<w:p><w:r><w:t>{%p endfor %}</w:t></w:r></w:p>"), "{% endfor %}")
 
     def test_zelfsluitende_lege_alinea_blijft_staan(self):
-        # Dit was een echte fout: <w:p /> heeft geen </w:p>, dus het patroon
-        # zocht door in de volgende alinea en slokte de witregel op.
+        # <w:p /> heeft geen </w:p>; zonder uitsluiting zocht het patroon door
+        # in de volgende alinea en verdween de witregel ertussen.
         xml = '<w:p /><w:p><w:r><w:t>{%p endfor %}</w:t></w:r></w:p>'
         self.assertEqual(self.uitpakken(xml), "<w:p />{% endfor %}")
 
@@ -77,168 +223,28 @@ class TestParagraaftag(unittest.TestCase):
         self.assertEqual(self.uitpakken(xml), xml)
 
     def test_alinea_met_gewone_plaatshouder_blijft_staan(self):
-        # {{ }} hoort in de alinea te blijven; alleen {%p %} haalt hem weg.
         xml = "<w:p><w:r><w:t>{{ a.tekst }}</w:t></w:r></w:p>"
         self.assertEqual(self.uitpakken(xml), xml)
 
 
 class TestTabs(unittest.TestCase):
-    def maak(self, tekst):
-        return ET.fromstring(
-            f'<w:r xmlns:w="{W}"><w:t xml:space="preserve">{tekst}</w:t></w:r>'
-        )
-
     def test_tab_wordt_een_word_tab(self):
-        run = self.maak("Betreft\tAirconditioning")
-        self.assertEqual(tabs_naar_word(run), 1)
-        self.assertEqual([k.tag.split("}")[1] for k in run], ["t", "tab", "t"])
-        self.assertEqual(run[0].text, "Betreft")
-        self.assertEqual(run[2].text, "Airconditioning")
+        uit = tabs_naar_word('<w:t xml:space="preserve">Betreft\tAirconditioning</w:t>')
+        self.assertEqual(
+            uit, '<w:t xml:space="preserve">Betreft</w:t><w:tab/>'
+                 '<w:t xml:space="preserve">Airconditioning</w:t>')
 
     def test_meerdere_tabs_achter_elkaar(self):
-        # De factureringstermijnen zijn met twee tabs uitgelijnd.
-        run = self.maak("\t\t70% bij aanvang werkzaamheden")
-        self.assertEqual(tabs_naar_word(run), 2)
-        self.assertEqual([k.tag.split("}")[1] for k in run], ["tab", "tab", "t"])
+        uit = tabs_naar_word('<w:t>\t\t70% bij aanvang</w:t>')
+        self.assertEqual(uit, '<w:tab/><w:tab/><w:t xml:space="preserve">70% bij aanvang</w:t>')
 
     def test_tekst_zonder_tabs_blijft_ongemoeid(self):
-        run = self.maak("Geachte heer Jansen,")
-        self.assertEqual(tabs_naar_word(run), 0)
-        self.assertEqual(len(run), 1)
-        self.assertEqual(run[0].text, "Geachte heer Jansen,")
+        xml = "<w:t>Geachte heer Jansen,</w:t>"
+        self.assertEqual(tabs_naar_word(xml), xml)
 
     def test_spaties_blijven_behouden(self):
-        run = self.maak("Facturering:\t30% bij opdracht ")
-        tabs_naar_word(run)
-        laatste = run[-1]
-        self.assertEqual(laatste.get("{http://www.w3.org/XML/1998/namespace}space"), "preserve")
-        self.assertTrue(laatste.text.endswith(" "))
-
-
-class TestSjabloonbestand(unittest.TestCase):
-    """Het gemaakte sjabloon moet de huisstijl van de bronbrief behouden."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.pad = WORTEL / "sjablonen" / "brief.docx"
-
-    def test_sjabloon_bestaat(self):
-        self.assertTrue(self.pad.is_file(),
-                        "draai eerst: python3 tools/maak_sjabloon.py")
-
-    def test_briefpapier_is_meegekomen(self):
-        with zipfile.ZipFile(self.pad) as z:
-            namen = z.namelist()
-        self.assertTrue([n for n in namen if n.startswith("word/media/")], "afbeeldingen ontbreken")
-        self.assertTrue([n for n in namen if "header" in n], "briefkop ontbreekt")
-        self.assertTrue([n for n in namen if "footer" in n], "voettekst ontbreekt")
-        self.assertIn("word/styles.xml", namen)
-
-    def test_is_een_document_en_geen_sjabloon(self):
-        # Een .dotx opent Word als "nieuw document op basis van"; dat willen we niet.
-        with zipfile.ZipFile(self.pad) as z:
-            types = z.read("[Content_Types].xml").decode("utf-8")
-        self.assertIn("wordprocessingml.document.main+xml", types)
-        self.assertNotIn("wordprocessingml.template.main+xml", types)
-
-    def test_paginainstellingen_zijn_bewaard(self):
-        with zipfile.ZipFile(self.pad) as z:
-            body = ET.fromstring(z.read("word/document.xml")).find(Wq + "body")
-        sectpr = body.find(Wq + "sectPr")
-        self.assertIsNotNone(sectpr, "sectPr ontbreekt: marges en kop-/voetteksten zijn weg")
-        self.assertIsNotNone(sectpr.find(Wq + "pgSz"))
-
-    def test_elke_lus_is_gesloten(self):
-        import zipfile
-        with zipfile.ZipFile(self.pad) as z:
-            tekst = "".join(
-                t.text or "" for t in ET.fromstring(z.read("word/document.xml")).iter(Wq + "t")
-            )
-        self.assertEqual(tekst.count("{%p for"), tekst.count("{%p endfor %}"))
-        self.assertEqual(tekst.count("{%p if"), tekst.count("{%p endif %}"))
-
-    def test_sjabloon_verwijst_naar_bestaande_secties(self):
-        import re
-        with zipfile.ZipFile(self.pad) as z:
-            tekst = "".join(
-                t.text or "" for t in ET.fromstring(z.read("word/document.xml")).iter(Wq + "t")
-            )
-        genoemd = set(re.findall(r"secties\.(\w+)", tekst))
-        bestaand = {b.sectie for b in laad(WORTEL).blokken}
-        self.assertTrue(genoemd <= bestaand, f"onbekende secties: {genoemd - bestaand}")
-
-
-class TestGeschrevenDocument(unittest.TestCase):
-    """Schrijft echt een .docx en leest hem terug."""
-
-    @classmethod
-    def setUpClass(cls):
-        import tempfile
-        cls.map = tempfile.TemporaryDirectory()
-        cls.pad = schrijf_docx(brief("zakelijk-cassette-meervoud.yaml"),
-                               WORTEL / "sjablonen" / "brief.docx",
-                               Path(cls.map.name) / "brief.docx")
-        with zipfile.ZipFile(cls.pad) as z:
-            cls.namen = z.namelist()
-            cls.body = ET.fromstring(z.read("word/document.xml")).find(Wq + "body")
-        cls.alineas = cls.body.findall(Wq + "p")
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.map.cleanup()
-
-    def regels(self):
-        uit = []
-        for alinea in self.alineas:
-            delen = []
-            for kind in alinea.iter():
-                if kind.tag == Wq + "t":
-                    delen.append(kind.text or "")
-                elif kind.tag == Wq + "tab":
-                    delen.append("\t")
-            uit.append("".join(delen))
-        return uit
-
-    def test_geen_sjabloontags_meer_over(self):
-        tekst = "".join(self.regels())
-        self.assertNotIn("{{", tekst)
-        self.assertNotIn("{%", tekst)
-
-    def test_briefpapier_is_meegekomen(self):
-        self.assertTrue([n for n in self.namen if n.startswith("word/media/")])
-        self.assertTrue([n for n in self.namen if "header" in n])
-        self.assertIsNotNone(self.body.find(Wq + "sectPr"))
-
-    def test_witregels_tussen_de_secties(self):
-        # Een zelfsluitende <w:p /> werd eerder door het tagpatroon opgeslokt,
-        # waardoor de brief één doorlopend blok tekst werd.
-        leeg = [r for r in self.regels() if not r.strip()]
-        self.assertGreater(len(leeg), 10, "de witregels tussen de secties zijn weg")
-
-    def test_tabs_zijn_word_tabs_geworden(self):
-        losse_tabs = [t.text for t in self.body.iter(Wq + "t") if t.text and "\t" in t.text]
-        self.assertEqual(losse_tabs, [], "er staan nog tabtekens in de tekst")
-        self.assertTrue([1 for _ in self.body.iter(Wq + "tab")], "geen enkele Word-tab")
-
-    def test_betreft_en_termijnen_zijn_uitgelijnd(self):
-        regels = self.regels()
-        self.assertTrue(any(r.startswith("Betreft\t") for r in regels))
-        self.assertTrue(any(r.startswith("\t\t") for r in regels), "termijnen niet ingesprongen")
-
-    def test_opsommingen_hebben_de_lijststijl(self):
-        stijlen = []
-        for alinea in self.alineas:
-            tekst = "".join(t.text or "" for t in alinea.iter(Wq + "t"))
-            if tekst.startswith("betonboringen, hak-"):
-                ppr = alinea.find(Wq + "pPr")
-                stijlen.append(ppr.find(Wq + "pStyle").get(Wq + "val") if ppr is not None else None)
-        self.assertEqual(stijlen, ["Lijstalinea"])
-
-    def test_de_brief_bevat_de_juiste_inhoud(self):
-        tekst = "\n".join(self.regels())
-        for verwacht in ["Voorbeeld Vastgoed B.V.", "exclusief 21% btw", "€ 24.750,- netto",
-                         "Kredietwaardigheid:", "De binnenunits zijn", "John van de Weetering"]:
-            self.assertIn(verwacht, tekst)
+        uit = tabs_naar_word("<w:t>Facturering:\t30% bij opdracht </w:t>")
+        self.assertIn('xml:space="preserve">30% bij opdracht </w:t>', uit)
 
 
 if __name__ == "__main__":

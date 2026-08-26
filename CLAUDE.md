@@ -82,12 +82,28 @@ stijlen blijven die van Schilt. Verandert de huisstijl, draai het script dan
 opnieuw — bewerk `sjablonen/brief.docx` niet in Word.
 
 `sjabloon.py` vult dat sjabloon zelf in: een .docx is een zip met XML, dus
-Jinja over `word/document.xml` en weer inpakken. Twee dingen daarin zijn
-subtiel en hebben allebei een test: een alinea die alleen een `{%p ... %}`-tag
-bevat wordt zelf verwijderd (maar een zelfsluitende `<w:p />` mag niet worden
-opgeslokt, anders verdwijnen de witregels tussen de secties), en tabtekens uit
-de gegevens moeten na het invullen worden omgezet in `<w:tab/>`, anders toont
-Word ze als spatie en lopen de betreft-regel en de factureringstermijnen scheef.
+Jinja over `word/document.xml` en weer inpakken.
+
+**Lees `word/document.xml` nooit in met een XML-lezer om het daarna opnieuw weg
+te schrijven.** Het hoofdelement declareert 35 namespaces en somt er in
+`mc:Ignorable` tien van op. Een lezer hernoemt de prefixen die hij zelf niet
+tegenkomt, waarna `mc:Ignorable` naar prefixen wijst die niet meer bestaan en
+Word het bestand als beschadigd beschouwt. Zowel `maak_sjabloon.py` als
+`sjabloon.py` doen daarom tekstbewerking op de ruwe bytes en laten alles buiten
+de body ongemoeid. Er staan vier tests op, die zowel het sjabloon als een
+gemaakte brief vergelijken met de bronbrief.
+
+Wat daaraan hangt: `headerReference type="first"` wijst naar `header1.xml` met
+de Schilt-gegevens rechtsboven op pagina 1, `footerReference type="first"` naar
+`footer3.xml`, en `titlePg` zet aan dat pagina 1 die afwijkende kop en voet
+gebruikt. Alle afbeeldingen zitten in de kop- en voetteksten, niet in de body.
+
+Twee andere dingen zijn subtiel en hebben allebei een test: een alinea die
+alleen een `{%p ... %}`-tag bevat wordt zelf verwijderd (maar een zelfsluitende
+`<w:p />` mag niet worden opgeslokt, anders verdwijnen de witregels tussen de
+secties), en tabtekens uit de gegevens moeten na het invullen worden omgezet in
+`<w:tab/>`, anders toont Word ze als spatie en lopen de betreft-regel en de
+factureringstermijnen scheef.
 
 De afhankelijkheden zijn PyYAML en Jinja2, allebei pure Python. Er is met opzet
 geen Word-bibliotheek nodig: die bestaan vooral om tags te repareren die Word

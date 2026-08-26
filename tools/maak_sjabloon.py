@@ -16,14 +16,10 @@ te onderhouden: draai dit script opnieuw als de huisstijl verandert.
 from __future__ import annotations
 
 import argparse
-import shutil
+import re
 import zipfile
 from pathlib import Path
-from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape
-
-W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-Wq = f"{{{W}}}"
 
 # De stijl-id's zoals ze in de bronsjablonen heten. Nederlandstalig, want de
 # sjablonen zijn in een Nederlandse Word gemaakt.
@@ -100,24 +96,7 @@ def bouw(bron: Path, doel: Path) -> Path:
     with zipfile.ZipFile(bron) as zip_in:
         onderdelen = {naam: zip_in.read(naam) for naam in zip_in.namelist()}
 
-    document = ET.fromstring(onderdelen["word/document.xml"])
-    body = document.find(Wq + "body")
-    if body is None:
-        raise SystemExit(f"{bron} heeft geen body")
-
-    # De sectPr onderaan de body bewaart paginaformaat, marges en de verwijzingen
-    # naar de kop- en voetteksten. Die moet blijven staan.
-    sectpr = body.find(Wq + "sectPr")
-    for kind in list(body):
-        body.remove(kind)
-
-    ET.register_namespace("w", W)
-    for knoop in ET.fromstring(f'<w:root xmlns:w="{W}">{sjabloonbody()}</w:root>'):
-        body.append(knoop)
-    if sectpr is not None:
-        body.append(sectpr)
-
-    onderdelen["word/document.xml"] = ET.tostring(document, encoding="UTF-8", xml_declaration=True)
+    onderdelen["word/document.xml"] = _vervang_body(onderdelen["word/document.xml"])
 
     # Een .dotx is een sjabloon; het resultaat moet een gewoon document zijn,
     # anders opent Word het als "nieuw document op basis van".
@@ -129,6 +108,36 @@ def bouw(bron: Path, doel: Path) -> Path:
         for naam, inhoud in onderdelen.items():
             zip_uit.writestr(naam, inhoud)
     return doel
+
+
+def _vervang_body(document_xml: bytes) -> bytes:
+    """Zet de lussen in de body en laat de rest van het bestand ongemoeid.
+
+    Dit gebeurt met tekstbewerking en niet door de XML in te lezen en opnieuw
+    weg te schrijven. Het hoofdelement van een Word-document declareert 35
+    namespaces en somt er in mc:Ignorable een aantal van op; een XML-lezer
+    hernoemt de prefixen die hij zelf niet tegenkomt, waarna mc:Ignorable naar
+    prefixen wijst die niet meer bestaan en Word het bestand als beschadigd
+    beschouwt. Alles buiten de body blijft daarom byte voor byte gelijk --
+    inclusief de verwijzingen naar de briefkop, de voetteksten en titlePg, die
+    samen de eerste pagina met de Schilt-gegevens rechtsboven opmaken.
+    """
+    opening = re.search(rb"<w:body[^>]*>", document_xml)
+    if not opening:
+        raise SystemExit("geen <w:body> gevonden")
+    einde = document_xml.rfind(b"</w:body>")
+    if einde == -1:
+        raise SystemExit("geen </w:body> gevonden")
+
+    # De sectPr onderaan de body bewaart paginaformaat, marges, titlePg en de
+    # verwijzingen naar de kop- en voetteksten. Die moet blijven staan.
+    sectpr = document_xml.rfind(b"<w:sectPr", opening.end(), einde)
+    staart = document_xml[sectpr:einde] if sectpr != -1 else b""
+
+    return (document_xml[:opening.end()]
+            + sjabloonbody().encode("utf-8")
+            + staart
+            + document_xml[einde:])
 
 
 def main() -> int:

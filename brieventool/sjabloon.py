@@ -20,13 +20,9 @@ import re
 import zipfile
 from pathlib import Path
 from typing import Any
-from xml.etree import ElementTree as ET
 
 from .samenstellen import Brief
 
-W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-Wq = f"{{{W}}}"
-XML_SPACE = "{http://www.w3.org/XML/1998/namespace}space"
 DOCUMENT = "word/document.xml"
 
 # Deze secties staan los in het sjabloon omdat ze een eigen plaats of
@@ -42,6 +38,9 @@ KOPSECTIES = ("geadresseerde", "betreft", "kenmerken", "aanhef")
 PARAGRAAFTAG = re.compile(
     r"<w:p\b[^>]*(?<!/)>(?:(?!</w:p>).)*?\{%p(.+?)%\}.*?</w:p>", re.S
 )
+
+# De tekstinhoud van een <w:t> bevat nooit andere elementen, dus dit is veilig.
+TEKSTELEMENT = re.compile(r"<w:t\b[^>]*>(?P<inhoud>[^<]*)</w:t>")
 
 
 class SjabloonFout(RuntimeError):
@@ -72,7 +71,15 @@ def schrijf_docx(brief: Brief, sjabloon: Path | str, doel: Path | str) -> Path:
 
 
 def vul_document(document_xml: bytes, gegevens: dict[str, Any]) -> bytes:
-    """Draait Jinja over word/document.xml en repareert de tabs."""
+    """Draait Jinja over word/document.xml en repareert de tabs.
+
+    Bewust zonder XML-lezer. Het hoofdelement van een Word-document declareert
+    tientallen namespaces en somt er in mc:Ignorable een aantal van op; opnieuw
+    wegschrijven hernoemt prefixen en maakt die opsomming ongeldig, waarna Word
+    het bestand als beschadigd beschouwt. Zo blijft alles buiten de body -- de
+    briefkop met de Schilt-gegevens, de voetteksten en de afbeeldingen -- gelijk
+    aan het sjabloon.
+    """
     try:
         from jinja2 import Environment, StrictUndefined
     except ImportError as fout:
@@ -80,8 +87,9 @@ def vul_document(document_xml: bytes, gegevens: dict[str, Any]) -> bytes:
             "jinja2 is niet geïnstalleerd. Draai eerst: pip install -r requirements.txt"
         ) from fout
 
-    xml = _voeg_tekstdelen_samen(document_xml).decode("utf-8")
-    xml = PARAGRAAFTAG.sub(lambda m: "{%" + m.group(1) + "%}", xml)
+    xml = document_xml.decode("utf-8")
+    _controleer_tags(xml)
+    xml = PARAGRAAFTAG.sub(lambda treffer: "{%" + treffer.group(1) + "%}", xml)
 
     omgeving = Environment(autoescape=True, undefined=StrictUndefined,
                            keep_trailing_newline=True)
@@ -90,10 +98,22 @@ def vul_document(document_xml: bytes, gegevens: dict[str, Any]) -> bytes:
     except Exception as fout:
         raise SjabloonFout(f"het sjabloon kon niet worden ingevuld: {fout}") from fout
 
-    wortel = ET.fromstring(ingevuld)
-    tabs_naar_word(wortel)
-    ET.register_namespace("w", W)
-    return ET.tostring(wortel, encoding="UTF-8", xml_declaration=True)
+    return tabs_naar_word(ingevuld).encode("utf-8")
+
+
+def _controleer_tags(xml: str) -> None:
+    """Waarschuwt als Word een sjabloontag over meerdere tekstdelen heeft geknipt.
+
+    Dat gebeurt zodra iemand sjablonen/brief.docx in Word bewerkt en opslaat.
+    Jinja herkent de tag dan niet meer en laat hem stilzwijgend staan, waarna
+    de tekst in de brief belandt.
+    """
+    gebroken = re.search(r"\{[{%][^}%]*?<", xml)
+    if gebroken:
+        raise SjabloonFout(
+            "een sjabloontag is door Word opgeknipt en werkt niet meer. "
+            "Maak het sjabloon opnieuw met: python3 tools/maak_sjabloon.py"
+        )
 
 
 def context(brief: Brief) -> dict[str, Any]:
@@ -114,61 +134,24 @@ def context(brief: Brief) -> dict[str, Any]:
     return gegevens
 
 
-def tabs_naar_word(wortel) -> int:
+def tabs_naar_word(xml: str) -> str:
     """Zet tabtekens in de ingevulde tekst om in echte Word-tabs.
 
     Een tab die uit de gegevens komt belandt als los teken in een <w:t> en wordt
     door Word als spatie weergegeven. De betreft-regel en de uitlijning van de
-    factureringstermijnen hangen daarvan af, dus splitsen we die tekst achteraf
-    op in <w:t>- en <w:tab>-elementen. Geeft terug hoeveel tabs zijn omgezet.
+    factureringstermijnen hangen daarvan af, dus splitsen we die tekst op in
+    <w:t>- en <w:tab>-elementen.
     """
-    omgezet = 0
-    for run in wortel.iter(Wq + "r"):
-        kinderen = list(run)
-        if not any(k.tag == Wq + "t" and k.text and "\t" in k.text for k in kinderen):
-            continue
-        vervanging: list[Any] = []
-        for kind in kinderen:
-            if kind.tag == Wq + "t" and kind.text and "\t" in kind.text:
-                stukken = kind.text.split("\t")
-                omgezet += len(stukken) - 1
-                for nummer, stuk in enumerate(stukken):
-                    if nummer:
-                        vervanging.append(ET.Element(Wq + "tab"))
-                    if stuk:
-                        tekst = ET.Element(Wq + "t")
-                        tekst.set(XML_SPACE, "preserve")
-                        tekst.text = stuk
-                        vervanging.append(tekst)
-            else:
-                vervanging.append(kind)
-        for kind in kinderen:
-            run.remove(kind)
-        for kind in vervanging:
-            run.append(kind)
-    return omgezet
+    def splits(treffer: re.Match[str]) -> str:
+        inhoud = treffer.group("inhoud")
+        if "\t" not in inhoud:
+            return treffer.group(0)
+        delen: list[str] = []
+        for nummer, stuk in enumerate(inhoud.split("\t")):
+            if nummer:
+                delen.append("<w:tab/>")
+            if stuk:
+                delen.append(f'<w:t xml:space="preserve">{stuk}</w:t>')
+        return "".join(delen)
 
-
-def _voeg_tekstdelen_samen(document_xml: bytes) -> bytes:
-    """Voegt opeenvolgende <w:t> binnen één alinea samen.
-
-    Word knipt tekst die je met de hand intypt op in losse stukken, waardoor een
-    tag als {{ a.tekst }} over meerdere elementen verspreid kan raken en Jinja
-    hem niet meer herkent. Ons sjabloon wordt door een script gemaakt en heeft
-    dat probleem niet, maar dit maakt het bestand ook bestand tegen een
-    handmatige bewerking in Word.
-    """
-    wortel = ET.fromstring(document_xml)
-    for alinea in wortel.iter(Wq + "p"):
-        tekstdelen = [t for r in alinea.findall(Wq + "r") for t in r.findall(Wq + "t")]
-        if len(tekstdelen) < 2:
-            continue
-        volledig = "".join(t.text or "" for t in tekstdelen)
-        if "{{" not in volledig and "{%" not in volledig:
-            continue
-        tekstdelen[0].text = volledig
-        tekstdelen[0].set(XML_SPACE, "preserve")
-        for overtollig in tekstdelen[1:]:
-            overtollig.text = ""
-    ET.register_namespace("w", W)
-    return ET.tostring(wortel, encoding="UTF-8", xml_declaration=True)
+    return TEKSTELEMENT.sub(splits, xml)

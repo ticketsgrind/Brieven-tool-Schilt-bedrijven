@@ -254,6 +254,16 @@ spatie), `€ 1.265.000,-`, `€ 220,-`.
 > tool overgaat op `€ 4.995,00`, of houden we jullie eigen `€ 4.995,-` aan? Ik
 > neig naar het laatste, want dat is wat klanten van jullie gewend zijn.
 
+### De privacylink is niet meer klikbaar
+
+In de bronbrief is `www.schiltbedrijven.nl/privacyverklaring` in de laatste
+alinea een echte hyperlink. De tekst van die alinea staat nu in `teksten.yaml`
+als gewone tekst, dus in de gemaakte brief is het geen link meer. In de voettekst
+staat hij nog wel, want die is onaangeroerd.
+
+> **Vraag 23.** Moet die link in de lopende tekst klikbaar blijven? Zo ja, dan
+> bouw ik hem terug in; het is een kleine toevoeging aan het sjabloon.
+
 ### Inconsistentie 11 — koppen zijn de ene keer vet en de andere keer niet
 
 Bij het maken van het Word-sjabloon bleek dat de bronbrief zelf niet consequent
