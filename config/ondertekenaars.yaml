@@ -1,0 +1,48 @@
+# Ondertekenaars van de offertebrieven.
+#
+# Een nieuwe collega toevoegen is één blok hieronder erbij — er hoeft geen code
+# aangepast te worden. De sleutel (bijv. nick_vervoorn) is de waarde die de tool
+# in het keuzemenu gebruikt.
+#
+# LET OP: alleen de namen zijn bekend. De overige velden konden nog niet uit de
+# bronbrieven gehaald worden omdat die map leeg was — zie analyse/vragen.md §0.
+# Velden met een lege waarde en de notitie "nog-in-te-vullen" moeten nog
+# gecontroleerd of aangevuld worden.
+
+ondertekenaars:
+
+  nick_vervoorn:
+    naam: "Nick Vervoorn"
+    functie: null            # nog-in-te-vullen: uit de bronbrieven halen
+    telefoon: null           # nog-in-te-vullen
+    mobiel: null             # nog-in-te-vullen; niet iedereen heeft er een in de brief staan
+    email: null              # nog-in-te-vullen
+    handtekening: null       # nog-in-te-vullen: pad naar afbeelding, of null
+
+  john_van_de_wetering:
+    naam: "John van de Wetering"
+    functie: null            # nog-in-te-vullen
+    telefoon: null           # nog-in-te-vullen
+    mobiel: null             # nog-in-te-vullen
+    email: null              # nog-in-te-vullen
+    handtekening: null       # nog-in-te-vullen
+
+  ricardo_rozendaal:
+    naam: "Ricardo Rozendaal"
+    functie: null            # nog-in-te-vullen
+    telefoon: null           # nog-in-te-vullen
+    mobiel: null             # nog-in-te-vullen
+    email: null              # nog-in-te-vullen
+    handtekening: null       # nog-in-te-vullen
+
+# Gegevens die voor iedereen gelijk zijn horen hier, niet per persoon.
+# Ook deze zijn nog niet geverifieerd tegen de bronbrieven.
+bedrijf:
+  naam: "Schilt Airconditioning"
+  adres: null                # nog-in-te-vullen
+  postcode_plaats: null      # nog-in-te-vullen
+  telefoon: null             # nog-in-te-vullen
+  email: null                # nog-in-te-vullen
+  website: null              # nog-in-te-vullen
+  kvk: null                  # nog-in-te-vullen
+  btw_nummer: null           # nog-in-te-vullen

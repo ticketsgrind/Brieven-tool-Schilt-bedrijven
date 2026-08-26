@@ -1,0 +1,12 @@
+# Uitvoer van het uitleesscript — regenereerbaar uit bronbrieven/
+analyse/_extract/
+
+# Word-tijdelijke bestanden
+~$*
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.DS_Store

@@ -1,0 +1,38 @@
+# Tekstblokkenbibliotheek
+#
+# STATUS: LEEG — nog geen bronbrieven beschikbaar.
+#
+# De map bronbrieven/ was leeg, dus er valt nog niets over te nemen. Er staan
+# hier bewust geen voorbeeldblokken in: teksten in dit bestand belanden
+# uiteindelijk letterlijk in offertes naar klanten, en een verzonnen garantie- of
+# betalingsalinea die per ongeluk blijft staan is een reeel risico.
+#
+# Zie analyse/vragen.md §0.
+#
+# ---------------------------------------------------------------------------
+# Schema dat elk blok straks krijgt
+# ---------------------------------------------------------------------------
+#
+#   - id:          unieke sleutel, snake_case
+#     sectie:      naam van de sectie uit skelet.md
+#     omschrijving: korte omschrijving in gewone taal; wordt het label in het
+#                   keuzemenu wanneer het blok een keuzevariant is
+#     voorwaarde:  Jinja-achtige expressie, of leeg wanneer het blok altijd meegaat
+#     bron:        bestandsnaam/namen van de brieven waar dit blok uit komt
+#     tekst:       de letterlijke tekst, met {{ variabele }}-placeholders
+#
+# Voorbeeld van de vorm (NIET onze tekst — puur ter illustratie van het schema,
+# afkomstig uit de opdrachtomschrijving):
+#
+#   - id: montage_buitenunit_muur
+#     sectie: werkzaamheden
+#     omschrijving: "Buitenunit aan de gevel op muurbeugel"
+#     voorwaarde: "opstelling == 'muurbeugel'"
+#     bron: nog-in-te-vullen.docx
+#     tekst: >
+#       De buitenunit wordt gemonteerd op een trillingsgedempte muurbeugel
+#       aan de gevel.
+#
+# ---------------------------------------------------------------------------
+
+blokken: []
