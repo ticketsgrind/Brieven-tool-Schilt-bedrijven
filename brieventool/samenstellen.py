@@ -41,8 +41,9 @@ class Alinea:
     welke Word-opmaak de alinea wordt weggeschreven.
     """
     tekst: str
-    stijl: str = "tekst"      # "tekst", "kop", "opsomming" of "prijs"
-    nadruk: str = ""          # bij stijl "prijs": het vette staartstuk
+    # "tekst", "kop" (onderstreept), "kopvet", "opsomming", "prijs" of "label"
+    stijl: str = "tekst"
+    nadruk: str = ""          # bij "prijs" het bedrag, bij "label" de inhoud
     blok_id: str = ""
     uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
     witregel_erna: bool = True
@@ -55,6 +56,8 @@ class Alinea:
         eigen opmaak worden. Voor alles wat de brief als tekst leest -- de
         controleweergave, de tests -- hoort de regel weer heel te zijn.
         """
+        if self.stijl == "label" and self.nadruk:
+            return f"{self.tekst}\t{self.nadruk}"
         return self.tekst + self.nadruk
 
     def __str__(self) -> str:
@@ -211,8 +214,10 @@ def _verwijst_naar_regel(blok: Tekstblok) -> bool:
     return "regel." in blok.voorwaarde or "regel." in blok.tekst
 
 
-KOPWOORDEN = {"Aanbieding", "Opdracht", "Tot slot", "TECHNISCHE SPECIFICATIES",
-              "Technische specificaties", "Uitgangspunten:", "Elektra:"}
+# Kopjes die in de bronbrieven vet staan in plaats van onderstreept.
+KOPPEN_VET = {"Aanbieding", "Opdracht", "Tot slot", "TECHNISCHE SPECIFICATIES",
+              "Technische specificaties", "Zie bijlage.", "Zie bijlagen.",
+              "Uitgangspunten:", "Elektra:"}
 
 
 def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
@@ -241,13 +246,19 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
             stijl, tekst = blok.stijl, kaal
         elif kaal.startswith("- "):
             stijl, tekst = "opsomming", kaal[2:].strip()
-        elif kaal in KOPWOORDEN or _is_kopregel(kaal):
+        elif kaal in KOPPEN_VET:
+            stijl, tekst = "kopvet", kaal
+        elif _is_kopregel(kaal):
             stijl, tekst = "kop", kaal
         else:
             stijl, tekst = "tekst", kaal
         nadruk = ""
         if stijl == "prijs":
             tekst, nadruk = _splits_bedrag(tekst)
+        elif stijl == "label" and "\t" in tekst:
+            # "Betreft\tAirconditioning ..." wordt een klein label plus de
+            # inhoud erachter; die twee hebben in de brieven eigen opmaak.
+            tekst, _, nadruk = tekst.partition("\t")
         uit.append(Alinea(tekst=tekst, stijl=stijl, nadruk=nadruk,
                           blok_id=blok.id, uitgelijnd=uitgelijnd))
     return uit
@@ -267,8 +278,14 @@ def _splits_bedrag(regel: str) -> tuple[str, str]:
 
 
 def _is_kopregel(regel: str) -> bool:
-    """Een korte regel die op een dubbele punt eindigt is een sectiekop."""
-    return regel.endswith(":") and len(regel) <= 40 and ". " not in regel
+    """Een korte regel die op een dubbele punt eindigt is een sectiekop.
+
+    De grens ligt op 45 tekens omdat de bronbrieven daar de scheiding leggen:
+    "Wij specificeren onze aanbieding als volgt:" (42) is een onderstreept
+    kopje, "Voor de prijsvorming zijn wij er van uitgegaan dat:" (51) is een
+    gewone aanloopzin.
+    """
+    return regel.endswith(":") and len(regel) <= 45 and ". " not in regel
 
 
 def _vul_in(blok: Tekstblok, context: Mapping[str, Any]) -> str:

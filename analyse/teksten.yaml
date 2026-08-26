@@ -47,6 +47,7 @@ blokken:
 
 - id: betreft
   sectie: betreft
+  stijl: label
   omschrijving: "Betreft-regel"
   voorwaarde: ""
   bron: alle sjablonen en alle uitgewerkte brieven
@@ -60,6 +61,7 @@ blokken:
 
 - id: kenmerken
   sectie: kenmerken
+  stijl: label
   voorwaarde: ""
   bron: alle sjablonen
   tekst: |
@@ -165,6 +167,7 @@ blokken:
 
 - id: spec_ruimte_kop
   sectie: specificatie
+  stijl: kopvet
   voorwaarde: "regel.ruimte"
   bron: uitgewerkt-3.docx, uitgewerkt-7.pdf
   tekst: "T.b.v. {{ regel.ruimte }}:"
@@ -625,6 +628,7 @@ blokken:
 
 - id: techspec_bijlage
   sectie: technische_specificaties
+  stijl: kopvet
   omschrijving: "Verwijzing naar een bijlage"
   voorwaarde: "technische_specificaties == 'zie_bijlage'"
   bron: uitgewerkt-4.docx, uitgewerkt-7.pdf

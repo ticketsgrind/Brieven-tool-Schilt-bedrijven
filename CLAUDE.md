@@ -111,6 +111,16 @@ of de brief er verzorgd uitziet:
   `numbering.xml`. Zonder die verwijzing staat de regel ingesprongen maar zonder
   teken ervoor.
 
+- *Kopjes.* Kopjes met een dubbele punt zijn **onderstreept**, niet vet.
+  `Aanbieding`, `Opdracht`, `Tot slot`, `TECHNISCHE SPECIFICATIES`, `Zie
+  bijlage` en de ruimtekopjes zijn **vet** (stijl `kopvet`). Een regel die op
+  een dubbele punt eindigt maar langer is dan 45 tekens is een aanloopzin en
+  blijft gewoon — zo scheiden de bronbrieven `Wij specificeren onze aanbieding
+  als volgt:` van `Voor de prijsvorming zijn wij er van uitgegaan dat:`.
+- *Labels in de briefkop.* Blokken met `stijl: label` (`betreft`, `kenmerken`)
+  worden bij de tab gesplitst: het label staat op 7 punten (`w:sz` 14) en de
+  inhoud op de gewone 9. Zonder dat verschil landt de tab anders en loopt de
+  regel scheef.
 - *Vette bedragen.* Bij een blok met `stijl: prijs` splitst de motor de regel
   bij het eurobedrag: de aanloopzin blijft gewoon, het bedrag tot en met
   `netto.` wordt vet. `Alinea.tekst` en `Alinea.nadruk` zijn daardoor twee

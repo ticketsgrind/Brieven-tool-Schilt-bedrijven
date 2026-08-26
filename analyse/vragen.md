@@ -287,9 +287,19 @@ verstuurde: vet is niet de hele zin maar het deel vanaf het eurobedrag tot en
 met `netto.`, bij de totaalprijs, de raamprijs en de meerprijzen voor coating en
 RAL-kleur. De condenswaterpompregel eindigt op `per stuk` en staat nergens vet.
 
-> **Vraag 22.** Blijft staan voor de koppen: horen `Totaalprijs:`, `Levering:`
-> en `Garantietermijn:` vet te zijn? In de bronbrief zijn ze dat niet, terwijl
-> `Betreft` en `Aanbieding` het wel zijn.
+**Beantwoord.** De opdrachtgever koos voor onderstrepen, wat overeenkomt met de
+bronbrieven. De regel is nu:
+
+| Vorm | Regels |
+|---|---|
+| onderstreept | de kopjes met dubbele punt: `Totaalprijs:`, `Levering:`, `Facturering en betaling:`, `Kredietwaardigheid:`, `Algemene voorwaarden:`, `Garantietermijn:`, `Aansprakelijkheid:`, `De installatie is aangeboden inclusief:`, `Niet tot onze werkzaamheden behoren:`, `Wij specificeren onze aanbieding als volgt:` |
+| vet | `Aanbieding`, `Opdracht`, `Tot slot`, `TECHNISCHE SPECIFICATIES`, `Zie bijlage`, de ruimtekopjes `T.b.v. …:` |
+| gewoon | `Voor de prijsvorming zijn wij er van uitgegaan dat:` — een aanloopzin, geen kopje |
+
+Ook nagemeten: in de betreft-regel staat het woord `Betreft` op 7 punten en niet
+vet, terwijl de inhoud erachter op 9 punten en vet staat. Bij `Meerkerk` staat
+het label eveneens op 7 punten en de datum gewoon. Zonder dat verschil in
+tekengrootte landt de tab anders en loopt de regel scheef.
 
 ### Inconsistentie 10 — ontbrekende meervoudsvormen
 

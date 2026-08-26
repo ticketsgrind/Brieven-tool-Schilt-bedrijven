@@ -31,12 +31,16 @@ STIJL_OPSOMMING = "Lijstalinea"
 # het streepje -- onzichtbaar bij een liggend streepje -- dus een volstaat.
 LIJST_ID = "3"
 
+# Tekengrootte van de labels "Betreft" en "Meerkerk", in halve punten.
+# De brieftekst staat op 18 (9 punt); deze labels op 14 (7 punt).
+LABEL_GROOTTE = "14"
+
 CT_SJABLOON = "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml"
 CT_DOCUMENT = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
 
 
 def alinea(tekst: str, *, stijl: str | None = None, vet: bool = False,
-           hangend: int | None = None) -> str:
+           onderstreept: bool = False, hangend: int | None = None) -> str:
     """Bouwt één <w:p>. `tekst` mag docxtpl-tags bevatten."""
     eigenschappen = ""
     if stijl or hangend is not None:
@@ -50,7 +54,8 @@ def alinea(tekst: str, *, stijl: str | None = None, vet: bool = False,
         # Met een leeg tekstelement erin, zodat de alinea niet als <w:p />
         # wordt weggeschreven; zie de uitleg bij PARAGRAAFTAG in sjabloon.py.
         return f'<w:p>{eigenschappen}<w:r><w:t xml:space="preserve"></w:t></w:r></w:p>'
-    opmaak = "<w:rPr><w:b/></w:rPr>" if vet else ""
+    kenmerken = ("<w:b/>" if vet else "") + ('<w:u w:val="single"/>' if onderstreept else "")
+    opmaak = f"<w:rPr>{kenmerken}</w:rPr>" if kenmerken else ""
     return (f"<w:p>{eigenschappen}<w:r>{opmaak}"
             f'<w:t xml:space="preserve">{escape(tekst)}</w:t></w:r></w:p>')
 
@@ -84,10 +89,25 @@ def prijsregel() -> str:
             '<w:t xml:space="preserve">{{ a.nadruk }}</w:t></w:r></w:p>')
 
 
-def kenmerkregel() -> str:
-    """Plaats en datum springen in; de regels eronder niet."""
-    return ('<w:p><w:pPr>{% if loop.first %}<w:ind w:hanging="851"/>{% endif %}</w:pPr>'
-            '<w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
+def labelregel(hangend: int, inhoud_vet: bool) -> str:
+    """Een regel met een klein label, een tab en de inhoud erachter.
+
+    Zo staan de betreft-regel en de regel met plaats en datum in de brieven:
+    het label ("Betreft", "Meerkerk") staat op 7 punten en hangt in de marge,
+    de inhoud staat op de gewone grootte achter een tab. Zonder dat verschil in
+    tekengrootte landt de tab anders en loopt de regel scheef.
+    """
+    inhoud_opmaak = "<w:rPr><w:b/></w:rPr>" if inhoud_vet else ""
+    return (
+        f'<w:p><w:pPr><w:ind w:hanging="{hangend}"/></w:pPr>'
+        f'<w:r><w:rPr><w:sz w:val="{LABEL_GROOTTE}"/></w:rPr>'
+        '<w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r>'
+        "{% if a.nadruk %}"
+        f'<w:r><w:rPr><w:sz w:val="{LABEL_GROOTTE}"/></w:rPr><w:tab/></w:r>'
+        f'<w:r>{inhoud_opmaak}<w:t xml:space="preserve">{{{{ a.nadruk }}}}</w:t></w:r>'
+        "{% endif %}"
+        "</w:p>"
+    )
 
 
 def sjabloonbody() -> str:
@@ -105,11 +125,15 @@ def sjabloonbody() -> str:
         "{%p endfor %}",
         leeg(6),
         "{%p for a in secties.betreft %}",
-        alinea("{{ a.tekst }}", vet=True, hangend=709),
+        labelregel(709, inhoud_vet=True),
         "{%p endfor %}",
         leeg(1),
         "{%p for a in secties.kenmerken %}",
-        kenmerkregel(),
+        "{%p if loop.first %}",
+        labelregel(851, inhoud_vet=False),
+        "{%p else %}",
+        alinea("{{ a.tekst }}"),
+        "{%p endif %}",
         "{%p if loop.first %}", leeg(1), "{%p endif %}",
         "{%p endfor %}",
         leeg(3),
@@ -122,6 +146,8 @@ def sjabloonbody() -> str:
         "{%p for sectie in romp %}",
         "{%p for a in sectie %}",
         "{%p if a.stijl == 'kop' %}",
+        alinea("{{ a.tekst }}", onderstreept=True),
+        "{%p elif a.stijl == 'kopvet' %}",
         alinea("{{ a.tekst }}", vet=True),
         "{%p elif a.stijl == 'opsomming' %}",
         opsommingsregel(),

@@ -233,6 +233,71 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
                 return
         self.fail("de condenswaterpompregel is niet gevonden")
 
+    # Nagemeten in bronbrieven/wand enkelvoud.dotx en de uitgewerkte brieven.
+    OPMAAK = {
+        "Wij specificeren onze aanbieding als volgt:": "onderstreept",
+        "De installatie is aangeboden inclusief:": "onderstreept",
+        "Niet tot onze werkzaamheden behoren:": "onderstreept",
+        "Totaalprijs:": "onderstreept",
+        "Levering:": "onderstreept",
+        "Facturering en betaling:": "onderstreept",
+        "Kredietwaardigheid:": "onderstreept",
+        "Algemene voorwaarden:": "onderstreept",
+        "Garantietermijn:": "onderstreept",
+        "Aansprakelijkheid:": "onderstreept",
+        "Aanbieding": "vet",
+        "Tot slot": "vet",
+        "TECHNISCHE SPECIFICATIES": "vet",
+        "Zie bijlage.": "vet",
+        # Een aanloopzin, geen kopje: die blijft gewoon.
+        "Voor de prijsvorming zijn wij er van uitgegaan dat:": "gewoon",
+    }
+
+    def test_kopjes_hebben_de_opmaak_uit_de_bronbrief(self):
+        gevonden = {}
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).strip()
+            if tekst not in self.OPMAAK:
+                continue
+            gevonden[tekst] = ("vet" if "<w:b/>" in alinea else
+                               "onderstreept" if "<w:u " in alinea else "gewoon")
+        ontbreekt = set(self.OPMAAK) - set(gevonden) - {"Zie bijlage.", "TECHNISCHE SPECIFICATIES"}
+        self.assertEqual(ontbreekt, set(), f"niet in de brief: {sorted(ontbreekt)}")
+        for tekst, verwacht in gevonden.items():
+            with self.subTest(tekst):
+                self.assertEqual(verwacht, self.OPMAAK[tekst])
+
+    def test_kopjes_met_dubbele_punt_zijn_niet_vet(self):
+        # De opdrachtgever wil ze onderstreept, niet vet.
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).strip()
+            if self.OPMAAK.get(tekst) == "onderstreept":
+                self.assertNotIn("<w:b/>", alinea, tekst)
+
+    def test_betreft_label_is_klein_en_de_inhoud_vet(self):
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            if not "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).startswith("Betreft"):
+                continue
+            runs = re.findall(r"<w:r\b.*?</w:r>", alinea, re.S)
+            label = next(r for r in runs if "Betreft" in r)
+            inhoud = next(r for r in runs if "Airconditioning" in r)
+            self.assertIn('<w:sz w:val="14"/>', label, "het label staat niet op 7 punten")
+            self.assertNotIn("<w:b/>", label, "het label hoort niet vet te zijn")
+            self.assertIn("<w:b/>", inhoud, "de inhoud hoort vet te zijn")
+            self.assertIn("<w:tab/>", alinea)
+            return
+        self.fail("de betreft-regel is niet gevonden")
+
+    def test_meerkerk_label_is_klein_en_de_datum_niet_vet(self):
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            if not "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).startswith("Meerkerk"):
+                continue
+            self.assertIn('<w:sz w:val="14"/>', alinea)
+            self.assertNotIn("<w:b/>", alinea)
+            self.assertIn("<w:tab/>", alinea)
+            return
+        self.fail("de regel met plaats en datum is niet gevonden")
+
     def test_de_brief_bevat_de_juiste_inhoud(self):
         tekst = "\n".join(self.regels())
         for verwacht in ["Voorbeeld Vastgoed B.V.", "exclusief 21% btw", "€ 24.750,- netto",
