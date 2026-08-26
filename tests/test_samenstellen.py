@@ -40,7 +40,7 @@ class TestParticuliereBrief(unittest.TestCase):
         self.assertEqual(self.brief.waarschuwingen, [])
 
     def test_btw_inclusief_bij_particulier(self):
-        prijs = "\n".join(self.brief.secties["prijs"])
+        prijs = "\n".join(self.brief.regels("prijs"))
         self.assertIn("inclusief 21% btw", prijs)
         self.assertNotIn("exclusief", prijs)
 
@@ -51,16 +51,16 @@ class TestParticuliereBrief(unittest.TestCase):
         self.assertIn("De buitenunit wordt geplaatst", tekst)
 
     def test_geen_kredietwaardigheid_bij_particulier(self):
-        self.assertNotIn("Kredietwaardigheid", "\n".join(self.brief.secties["voorwaarden"]))
+        self.assertNotIn("Kredietwaardigheid", "\n".join(self.brief.regels("voorwaarden")))
 
     def test_condenspomp_particulier_tarief(self):
-        self.assertIn("€ 260,- per stuk", "\n".join(self.brief.secties["prijs"]))
+        self.assertIn("€ 260,- per stuk", "\n".join(self.brief.regels("prijs")))
 
     def test_referentie_wordt_voorgesteld(self):
         self.assertEqual(self.brief.context["referentie"], "NV/LH/SA35923")
 
     def test_bedrag_in_nederlandse_notatie(self):
-        self.assertIn("€ 3.900,- netto", "\n".join(self.brief.secties["prijs"]))
+        self.assertIn("€ 3.900,- netto", "\n".join(self.brief.regels("prijs")))
 
     def test_geen_openstaande_plaatshouders(self):
         self.assertNotIn("{{", self.brief.tekst())
@@ -75,7 +75,7 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertEqual(self.brief.waarschuwingen, [])
 
     def test_btw_exclusief_bij_zakelijk(self):
-        self.assertIn("exclusief 21% btw", "\n".join(self.brief.secties["prijs"]))
+        self.assertIn("exclusief 21% btw", "\n".join(self.brief.regels("prijs")))
 
     def test_meervoud(self):
         tekst = self.brief.tekst()
@@ -84,15 +84,15 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertIn("De buitenunits worden geplaatst", tekst)
 
     def test_kredietwaardigheid_bij_zakelijk(self):
-        self.assertIn("Kredietwaardigheid", "\n".join(self.brief.secties["voorwaarden"]))
+        self.assertIn("Kredietwaardigheid", "\n".join(self.brief.regels("voorwaarden")))
 
     def test_condenspomp_zakelijk_tarief(self):
-        self.assertIn("€ 220,- per stuk", "\n".join(self.brief.secties["prijs"]))
+        self.assertIn("€ 220,- per stuk", "\n".join(self.brief.regels("prijs")))
 
     def test_installatieregels_staan_bij_hun_ruimte(self):
         # Kopregel en installatieregel horen te alterneren, niet eerst alle
         # kopregels en daarna alle installatieregels.
-        spec = self.brief.secties["specificatie"]
+        spec = self.brief.regels("specificatie")
         self.assertEqual(len(spec), 4)
         self.assertTrue(spec[0].startswith("T.b.v."))
         self.assertTrue(spec[1].startswith("Het leveren en monteren"))
@@ -100,11 +100,11 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertTrue(spec[3].startswith("Het leveren en monteren"))
 
     def test_telwoord_in_de_specificatie(self):
-        self.assertIn("twee luchtgekoelde splitsystem inverterunits", self.brief.secties["specificatie"][1])
-        self.assertIn("één luchtgekoelde splitsystem inverterunit ", self.brief.secties["specificatie"][3])
+        self.assertIn("twee luchtgekoelde splitsystem inverterunits", self.brief.regels("specificatie")[1])
+        self.assertIn("één luchtgekoelde splitsystem inverterunit ", self.brief.regels("specificatie")[3])
 
     def test_organisatie_boven_het_adres(self):
-        self.assertEqual(self.brief.secties["geadresseerde"][0], "Voorbeeld Vastgoed B.V.")
+        self.assertEqual(self.brief.regels("geadresseerde")[0], "Voorbeeld Vastgoed B.V.")
 
     def test_geen_openstaande_plaatshouders(self):
         self.assertNotIn("{{", self.brief.tekst())
@@ -117,12 +117,12 @@ class TestKeuzegroepen(unittest.TestCase):
         bib = laad(WORTEL)
         for naam in ("particulier-wand-enkelvoud.yaml", "zakelijk-cassette-meervoud.yaml"):
             with self.subTest(naam):
-                self.assertEqual(len(stel_samen(voorbeeld(naam), bib).secties["betreft"]), 1)
+                self.assertEqual(len(stel_samen(voorbeeld(naam), bib).regels("betreft")), 1)
 
     def test_eerste_woord_volgt_het_installatietype(self):
         offerte = voorbeeld("zakelijk-cassette-meervoud.yaml")
         offerte["installatietype"] = "koelmachine"
-        betreft = stel_samen(offerte, laad(WORTEL)).secties["betreft"]
+        betreft = stel_samen(offerte, laad(WORTEL)).regels("betreft")
         self.assertEqual(len(betreft), 1)
         self.assertIn("Koelmachine t.b.v.", betreft[0])
 
@@ -130,7 +130,7 @@ class TestKeuzegroepen(unittest.TestCase):
         bib = laad(WORTEL)
         for naam in ("particulier-wand-enkelvoud.yaml", "zakelijk-cassette-meervoud.yaml"):
             with self.subTest(naam):
-                self.assertEqual(len(stel_samen(voorbeeld(naam), bib).secties["aanleiding"]), 1)
+                self.assertEqual(len(stel_samen(voorbeeld(naam), bib).regels("aanleiding")), 1)
 
 
 class TestWaarschuwingen(unittest.TestCase):

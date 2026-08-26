@@ -19,6 +19,9 @@ passende blokken en levert een Word-bestand op.
 ## Commando's
 
 ```bash
+# Het Word-sjabloon (opnieuw) maken uit een bronbrief
+python3 tools/maak_sjabloon.py
+
 # Een brief samenstellen en de tekst tonen
 python3 -m brieventool voorbeelden/particulier-wand-enkelvoud.yaml
 python3 -m brieventool <offerte>.yaml --blokken          # toon gebruikte blok-id's
@@ -72,9 +75,23 @@ komen eerst alle ruimtekopjes en daarna pas alle installatieregels.
 die past wint. De volgorde in `teksten.yaml` is dus de voorrangsvolgorde, met de
 meest algemene variant onderaan als terugval.
 
-**Alleen `sjabloon.py` heeft een externe afhankelijkheid** (docxtpl). De rest en
-alle tests draaien op de standaardbibliotheek plus pyyaml, zodat de logica overal
-te draaien en te testen is.
+**Het Word-sjabloon wordt gegenereerd, niet met de hand gemaakt.**
+`tools/maak_sjabloon.py` neemt een bronbrief uit `bronbrieven/`, gooit de body
+leeg en zet er Jinja-lussen in; briefkop, voettekst, afbeeldingen, marges en
+stijlen blijven die van Schilt. Verandert de huisstijl, draai het script dan
+opnieuw — bewerk `sjablonen/brief.docx` niet in Word.
+
+`sjabloon.py` vult dat sjabloon zelf in: een .docx is een zip met XML, dus
+Jinja over `word/document.xml` en weer inpakken. Twee dingen daarin zijn
+subtiel en hebben allebei een test: een alinea die alleen een `{%p ... %}`-tag
+bevat wordt zelf verwijderd (maar een zelfsluitende `<w:p />` mag niet worden
+opgeslokt, anders verdwijnen de witregels tussen de secties), en tabtekens uit
+de gegevens moeten na het invullen worden omgezet in `<w:tab/>`, anders toont
+Word ze als spatie en lopen de betreft-regel en de factureringstermijnen scheef.
+
+De afhankelijkheden zijn PyYAML en Jinja2, allebei pure Python. Er is met opzet
+geen Word-bibliotheek nodig: die bestaan vooral om tags te repareren die Word
+verspreidt bij handmatig typen, en ons sjabloon wordt gegenereerd.
 
 **`ontwerp/prototype.html`** heeft de bibliotheek ingebakken en spiegelt
 `samenstellen.py` in JavaScript. Wijzig je de selectielogica in Python, werk dan

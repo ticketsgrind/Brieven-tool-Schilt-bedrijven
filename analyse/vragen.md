@@ -254,6 +254,28 @@ spatie), `€ 1.265.000,-`, `€ 220,-`.
 > tool overgaat op `€ 4.995,00`, of houden we jullie eigen `€ 4.995,-` aan? Ik
 > neig naar het laatste, want dat is wat klanten van jullie gewend zijn.
 
+### Inconsistentie 11 — koppen zijn de ene keer vet en de andere keer niet
+
+Bij het maken van het Word-sjabloon bleek dat de bronbrief zelf niet consequent
+is in welke sectiekoppen vet staan:
+
+| Regel | In `wand enkelvoud.dotx` |
+|---|---|
+| `Betreft ...` | vet |
+| `Aanbieding` | vet |
+| `Totaalprijs:` | niet vet |
+| `Levering:` | niet vet |
+| `Garantietermijn:` | niet vet |
+| `De totaalprijs compleet geleverd en gemonteerd bedraagt € … netto.` | **vet** |
+
+Het sjabloon zet nu alle sectiekoppen vet, omdat dat het meest verzorgd oogt en
+de brief leesbaarder maakt.
+
+> **Vraag 22.** Klopt dat, of horen `Totaalprijs:`, `Levering:` en
+> `Garantietermijn:` juist niet vet te zijn? En wil je dat de regel met het
+> totaalbedrag vet blijft — dat lijkt in de bronbrief een bewuste keuze, maar
+> het sjabloon doet dat nu niet.
+
 ### Inconsistentie 10 — ontbrekende meervoudsvormen
 
 Bij het bouwen van de motor bleek dat een paar blokken alleen in het enkelvoud

@@ -32,6 +32,7 @@ class Tekstblok:
     voorwaarde: str = ""
     omschrijving: str = ""
     keuzegroep: str = ""   # binnen één groep gaat hoogstens één blok mee
+    stijl: str = ""        # "opsomming" of "kop"; leeg = gewone alinea
     bron: str = ""
     notitie: str = ""      # interne aantekening; komt nooit in de brief
 
@@ -125,6 +126,7 @@ def _naar_blok(item: dict, herkomst: Path) -> Tekstblok:
         voorwaarde=item.get("voorwaarde") or "",
         omschrijving=item.get("omschrijving") or "",
         keuzegroep=item.get("keuzegroep") or "",
+        stijl=item.get("stijl") or "",
         bron=item.get("bron") or "",
         notitie=item.get("notitie") or "",
     )

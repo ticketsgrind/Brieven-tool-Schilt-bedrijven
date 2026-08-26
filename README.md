@@ -22,6 +22,7 @@ en circa 45 invulvariabelen.
       extract_docx.py    leest .docx en .dotx uit met behoud van volgorde,
                          kopjes, opsommingen, tabellen en kop-/voetteksten
       extract_pdf.py     haalt tekst uit een PDF (standaardbibliotheek)
+      maak_sjabloon.py   maakt sjablonen/brief.docx uit een bronbrief
     analyse/
       skelet.md          38 secties, met per sectie of hij altijd voorkomt
       variabelen.md      alle invulvariabelen, met de waarden uit de brieven
@@ -35,12 +36,14 @@ en circa 45 invulvariabelen.
       bibliotheek.py     laadt de tekstblokken en de ondertekenaars
       opmaak.py          bedragen, telwoorden, datums in Nederlandse notatie
       samenstellen.py    kiest de blokken en vult de plaatshouders in
-      sjabloon.py        schrijft het Word-bestand (enige module met docxtpl)
+      sjabloon.py        vult het Word-sjabloon in
       cli.py             opdrachtregel
     ontwerp/
       prototype.html     werkend prototype van de bediening, opent zonder server
       ververs_prototype.py  zet de actuele tekstblokken in het prototype
-    tests/               48 tests, draaien zonder externe pakketten
+    sjablonen/
+      brief.docx         het Word-sjabloon; gegenereerd, niet met de hand bewerken
+    tests/               77 tests
     voorbeelden/         twee ingevulde offertes om mee te proberen
 
 ## Aan de slag

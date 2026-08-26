@@ -32,10 +32,26 @@ class SamenstelFout(ValueError):
     """De offerte kan niet worden samengesteld."""
 
 
+@dataclass(frozen=True)
+class Alinea:
+    """Eén alinea in de brief.
+
+    Word kent geen regelovergang binnen een alinea zoals YAML die schrijft, dus
+    een blok van meerdere regels wordt hier opgesplitst. De stijl bepaalt met
+    welke Word-opmaak de alinea wordt weggeschreven.
+    """
+    tekst: str
+    stijl: str = "tekst"      # "tekst", "kop" of "opsomming"
+    blok_id: str = ""
+
+    def __str__(self) -> str:
+        return self.tekst
+
+
 @dataclass
 class Brief:
     """Het samengestelde resultaat, klaar voor het Word-sjabloon."""
-    secties: dict[str, list[str]] = field(default_factory=dict)
+    secties: dict[str, list[Alinea]] = field(default_factory=dict)
     context: dict[str, Any] = field(default_factory=dict)
     gebruikte_blokken: list[str] = field(default_factory=list)
     waarschuwingen: list[str] = field(default_factory=list)
@@ -46,9 +62,17 @@ class Brief:
         for sectie, alineas in self.secties.items():
             if alineas:
                 regels.append(f"[{sectie}]")
-                regels.extend(alineas)
+                regels.extend(a.tekst for a in alineas)
                 regels.append("")
         return "\n".join(regels)
+
+    def regels(self, sectie: str) -> list[str]:
+        """De tekst van één sectie, als losse regels."""
+        return [a.tekst for a in self.secties.get(sectie, [])]
+
+    @property
+    def alle_alineas(self) -> list[Alinea]:
+        return [a for alineas in self.secties.values() for a in alineas]
 
 
 def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
@@ -61,7 +85,7 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
     vergeven_groepen: set[str] = set()
 
     for sectie in bib.secties:
-        alineas: list[str] = []
+        alineas: list[Alinea] = []
         lijstnaam = LOOPSECTIES.get(sectie)
         # Prijsregels zijn al opgemaakt in de context; installaties niet.
         regels = list(context.get(lijstnaam) or []) if lijstnaam else []
@@ -72,14 +96,14 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
                     lokaal = dict(context, regel=regel, regelnummer=nummer)
                     for blok in groep:
                         if _meegaan(blok, lokaal, brief):
-                            alineas.append(_vul_in(blok, lokaal))
+                            alineas.extend(_naar_alineas(blok, lokaal))
                             _onthoud(brief, blok.id)
             else:
                 for blok in groep:
                     if blok.keuzegroep and blok.keuzegroep in vergeven_groepen:
                         continue
                     if _meegaan(blok, context, brief):
-                        alineas.append(_vul_in(blok, context))
+                        alineas.extend(_naar_alineas(blok, context))
                         _onthoud(brief, blok.id)
                         if blok.keuzegroep:
                             vergeven_groepen.add(blok.keuzegroep)
@@ -152,6 +176,45 @@ def _waarschuw(brief: Brief, tekst: str) -> None:
 
 def _verwijst_naar_regel(blok: Tekstblok) -> bool:
     return "regel." in blok.voorwaarde or "regel." in blok.tekst
+
+
+KOPWOORDEN = {"Aanbieding", "Opdracht", "Tot slot", "TECHNISCHE SPECIFICATIES",
+              "Technische specificaties", "Uitgangspunten:", "Elektra:"}
+
+
+def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
+    """Splitst een ingevuld blok in losse alinea's met elk een stijl.
+
+    Word kent geen regelovergang binnen een alinea, dus een blok als
+    "Garantietermijn:\n<tekst>" wordt twee alinea's: een kop en een gewone.
+    """
+    ingevuld = _vul_in(blok, context)
+    if not ingevuld:
+        return []
+
+    uit: list[Alinea] = []
+    for regel in ingevuld.split("\n"):
+        kaal = regel.strip()
+        if not kaal:
+            continue
+        if blok.stijl:
+            stijl = blok.stijl
+        elif kaal.startswith("- "):
+            stijl, kaal = "opsomming", kaal[2:].strip()
+        elif kaal in KOPWOORDEN or _is_kopregel(kaal):
+            stijl = "kop"
+        else:
+            stijl = "tekst"
+        # Tabs aan het begin van een vervolgregel horen bij de uitlijning van de
+        # factureringstermijnen en blijven daarom staan.
+        tekst = regel.rstrip() if regel.startswith("\t") else kaal
+        uit.append(Alinea(tekst=tekst, stijl=stijl, blok_id=blok.id))
+    return uit
+
+
+def _is_kopregel(regel: str) -> bool:
+    """Een korte regel die op een dubbele punt eindigt is een sectiekop."""
+    return regel.endswith(":") and len(regel) <= 40 and ". " not in regel
 
 
 def _vul_in(blok: Tekstblok, context: Mapping[str, Any]) -> str:

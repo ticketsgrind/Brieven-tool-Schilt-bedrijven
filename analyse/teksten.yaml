@@ -655,6 +655,7 @@ blokken:
 # Keuzelijst; de opsteller vinkt aan wat van toepassing is.
 - id: incl_demontage
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Bestaand systeem demonteren en afvoeren"
   voorwaarde: "'demontage' in werk_inclusief"
   bron: wand enkelvoud.dotx
@@ -662,6 +663,7 @@ blokken:
 
 - id: incl_montage
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Montage van apparatuur en componenten"
   voorwaarde: "'montage' in werk_inclusief"
   bron: wand enkelvoud.dotx
@@ -669,6 +671,7 @@ blokken:
 
 - id: incl_bekabeling
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Interne bekabeling binnen- naar buitenunit"
   voorwaarde: "'bekabeling' in werk_inclusief"
   bron: wand enkelvoud.dotx
@@ -676,6 +679,7 @@ blokken:
 
 - id: incl_sturingsbekabeling
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Interne sturingsbekabeling (VRF)"
   voorwaarde: "'sturingsbekabeling' in werk_inclusief"
   bron: VRF.dotx
@@ -683,6 +687,7 @@ blokken:
 
 - id: incl_transport
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Intern en verticaal transport"
   voorwaarde: "'transport' in werk_inclusief"
   bron: wand enkelvoud.dotx
@@ -690,6 +695,7 @@ blokken:
 
 - id: incl_transport_hoogwerker
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Intern en verticaal transport, inclusief huur hoogwerker"
   voorwaarde: "'transport_hoogwerker' in werk_inclusief"
   bron: uitgewerkt-2.docx
@@ -697,6 +703,7 @@ blokken:
 
 - id: incl_transport_kraan
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Intern en verticaal transport, inclusief huur kraan"
   voorwaarde: "'transport_kraan' in werk_inclusief"
   bron: uitgewerkt-5.pdf
@@ -704,6 +711,7 @@ blokken:
 
 - id: incl_flexibele_leidingen
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Flexibele koelleidingen op flamco tegen het dek"
   voorwaarde: "'flexibele_leidingen' in werk_inclusief"
   bron: VRF.dotx
@@ -711,6 +719,7 @@ blokken:
 
 - id: incl_starre_leidingen
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Starre koelleidingen in beugels met isolatie-inlage"
   voorwaarde: "'starre_leidingen' in werk_inclusief"
   bron: VRF.dotx
@@ -718,6 +727,7 @@ blokken:
 
 - id: incl_inbedrijfstelling
   sectie: werkzaamheden_inclusief
+  stijl: opsomming
   omschrijving: "Inbedrijfstelling van de apparatuur"
   voorwaarde: "'inbedrijfstelling' in werk_inclusief"
   bron: wand enkelvoud.dotx
@@ -731,6 +741,7 @@ blokken:
 
 - id: excl_bouwkundig
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Bouwkundige werkzaamheden"
   voorwaarde: "'bouwkundig' in werk_exclusief"
   bron: alle sjablonen
@@ -738,6 +749,7 @@ blokken:
 
 - id: excl_sparingen
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "(Brandwerende) sparingen en doorvoeringen"
   voorwaarde: "'sparingen' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -745,6 +757,7 @@ blokken:
 
 - id: excl_sparingen_uitgebreid
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Akoestische, brandwerende, gas- en waterdichte doorvoeringen"
   voorwaarde: "'sparingen_uitgebreid' in werk_exclusief"
   bron: uitgewerkt-1.docx
@@ -752,6 +765,7 @@ blokken:
 
 - id: excl_betonboringen
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Betonboringen, hak-, breek-, frees-, timmer- en schilderwerk"
   voorwaarde: "'betonboringen' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -759,6 +773,7 @@ blokken:
 
 - id: excl_elektra_stopcontact
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Elektra — bestaand geaard stopcontact wordt hergebruikt"
   voorwaarde: "'elektra_stopcontact' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -766,6 +781,7 @@ blokken:
 
 - id: excl_elektra_voeding
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Elektra — bestaande voeding wordt hergebruikt"
   voorwaarde: "'elektra_voeding' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -773,6 +789,7 @@ blokken:
 
 - id: excl_elektra_voedingskabel
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Elektra — voedingskabel bij de buitenunit"
   voorwaarde: "'elektra_voedingskabel' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -780,6 +797,7 @@ blokken:
 
 - id: excl_elektra_alles
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Elektra — alle elektrotechnische werkzaamheden"
   voorwaarde: "'elektra_alles' in werk_exclusief"
   bron: VRF.dotx
@@ -787,6 +805,7 @@ blokken:
 
 - id: excl_regeltechniek
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Regeltechniek (koppelingen GBS)"
   voorwaarde: "'regeltechniek' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -794,6 +813,7 @@ blokken:
 
 - id: excl_regeltechniek_bedraden
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Regeltechniek inclusief bedraden (VRF)"
   voorwaarde: "'regeltechniek_bedraden' in werk_exclusief"
   bron: VRF.dotx
@@ -801,6 +821,7 @@ blokken:
 
 - id: excl_condensafvoerleiding
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Condensafvoerleiding bij de binnenunit"
   voorwaarde: "'condensafvoerleiding' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -808,6 +829,7 @@ blokken:
 
 - id: excl_plakplaat
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Inplakken plakplaat i.v.m. dakgarantie"
   voorwaarde: "'plakplaat' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -815,6 +837,7 @@ blokken:
 
 - id: excl_beplating
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Leidingen afwerken met aluminium beplating"
   voorwaarde: "'beplating' in werk_exclusief"
   bron: wand enkelvoud.dotx
@@ -822,6 +845,7 @@ blokken:
 
 - id: excl_koellast
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Koellastberekeningen"
   voorwaarde: "'koellast' in werk_exclusief"
   bron: uitgewerkt-1.docx
@@ -829,6 +853,7 @@ blokken:
 
 - id: excl_kabelgoot
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Kabelgoottracés voor koelleidingen"
   voorwaarde: "'kabelgoot' in werk_exclusief"
   bron: uitgewerkt-1.docx
@@ -836,6 +861,7 @@ blokken:
 
 - id: excl_waterzijdig
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Waterzijdige werkzaamheden (CV en GKW)"
   voorwaarde: "'waterzijdig' in werk_exclusief"
   bron: uitgewerkt-1.docx
@@ -843,6 +869,7 @@ blokken:
 
 - id: excl_hoogwerker
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Huur hoogwerkers"
   voorwaarde: "'hoogwerker' in werk_exclusief"
   bron: uitgewerkt-1.docx
@@ -850,6 +877,7 @@ blokken:
 
 - id: excl_verticaal_transport
   sectie: werkzaamheden_exclusief
+  stijl: opsomming
   omschrijving: "Verticaal transport (huur kraan)"
   voorwaarde: "'verticaal_transport' in werk_exclusief"
   bron: uitgewerkt-6.pdf
