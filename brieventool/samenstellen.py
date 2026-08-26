@@ -41,13 +41,24 @@ class Alinea:
     welke Word-opmaak de alinea wordt weggeschreven.
     """
     tekst: str
-    stijl: str = "tekst"      # "tekst", "kop" of "opsomming"
+    stijl: str = "tekst"      # "tekst", "kop", "opsomming" of "prijs"
+    nadruk: str = ""          # bij stijl "prijs": het vette staartstuk
     blok_id: str = ""
     uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
     witregel_erna: bool = True
 
+    @property
+    def volledig(self) -> str:
+        """De hele regel, inclusief het vette staartstuk van een prijsregel.
+
+        `tekst` en `nadruk` staan apart omdat ze in Word twee tekstdelen met
+        eigen opmaak worden. Voor alles wat de brief als tekst leest -- de
+        controleweergave, de tests -- hoort de regel weer heel te zijn.
+        """
+        return self.tekst + self.nadruk
+
     def __str__(self) -> str:
-        return self.tekst
+        return self.volledig
 
 
 @dataclass
@@ -64,13 +75,13 @@ class Brief:
         for sectie, alineas in self.secties.items():
             if alineas:
                 regels.append(f"[{sectie}]")
-                regels.extend(a.tekst for a in alineas)
+                regels.extend(a.volledig for a in alineas)
                 regels.append("")
         return "\n".join(regels)
 
     def regels(self, sectie: str) -> list[str]:
         """De tekst van één sectie, als losse regels."""
-        return [a.tekst for a in self.secties.get(sectie, [])]
+        return [a.volledig for a in self.secties.get(sectie, [])]
 
     @property
     def alle_alineas(self) -> list[Alinea]:
@@ -234,9 +245,25 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
             stijl, tekst = "kop", kaal
         else:
             stijl, tekst = "tekst", kaal
-        uit.append(Alinea(tekst=tekst, stijl=stijl, blok_id=blok.id,
-                          uitgelijnd=uitgelijnd))
+        nadruk = ""
+        if stijl == "prijs":
+            tekst, nadruk = _splits_bedrag(tekst)
+        uit.append(Alinea(tekst=tekst, stijl=stijl, nadruk=nadruk,
+                          blok_id=blok.id, uitgelijnd=uitgelijnd))
     return uit
+
+
+def _splits_bedrag(regel: str) -> tuple[str, str]:
+    """Splitst een prijsregel bij het eurobedrag.
+
+    In de bronbrieven staat het bedrag tot en met "netto." vet en de aanloopzin
+    niet -- dat is zo in alle acht nagekeken brieven, sjablonen en verstuurde.
+    Staat er geen bedrag in, dan blijft de regel in zijn geheel gewoon.
+    """
+    plek = regel.find("€")
+    if plek == -1:
+        return regel, ""
+    return regel[:plek], regel[plek:]
 
 
 def _is_kopregel(regel: str) -> bool:

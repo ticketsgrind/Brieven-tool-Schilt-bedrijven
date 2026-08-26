@@ -281,10 +281,15 @@ is in welke sectiekoppen vet staan:
 Het sjabloon zet nu alle sectiekoppen vet, omdat dat het meest verzorgd oogt en
 de brief leesbaarder maakt.
 
-> **Vraag 22.** Klopt dat, of horen `Totaalprijs:`, `Levering:` en
-> `Garantietermijn:` juist niet vet te zijn? En wil je dat de regel met het
-> totaalbedrag vet blijft — dat lijkt in de bronbrief een bewuste keuze, maar
-> het sjabloon doet dat nu niet.
+**Het bedrag is inmiddels wel vet**, op verzoek van de opdrachtgever en in
+overeenstemming met de bronbrieven. Nagemeten in acht brieven, sjablonen en
+verstuurde: vet is niet de hele zin maar het deel vanaf het eurobedrag tot en
+met `netto.`, bij de totaalprijs, de raamprijs en de meerprijzen voor coating en
+RAL-kleur. De condenswaterpompregel eindigt op `per stuk` en staat nergens vet.
+
+> **Vraag 22.** Blijft staan voor de koppen: horen `Totaalprijs:`, `Levering:`
+> en `Garantietermijn:` vet te zijn? In de bronbrief zijn ze dat niet, terwijl
+> `Betreft` en `Aanbieding` het wel zijn.
 
 ### Inconsistentie 10 — ontbrekende meervoudsvormen
 

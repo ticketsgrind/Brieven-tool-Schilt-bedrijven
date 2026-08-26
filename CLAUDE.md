@@ -111,6 +111,12 @@ of de brief er verzorgd uitziet:
   `numbering.xml`. Zonder die verwijzing staat de regel ingesprongen maar zonder
   teken ervoor.
 
+- *Vette bedragen.* Bij een blok met `stijl: prijs` splitst de motor de regel
+  bij het eurobedrag: de aanloopzin blijft gewoon, het bedrag tot en met
+  `netto.` wordt vet. `Alinea.tekst` en `Alinea.nadruk` zijn daardoor twee
+  tekstdelen in Word; `Alinea.volledig` plakt ze weer aan elkaar voor alles wat
+  de brief als platte tekst leest.
+
 Een regel die met een tab of een vaste spatie begint is een uitgelijnde
 vervolgregel, geen opsomming — een streepje daarin hoort bij de tekst.
 
@@ -125,9 +131,12 @@ De afhankelijkheden zijn PyYAML en Jinja2, allebei pure Python. Er is met opzet
 geen Word-bibliotheek nodig: die bestaan vooral om tags te repareren die Word
 verspreidt bij handmatig typen, en ons sjabloon wordt gegenereerd.
 
-**`ontwerp/prototype.html`** heeft de bibliotheek ingebakken en spiegelt
-`samenstellen.py` in JavaScript. Wijzig je de selectielogica in Python, werk dan
-ook het prototype bij, anders lopen ze uiteen.
+**`ontwerp/prototype.html`** heeft de bibliotheek ingebakken tussen de
+markeringen `/*<blokken>*/` en `/*</blokken>*/`, en spiegelt `samenstellen.py`
+in JavaScript. Wijzig je de selectielogica in Python, werk dan ook het prototype
+bij, anders lopen ze uiteen. Draai `ontwerp/ververs_prototype.py` na elke
+wijziging in `teksten.yaml`; controleer daarna met `node --check` dat het script
+nog geldig is, want een fout in de ingebakken gegevens breekt de hele pagina.
 
 ## Werken met de teksten
 

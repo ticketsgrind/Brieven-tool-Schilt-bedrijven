@@ -165,6 +165,48 @@ class TestOpmaakVanAlineas(unittest.TestCase):
         self.assertFalse(uitgangspunten[0].tekst.startswith("-"))
 
 
+class TestVettePrijs(unittest.TestCase):
+    """In de bronbrieven staat het bedrag vet en de aanloopzin niet."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.brief = stel_samen(voorbeeld("zakelijk-cassette-meervoud.yaml"), laad(WORTEL))
+
+    def prijsregels(self):
+        return [a for a in self.brief.secties["prijs"] if a.stijl == "prijs"]
+
+    def test_bedrag_staat_apart_van_de_aanloopzin(self):
+        regels = self.prijsregels()
+        self.assertTrue(regels, "geen prijsregels gevonden")
+        for alinea in regels:
+            self.assertTrue(alinea.nadruk.startswith("€"), alinea.nadruk)
+            self.assertTrue(alinea.nadruk.rstrip().endswith("netto."), alinea.nadruk)
+            self.assertNotIn("€", alinea.tekst)
+
+    def test_totaalprijs_en_meerprijzen_zijn_prijsregels(self):
+        teksten = [a.tekst for a in self.prijsregels()]
+        self.assertTrue(any("De totaalprijs" in t for t in teksten))
+        self.assertTrue(any("De meerprijs voor het coaten" in t for t in teksten))
+
+    def test_condenswaterpomp_is_geen_prijsregel(self):
+        # Die regel eindigt op "per stuk" en staat in de bronbrieven niet vet.
+        for alinea in self.brief.secties["prijs"]:
+            if "condenswater" in alinea.tekst:
+                self.assertEqual(alinea.stijl, "tekst")
+                self.assertEqual(alinea.nadruk, "")
+                return
+        self.fail("de condenswaterpompregel is niet gevonden")
+
+    def test_btw_regel_is_geen_prijsregel(self):
+        for alinea in self.brief.secties["prijs"]:
+            if "btw" in alinea.tekst:
+                self.assertEqual(alinea.stijl, "tekst")
+
+    def test_regel_zonder_bedrag_blijft_heel(self):
+        from brieventool.samenstellen import _splits_bedrag
+        self.assertEqual(_splits_bedrag("Geen bedrag hier."), ("Geen bedrag hier.", ""))
+
+
 class TestKeuzegroepen(unittest.TestCase):
     """Binnen een keuzegroep hoort precies één blok in de brief te komen."""
 

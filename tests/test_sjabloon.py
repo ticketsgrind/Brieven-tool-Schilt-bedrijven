@@ -211,6 +211,28 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         return [(a, b) for a, b in zip(alineas, alineas[1:])
                 if a["tekst"].strip() and b["tekst"].strip()]
 
+    def test_het_bedrag_staat_vet_en_de_zin_niet(self):
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            if "De totaalprijs compleet" not in alinea:
+                continue
+            delen = re.findall(r"<w:r\b.*?</w:r>", alinea, re.S)
+            vet = [d for d in delen if "<w:b/>" in d]
+            gewoon = [d for d in delen if "<w:b/>" not in d and "<w:t" in d]
+            self.assertTrue(vet, "het bedrag staat niet vet")
+            self.assertTrue(gewoon, "de hele regel staat vet")
+            self.assertIn("netto.", "".join(vet))
+            self.assertIn("De totaalprijs", "".join(gewoon))
+            self.assertNotIn("€", "".join(gewoon))
+            return
+        self.fail("de totaalprijsregel is niet gevonden")
+
+    def test_de_condenswaterpompregel_staat_niet_vet(self):
+        for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
+            if "condenswater" in alinea:
+                self.assertNotIn("<w:b/>", alinea)
+                return
+        self.fail("de condenswaterpompregel is niet gevonden")
+
     def test_de_brief_bevat_de_juiste_inhoud(self):
         tekst = "\n".join(self.regels())
         for verwacht in ["Voorbeeld Vastgoed B.V.", "exclusief 21% btw", "€ 24.750,- netto",

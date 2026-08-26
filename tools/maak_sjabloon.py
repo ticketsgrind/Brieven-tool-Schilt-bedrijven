@@ -72,6 +72,18 @@ def opsommingsregel() -> str:
             '</w:pPr><w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
 
 
+def prijsregel() -> str:
+    """Een prijsregel: aanloopzin gewoon, bedrag tot en met "netto." vet.
+
+    Twee tekstdelen binnen een alinea, want in de bronbrieven staat alleen het
+    bedrag vet en niet de hele zin.
+    """
+    return (f'<w:p><w:pPr><w:pStyle w:val="{STIJL_TEKST}"/></w:pPr>'
+            '<w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r>'
+            '<w:r><w:rPr><w:b/></w:rPr>'
+            '<w:t xml:space="preserve">{{ a.nadruk }}</w:t></w:r></w:p>')
+
+
 def kenmerkregel() -> str:
     """Plaats en datum springen in; de regels eronder niet."""
     return ('<w:p><w:pPr>{% if loop.first %}<w:ind w:hanging="851"/>{% endif %}</w:pPr>'
@@ -113,6 +125,8 @@ def sjabloonbody() -> str:
         alinea("{{ a.tekst }}", vet=True),
         "{%p elif a.stijl == 'opsomming' %}",
         opsommingsregel(),
+        "{%p elif a.stijl == 'prijs' %}",
+        prijsregel(),
         "{%p else %}",
         alinea("{{ a.tekst }}", stijl=STIJL_TEKST),
         "{%p endif %}",

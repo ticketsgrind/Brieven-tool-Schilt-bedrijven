@@ -901,12 +901,14 @@ blokken:
 
 - id: prijs_regel
   sectie: prijs
+  stijl: prijs
   voorwaarde: "prijssoort == 'totaalprijs' and not regel.positie"
   bron: wand enkelvoud.dotx
   tekst: "De totaalprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."
 
 - id: prijs_regel_positie
   sectie: prijs
+  stijl: prijs
   voorwaarde: "prijssoort == 'totaalprijs' and regel.positie"
   bron: uitgewerkt-7.pdf
   tekst: >
@@ -915,12 +917,14 @@ blokken:
 
 - id: prijs_regel_raamprijs
   sectie: prijs
+  stijl: prijs
   voorwaarde: "prijssoort == 'raamprijs'"
   bron: uitgewerkt-1.docx
   tekst: "De raamprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."
 
 - id: meerprijs_coating_enkel
   sectie: prijs
+  stijl: prijs
   omschrijving: "Meerprijs coating buitenunit"
   voorwaarde: "meerprijs_coating and aantal_buitenunits == 1"
   bron: wand enkelvoud.dotx
@@ -928,6 +932,7 @@ blokken:
 
 - id: meerprijs_coating_meervoud
   sectie: prijs
+  stijl: prijs
   omschrijving: "Meerprijs coating buitenunits"
   voorwaarde: "meerprijs_coating and aantal_buitenunits > 1"
   bron: cassette meervoud.dotx
@@ -935,6 +940,7 @@ blokken:
 
 - id: meerprijs_ral_enkel
   sectie: prijs
+  stijl: prijs
   omschrijving: "Meerprijs RAL-kleur buitenunit"
   voorwaarde: "meerprijs_ral and aantal_buitenunits == 1"
   bron: wand enkelvoud.dotx
@@ -942,6 +948,7 @@ blokken:
 
 - id: meerprijs_ral_meervoud
   sectie: prijs
+  stijl: prijs
   omschrijving: "Meerprijs RAL-kleur buitenunits"
   voorwaarde: "meerprijs_ral and aantal_buitenunits > 1"
   bron: cassette meervoud.dotx
