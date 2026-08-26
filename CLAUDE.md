@@ -1,0 +1,133 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Taal
+
+Deze repository is volledig in het Nederlands: code, commentaar, variabelenamen,
+commitberichten en documentatie. De gebruiker werkt in het Nederlands en de
+teksten die de tool produceert zijn Nederlandse offertebrieven. Houd dat aan —
+schakel niet terug naar Engelse identifiers.
+
+## Wat dit is
+
+Een tool die offertebrieven voor Schilt Airconditioning samenstelt uit een
+bibliotheek van tekstblokken, in plaats van tientallen losse Word-sjablonen per
+variant. De salesmedewerker beantwoordt een aantal vragen, de tool kiest de
+passende blokken en levert een Word-bestand op.
+
+## Commando's
+
+```bash
+# Een brief samenstellen en de tekst tonen
+python3 -m brieventool voorbeelden/particulier-wand-enkelvoud.yaml
+python3 -m brieventool <offerte>.yaml --blokken          # toon gebruikte blok-id's
+python3 -m brieventool <offerte>.yaml --docx uit/brief.docx
+
+# Tests
+python3 -m unittest discover -s tests -t .
+python3 -m unittest tests.test_samenstellen -v
+python3 -m unittest tests.test_samenstellen.TestZakelijkeBrief.test_meervoud
+
+# Bronbrieven opnieuw uitlezen na wijziging in bronbrieven/
+python3 tools/extract_docx.py
+python3 tools/extract_pdf.py bronbrieven/uitgewerkt/<brief>.pdf
+
+# Prototype gelijktrekken na wijziging in analyse/teksten.yaml
+python3 ontwerp/ververs_prototype.py
+```
+
+## Architectuur
+
+De kern is dat **de inhoud niet in de code zit**. Alle brieftekst staat in
+`analyse/teksten.yaml`; de code kiest alleen welke blokken meegaan en vult de
+plaatshouders in. Een gewijzigde garantietekst is dus een tekstwijziging, geen
+codewijziging.
+
+**De keten:** `analyse/teksten.yaml` (136 blokken) → `bibliotheek.py` laadt ze →
+`samenstellen.py` kiest en vult → `sjabloon.py` schrijft het Word-bestand.
+
+**Blokselectie werkt op gewone antwoorden, niet op blok-id's.** Wie
+`condensafvoer: natuurlijk_verloop` en `aantal_binnenunits: 3` invult krijgt
+vanzelf het blok dat "de units zijn" zegt in plaats van "de unit is". Verschillen
+die alleen taalkundig zijn (enkelvoud/meervoud) zijn dus varianten van hetzelfde
+blok met elk een eigen voorwaarde, geen aparte tekstblokken. Voeg nooit een
+mechanisme toe waarbij de gebruiker blok-id's kiest; `gekozen_blokken` bestaat
+alleen als noodrem en geeft een waarschuwing als de voorwaarde niet klopt.
+
+**`expressies.py` evalueert de voorwaarden zonder `eval()`.** Het tekstenbestand
+wordt door de gebruiker aangepast en mag daarom geen manier worden om code te
+draaien: attribuuttoegang is beperkt tot woordenboeken (anders geeft
+`iets.__class__` toegang tot de rest van Python), en functieaanroepen alleen uit
+`opmaak.FUNCTIES`. Er is één toegift aan Jinja: `{{ 'x' if voorwaarde }}` zonder
+`else` wordt aangevuld.
+
+**Herhalende secties.** `LOOPSECTIES` in `samenstellen.py` koppelt een sectie aan
+een lijst uit de offerte (`specificatie` → `installaties`, `prijs` →
+`prijsregels`). Een aaneengesloten reeks blokken die naar `regel` verwijst wordt
+als geheel per regel herhaald — niet blok voor blok over alle regels, anders
+komen eerst alle ruimtekopjes en daarna pas alle installatieregels.
+
+**Keuzegroepen.** Blokken met dezelfde `keuzegroep` sluiten elkaar uit; de eerste
+die past wint. De volgorde in `teksten.yaml` is dus de voorrangsvolgorde, met de
+meest algemene variant onderaan als terugval.
+
+**Alleen `sjabloon.py` heeft een externe afhankelijkheid** (docxtpl). De rest en
+alle tests draaien op de standaardbibliotheek plus pyyaml, zodat de logica overal
+te draaien en te testen is.
+
+**`ontwerp/prototype.html`** heeft de bibliotheek ingebakken en spiegelt
+`samenstellen.py` in JavaScript. Wijzig je de selectielogica in Python, werk dan
+ook het prototype bij, anders lopen ze uiteen.
+
+## Werken met de teksten
+
+- **Neem de brontekst letterlijk over.** De formuleringen zijn commercieel en
+  juridisch bewust zo gekozen. Herschrijf niets; zie je een verbetering, zet die
+  als suggestie in `analyse/vragen.md` §D en laat het origineel intact.
+- **Verzin geen brieftekst.** Ontbreekt er een variant (bijvoorbeeld een
+  meervoudsvorm die niet in de bronbrieven staat), zet er dan een vraag over in
+  `analyse/vragen.md` in plaats van zelf een zin te schrijven.
+- **Aantekeningen horen in het veld `notitie`,** nooit in `tekst` — wat in `tekst`
+  staat belandt in de brief naar de klant. Er staat een test op.
+- **De juridisch bindende alinea's staan vastgelegd** in
+  `tests/test_juridische_teksten.py`: garantie, algemene voorwaarden,
+  aansprakelijkheid, btw, geldigheidsduur, betalingstermijnen. Wijzig je zo'n
+  tekst bewust, neem de nieuwe dan in die test over en noteer in `vragen.md` wie
+  erover besloot. Faalt die test onbedoeld, draai de wijziging dan terug.
+- Elk blok heeft een `bron`-veld met het bestand waar de tekst vandaan komt.
+  Houd dat bij, zodat elke zin terug te voeren is op een echte brief.
+
+## Vaste waarden, geen variabelen
+
+Deze staan in alle bronbrieven identiek en horen niet in het formulier:
+levertijd (`in onderling overleg`), levering (`franco werk`), geldigheidsduur
+(`30 dagen`), garantietermijn airconditioning (`12 maanden`), betalingstermijn
+zakelijk (`30 dagen`). De btw-weergave is afgeleid van `klanttype` — particulier
+inclusief, zakelijk exclusief — en wordt dus niet gevraagd.
+
+Bedragen worden geschreven als `€ 7.595,-`, niet `€ 7.595,00`; dat is de notatie
+uit de brieven zelf. Zie `analyse/vragen.md` vraag 13, die nog openstaat.
+
+## Openstaande vragen
+
+`analyse/vragen.md` is de lopende lijst met inconsistenties in de bronbrieven en
+beslissingen die de opdrachtgever nog moet nemen. Werk die bij in plaats van een
+aanname te doen; verwijs in code en YAML naar het vraagnummer.
+
+De zwaarste openstaande beslissing is beslissing 1: hoe de technische
+specificaties worden opgebouwd. Zolang die openstaat kan de tool alleen
+"Zie bijlage" produceren.
+
+## Persoonsgegevens
+
+`bronbrieven/uitgewerkt/` staat in `.gitignore` omdat die brieven namen, adressen
+en e-mailadressen van echte klanten bevatten. De analyse verwijst ernaar als
+`uitgewerkt-1` tot en met `uitgewerkt-7`. Neem geen klantgegevens over in
+bestanden die wel in git komen.
+
+## Git
+
+Ontwikkel op de branch `claude/new-session-99s0l8`. Commitberichten in het
+Nederlands, in de gebiedende wijs noch de verleden tijd maar beschrijvend, met
+uitleg van het waarom bij niet voor de hand liggende keuzes.
