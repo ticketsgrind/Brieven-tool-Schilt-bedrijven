@@ -104,7 +104,9 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertIn("één luchtgekoelde splitsystem inverterunit ", self.brief.regels("specificatie")[3])
 
     def test_organisatie_boven_het_adres(self):
-        self.assertEqual(self.brief.regels("geadresseerde")[0], "Voorbeeld Vastgoed B.V.")
+        regels = self.brief.regels("geadresseerde")
+        self.assertEqual(regels[0], "Voorbeeld Vastgoed B.V.")
+        self.assertTrue(regels[1].startswith("T.a.v."), regels[1])
 
     def test_geen_openstaande_plaatshouders(self):
         self.assertNotIn("{{", self.brief.tekst())
@@ -163,6 +165,46 @@ class TestOpmaakVanAlineas(unittest.TestCase):
         self.assertEqual(len(uitgangspunten), 1)
         self.assertEqual(uitgangspunten[0].stijl, "opsomming")
         self.assertFalse(uitgangspunten[0].tekst.startswith("-"))
+
+
+class TestAdresblok(unittest.TestCase):
+    """Nagemeten in de uitgewerkte brieven."""
+
+    def test_zonder_organisatie_geen_tav(self):
+        # "De heer K. ten Broek", niet "T.a.v. de heer ...".
+        brief = stel_samen(voorbeeld("particulier-wand-enkelvoud.yaml"), laad(WORTEL))
+        eerste = brief.regels("geadresseerde")[0]
+        self.assertFalse(eerste.startswith("T.a.v."), eerste)
+        self.assertTrue(eerste.startswith("De heer"), eerste)
+
+    def test_met_organisatie_wel_tav(self):
+        brief = stel_samen(voorbeeld("zakelijk-cassette-meervoud.yaml"), laad(WORTEL))
+        self.assertTrue(brief.regels("geadresseerde")[1].startswith("T.a.v."))
+
+    def test_maar_een_van_de_twee_adresregels(self):
+        for naam in ("particulier-wand-enkelvoud.yaml", "zakelijk-cassette-meervoud.yaml"):
+            with self.subTest(naam):
+                regels = stel_samen(voorbeeld(naam), laad(WORTEL)).regels("geadresseerde")
+                self.assertEqual(sum(1 for r in regels if "heer" in r), 1, regels)
+
+    def test_tussenvoegsel_krijgt_hoofdletter_in_de_aanhef(self):
+        # "De heer K. ten Broek" in het adres, "Geachte heer Ten Broek," in de aanhef.
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["achternaam"] = "ten Broek"
+        brief = stel_samen(offerte, laad(WORTEL))
+        self.assertEqual(brief.regels("geadresseerde")[0], "De heer J. ten Broek")
+        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer Ten Broek,")
+
+    def test_emailadres_onderaan_indien_bekend(self):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["email_klant"] = "voorbeeld@example.nl"
+        regels = stel_samen(offerte, laad(WORTEL)).regels("geadresseerde")
+        self.assertEqual(regels[-1], "voorbeeld@example.nl")
+
+    def test_geen_lege_regel_zonder_emailadres(self):
+        regels = stel_samen(voorbeeld("particulier-wand-enkelvoud.yaml"),
+                            laad(WORTEL)).regels("geadresseerde")
+        self.assertTrue(all(r.strip() for r in regels))
 
 
 class TestVettePrijs(unittest.TestCase):

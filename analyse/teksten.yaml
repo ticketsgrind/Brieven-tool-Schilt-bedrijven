@@ -25,11 +25,22 @@ blokken:
   bron: uitgewerkt-1.docx, uitgewerkt-2.docx
   tekst: "{{ organisatie }}"
 
+# Met een organisatie erboven staat de contactpersoon achter "T.a.v."; zonder
+# organisatie begint de regel met een hoofdletter en vervalt "T.a.v.".
+# Nagemeten in uitgewerkt-1, -2 en -3.
+- id: adres_contactpersoon_tav
+  sectie: geadresseerde
+  keuzegroep: geadresseerde
+  voorwaarde: "aanspreekvorm != 'Fam.' and organisatie"
+  bron: uitgewerkt-1, uitgewerkt-2, alle sjablonen
+  tekst: "T.a.v. {{ aanspreekvorm }} {{ voorletters }} {{ achternaam }}"
+
 - id: adres_contactpersoon
   sectie: geadresseerde
+  keuzegroep: geadresseerde
   voorwaarde: "aanspreekvorm != 'Fam.'"
-  bron: alle sjablonen
-  tekst: "T.a.v. {{ aanspreekvorm }} {{ voorletters }} {{ achternaam }}"
+  bron: uitgewerkt-3
+  tekst: "{{ aanspreekvorm_hoofdletter }} {{ voorletters }} {{ achternaam }}"
 
 - id: adres_familie
   sectie: geadresseerde
@@ -44,6 +55,12 @@ blokken:
   tekst: |
     {{ straat_huisnummer }}
     {{ postcode }}  {{ plaats }}
+
+- id: adres_email
+  sectie: geadresseerde
+  voorwaarde: "email_klant"
+  bron: uitgewerkt-1, uitgewerkt-3
+  tekst: "{{ email_klant }}"
 
 - id: betreft
   sectie: betreft
@@ -75,7 +92,7 @@ blokken:
   sectie: aanhef
   voorwaarde: ""
   bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-7.pdf
-  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ achternaam }},"
+  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ achternaam_aanhef }},"
 
 # ===========================================================================
 # 7. AANLEIDING

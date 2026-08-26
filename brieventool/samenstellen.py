@@ -362,6 +362,13 @@ def _bouw_context(offerte: Mapping[str, Any], bib: Bibliotheek) -> dict[str, Any
 
     aanspreek = str(offerte.get("aanspreekvorm") or "de heer")
     ctx["aanspreekvorm_aanhef"] = AANHEFVORM.get(aanspreek, aanspreek)
+    # Zonder organisatie begint de adresregel met een hoofdletter:
+    # "De heer K. ten Broek" in plaats van "T.a.v. de heer ...".
+    ctx["aanspreekvorm_hoofdletter"] = aanspreek[:1].upper() + aanspreek[1:]
+    # Een tussenvoegsel krijgt een hoofdletter zodra er geen voorletter
+    # voor staat: "De heer K. ten Broek" maar "Geachte heer Ten Broek,".
+    achternaam = str(offerte.get("achternaam") or "")
+    ctx["achternaam_aanhef"] = achternaam[:1].upper() + achternaam[1:]
 
     ctx["btw_weergave"] = "inclusief" if offerte.get("klanttype") == "particulier" else "exclusief"
 

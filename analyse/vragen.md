@@ -339,6 +339,82 @@ Onaangeroerd gelaten, maar de moeite van het corrigeren waard:
 
 ---
 
+## B2. Bevindingen uit de werkzaamheidstest
+
+Een werkelijk verstuurde offerte (uitgewerkt-3: particulier, twee installaties)
+is met de tool nagebouwd en regel voor regel vergeleken. Van de 67 regels
+brieftekst kwamen er 56 letterlijk overeen. De verschillen staan hieronder;
+draai de toets zelf met:
+
+    python3 tools/toets_tegen_echte_brief.py <offerte.yaml> <verstuurde-brief.docx>
+
+Twee dingen zijn naar aanleiding hiervan meteen gerepareerd: zonder organisatie
+begint het adres met `De heer …` in plaats van `T.a.v. de heer …`, het
+e-mailadres van de klant kan onder het adres, en het tussenvoegsel krijgt in de
+aanhef een hoofdletter (`De heer K. ten Broek` maar `Geachte heer Ten Broek,`).
+
+### Gat 1 — de opstelling van de buitenunit is niet per installatie te kiezen
+
+De echte brief heeft twee verschillende opstellingen naast elkaar:
+
+> De buitenunit **voor de keuken** wordt geplaatst op steunen met
+> trillingsdempers tegen de buitengevel.
+> De buitenunit **voor de slaapkamer op de begane grond** wordt geplaatst op
+> geluiddempende rubberen opstelbalken op de grond.
+
+De tool kent één opstelling per brief en maakt er dus één regel van. Bij twee of
+meer installaties op verschillende plekken klopt dat niet.
+
+> **Vraag 24.** Moet `opstelling_buitenunit` een veld per installatieregel
+> worden in plaats van per brief? Dat lijkt me nodig; het komt in meer dan één
+> brief voor.
+
+### Gat 2 — het aantal condensafvoeren
+
+De echte brief zegt `condensafvoer d.m.v. natuurlijk verloop (3x)`; de tool laat
+het aantal weg en schrijft `d.m.v. een natuurlijk verloop`.
+
+> **Vraag 25.** Hoort dat aantal er standaard bij zodra er meer dan één
+> binnenunit is, en zo ja: telt het de binnenunits of de afvoeren?
+
+### Gat 3 — meervoud van "stopcontact"
+
+De echte brief heeft `passen we de bestaande geaarde stopcontacten toe`, de
+bibliotheek kent alleen het enkelvoud. Zelfde soort gat als vraag 21.
+
+### Gat 4 — de aanleidingszin eindigt soms op "ruimte"
+
+De tool schrijft `t.b.v. bovengenoemd project`, de echte brief
+`t.b.v. bovengenoemde ruimte`.
+
+> **Vraag 26.** Wanneer kiezen jullie welke? Bij een particulier de ruimte en
+> bij een bedrijf het project, of hangt het van iets anders af?
+
+### Tegenstrijdigheid — kredietwaardigheid bij een particulier
+
+In `analyse/skelet.md` staat dat de kredietwaardigheidsclausule alleen zakelijk
+is; dat volgde uit de sjablonen, waar hij in de drie particuliere ontbreekt.
+Maar in deze verstuurde particuliere brief **staat hij wel**. Omgekeerd
+ontbreekt in dezelfde brief het ontbindingsrecht bij late levering, dat de tool
+er juist bij zet.
+
+> **Vraag 27.** Welke van de twee klopt? Hoort de kredietwaardigheidsclausule
+> ook bij particulieren, en hoort het ontbindingsrecht daar juist wel of niet?
+> Dit raakt twee juridische alinea's, dus dit is er een om intern uit te zoeken.
+
+### Maatwerk — geen gat, wel het bewijs dat de eigen alinea nodig is
+
+Twee zinnen zijn door de opsteller aangepast aan deze klant:
+
+> De **Z25/35CFEAW** binnenunits zijn speciaal ontworpen laag aan de muur …
+> De **TZ35ZKEW** binnenunit is ontworpen voor montage hoog aan de wand …
+
+De bibliotheek heeft de algemene formulering zonder typeaanduiding. Dat hoort
+geen blok te worden; dit is precies waarvoor de knop "eigen alinea" in het
+ontwerp zit.
+
+---
+
 ## C. Openstaande beslissingen voor fase 2
 
 ### Beslissing 1 — wat doen we met de technische specificaties?
