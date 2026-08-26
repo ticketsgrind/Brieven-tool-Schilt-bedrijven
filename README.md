@@ -7,12 +7,34 @@ een Word-bestand en een PDF uitrollen.
 
 ## Waar staat het nu
 
-**Fase 1 — inventarisatie — is afgerond.** Er is nog geen applicatiecode: geen
-sjabloon, geen webformulier. Dat is fase 2, en daarvoor liggen er eerst vragen in
-[`analyse/vragen.md`](analyse/vragen.md).
+**De keten werkt.** Een ingevuld offertebestand gaat erin, er rolt een Word-brief
+op eigen briefpapier uit:
 
-Geanalyseerd: 16 sjablonen en 7 uitgewerkte brieven. Resultaat: 141 tekstblokken
-en circa 45 invulvariabelen.
+    python3 -m brieventool voorbeelden/particulier-wand-enkelvoud.yaml --docx uit/offerte.docx
+
+Wat af is: de analyse van 16 sjablonen en 7 verstuurde brieven (136 tekstblokken),
+de motor die de blokken kiest en de plaatshouders invult, het Word-sjabloon
+gemaakt uit een bestaande `.dotx`, en een werkend prototype van de bediening.
+118 tests.
+
+De opmaak is nagemeten aan de bronbrieven en niet benaderd: witregels,
+opsommingstekens, onderstreepte kopjes, vette bedragen, en de tekengrootte van
+de labels in de briefkop.
+
+**Wat er nog niet is:** het formulier. De keuzes worden nu in een YAML-bestand
+gezet; het prototype laat zien hoe dat scherm eruit gaat zien maar is er nog
+niet aan gekoppeld.
+
+**Wat er eerst moet:** `analyse/vragen.md` heeft 27 openstaande vragen. Drie
+daarvan houden de tool tegen:
+
+- **Beslissing 1** — hoe de technische specificaties worden opgebouwd. Zolang
+  die openstaat kan de tool alleen "Zie bijlage" produceren.
+- **Vraag 7** — de meerprijs voor de condenswaterpomp staat op twee bedragen
+  (€ 220 en € 260) die niet met btw te verklaren zijn.
+- **Vraag 27** — in een verstuurde particuliere brief staat de
+  kredietwaardigheidsclausule wel en het ontbindingsrecht niet, andersom dan de
+  sjablonen suggereren. Dit raakt twee juridische alinea's.
 
 ## Indeling
 

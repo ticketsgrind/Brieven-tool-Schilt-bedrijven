@@ -24,3 +24,7 @@ Uitlezen:
 
     python3 tools/extract_docx.py --in bronbrieven/uitgewerkt --out analyse/_extract/uitgewerkt
     python3 tools/extract_pdf.py bronbrieven/uitgewerkt/<brief>.pdf
+
+Omdat deze map niet in git staat, is hij er in een nieuwe werkomgeving niet.
+Wil je `tools/toets_tegen_echte_brief.py` draaien, zet er dan eerst een
+verstuurde brief in terug.
