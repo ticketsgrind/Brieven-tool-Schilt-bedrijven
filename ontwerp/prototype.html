@@ -1,0 +1,897 @@
+<title>Offertebrieven Schilt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E4E8EA; --surface:#F5F7F8; --raised:#FFFFFF;
+  --ink:#14211F; --muted:#5E7070; --faint:#849797;
+  --line:#CBD4D5; --line-soft:#DCE3E4;
+  --accent:#0F6E6A; --accent-ink:#FFFFFF; --accent-soft:#D7E8E6;
+  --signal:#A8641B; --signal-soft:#F2E4D0;
+  --paper:#FBF9F5; --paper-ink:#23201B; --paper-line:#DAD5CA;
+  --shadow:0 1px 2px rgba(20,33,31,.06), 0 8px 24px rgba(20,33,31,.08);
+  --ui:'Archivo',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --brief:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#10181A; --surface:#172224; --raised:#1D292B;
+  --ink:#DFE8E7; --muted:#93A5A4; --faint:#6E8281;
+  --line:#2C3B3D; --line-soft:#243133;
+  --accent:#4FB3AC; --accent-ink:#0B1516; --accent-soft:#1B3634;
+  --signal:#D89A4A; --signal-soft:#33281A;
+  --paper:#E9E5DD; --paper-ink:#23201B; --paper-line:#C9C3B6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --ground:#10181A; --surface:#172224; --raised:#1D292B;
+  --ink:#DFE8E7; --muted:#93A5A4; --faint:#6E8281;
+  --line:#2C3B3D; --line-soft:#243133;
+  --accent:#4FB3AC; --accent-ink:#0B1516; --accent-soft:#1B3634;
+  --signal:#D89A4A; --signal-soft:#33281A;
+  --paper:#E9E5DD; --paper-ink:#23201B; --paper-line:#C9C3B6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--ui);
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+/* ---------- kop ---------- */
+.kop{display:flex;align-items:center;gap:18px;padding:0 18px;height:56px;
+  background:var(--surface);border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.merk{display:flex;align-items:baseline;gap:9px;font-weight:700;letter-spacing:-.015em;font-size:15px}
+.merk .bu{font-weight:500;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.09em}
+.kop-mid{flex:1;min-width:120px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kenmerk{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.kenmerk b{color:var(--ink);font-weight:500}
+.kop-acties{display:flex;align-items:center;gap:8px}
+
+.knop{background:var(--raised);border:1px solid var(--line);border-radius:6px;
+  padding:6px 12px;font-size:12.5px;font-weight:500;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:border-color .12s,background .12s}
+.knop:hover{border-color:var(--muted)}
+.knop.aan{background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
+.knop.hoofd{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.knop.hoofd:hover{filter:brightness(1.08)}
+.stip{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.55}
+.knop.aan .stip{opacity:1}
+
+/* ---------- werkblad ---------- */
+.blad{display:grid;grid-template-columns:minmax(340px,400px) 1fr;
+  height:calc(100dvh - 56px)}
+@media (max-width:900px){.blad{grid-template-columns:1fr;height:auto}}
+
+/* ---------- vragen ---------- */
+.vragen{overflow-y:auto;border-right:1px solid var(--line);background:var(--surface);
+  padding:14px 14px 60px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:900px){.vragen{border-right:0;border-bottom:1px solid var(--line);max-height:none}}
+
+.groep{flex:none;background:var(--raised);border:1px solid var(--line-soft);border-radius:9px;overflow:hidden}
+.groep[open]{border-color:var(--line)}
+.groep>summary{list-style:none;cursor:pointer;padding:11px 13px;display:flex;
+  align-items:center;gap:10px;user-select:none}
+.groep>summary::-webkit-details-marker{display:none}
+.groep>summary:hover{background:var(--surface)}
+.pijl{width:8px;height:8px;border-right:1.6px solid var(--faint);border-bottom:1.6px solid var(--faint);
+  transform:rotate(-45deg);transition:transform .15s;flex:none;margin-left:1px}
+.groep[open]>summary .pijl{transform:rotate(45deg)}
+.gtitel{font-weight:600;font-size:13px;letter-spacing:-.005em}
+.gsamen{margin-left:auto;font-size:11.5px;color:var(--faint);text-align:right;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46%}
+.groep[open] .gsamen{opacity:0}
+.ginhoud{padding:4px 13px 15px;display:flex;flex-direction:column;gap:13px;
+  border-top:1px solid var(--line-soft)}
+
+.veld{display:flex;flex-direction:column;gap:5px}
+.veld>label,.blabel{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--muted)}
+.rij{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rij3{display:grid;grid-template-columns:auto 1fr;gap:10px}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;padding:7px 9px;background:var(--surface);border:1px solid var(--line);
+  border-radius:6px;font-size:13px;transition:border-color .12s}
+input:hover,select:hover,textarea:hover{border-color:var(--muted)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none;
+  box-shadow:0 0 0 3px var(--accent-soft)}
+input.code,input.geld{font-family:var(--mono);font-size:12.5px}
+textarea{resize:vertical;min-height:56px;font-size:13px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--faint) 50%),
+  linear-gradient(135deg,var(--faint) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:28px}
+
+.segment{display:flex;background:var(--surface);border:1px solid var(--line);
+  border-radius:7px;padding:2px;gap:2px}
+.segment button{flex:1;border:0;background:transparent;border-radius:5px;padding:6px 8px;
+  font-size:12.5px;font-weight:500;cursor:pointer;color:var(--muted);transition:.12s}
+.segment button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.segment button:hover:not([aria-pressed=true]){color:var(--ink)}
+
+.vink{display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:13px;padding:1px 0}
+.vink input{margin:2px 0 0;accent-color:var(--accent);flex:none;width:15px;height:15px}
+.vinklijst{display:flex;flex-direction:column;gap:3px;max-height:none}
+
+.afgeleid{display:flex;gap:9px;align-items:flex-start;background:var(--signal-soft);
+  border:1px solid color-mix(in srgb,var(--signal) 32%,transparent);
+  border-radius:7px;padding:9px 11px;font-size:12.5px;line-height:1.45}
+.afgeleid .merkje{color:var(--signal);font-weight:700;flex:none;font-size:13px;line-height:1.3}
+.afgeleid b{font-weight:600}
+
+.kaart{border:1px solid var(--line);border-radius:8px;padding:11px;background:var(--surface);
+  display:flex;flex-direction:column;gap:10px;position:relative}
+.kaartkop{display:flex;align-items:center;gap:8px}
+.kaartnr{font-family:var(--mono);font-size:10.5px;font-weight:500;color:var(--accent);
+  background:var(--accent-soft);border-radius:4px;padding:2px 6px;letter-spacing:.03em}
+.weg{margin-left:auto;border:0;background:transparent;color:var(--faint);cursor:pointer;
+  font-size:16px;line-height:1;padding:2px 5px;border-radius:4px}
+.weg:hover{color:var(--signal);background:var(--signal-soft)}
+.toevoeg{border:1px dashed var(--line);background:transparent;border-radius:8px;
+  padding:9px;font-size:12.5px;font-weight:500;color:var(--muted);cursor:pointer;transition:.12s}
+.toevoeg:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- brief ---------- */
+.briefkant{overflow-y:auto;padding:26px 20px 70px;display:flex;flex-direction:column;
+  align-items:center;gap:14px}
+.briefbalk{width:100%;max-width:640px;display:flex;align-items:center;gap:10px;
+  font-size:11.5px;color:var(--faint)}
+.briefbalk .telling{font-family:var(--mono)}
+.briefbalk .rest{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+.vel{width:100%;max-width:640px;background:var(--paper);color:var(--paper-ink);
+  box-shadow:var(--shadow);border-radius:2px;padding:46px 52px 54px;
+  font-family:var(--brief);font-size:12.4px;line-height:1.62}
+@media (max-width:600px){.vel{padding:30px 26px 36px}}
+
+.velkop{display:flex;justify-content:space-between;gap:24px;
+  padding-bottom:20px;margin-bottom:24px;border-bottom:1px solid var(--paper-line)}
+.velkop .naam{font-weight:700;font-size:15px;letter-spacing:-.01em;line-height:1.25}
+.velkop .naam span{display:block;font-weight:400;font-size:10px;letter-spacing:.13em;
+  text-transform:uppercase;color:#7A7266;margin-top:3px}
+.velkop .plek{font-size:10.5px;color:#7A7266;text-align:right;line-height:1.55}
+
+.sectie{margin:0 0 13px;position:relative}
+.sectie:last-child{margin-bottom:0}
+.alinea{margin:0 0 7px;white-space:pre-wrap;position:relative;border-radius:2px;
+  transition:background .5s}
+.alinea:last-child{margin-bottom:0}
+.alinea.vers{background:color-mix(in srgb,var(--signal) 20%,transparent);transition:background 0s}
+.alinea.kop{font-weight:700;margin-top:16px}
+.sectie:first-child .alinea.kop{margin-top:0}
+.alinea.eigen{border-left:2px solid var(--accent);padding-left:9px;margin-left:-11px}
+
+/* waarom-markering */
+.waarom .alinea[data-waarom]{cursor:help}
+.waarom .alinea[data-waarom]::before{content:"";position:absolute;left:-16px;top:3px;bottom:3px;
+  width:2px;background:var(--signal);border-radius:1px}
+.alinea[data-waarom]:hover .tip{opacity:1;transform:translateY(0);pointer-events:auto}
+.tip{position:absolute;left:-16px;top:calc(100% + 5px);z-index:9;opacity:0;pointer-events:none;
+  transform:translateY(-3px);transition:opacity .13s,transform .13s;
+  background:var(--ink);color:var(--ground);font-family:var(--ui);font-size:11px;
+  line-height:1.45;padding:6px 9px;border-radius:6px;max-width:290px;box-shadow:var(--shadow)}
+.tip b{font-family:var(--mono);font-weight:500;font-size:10.5px}
+body:not(.waarom) .tip{display:none}
+
+.plus{position:absolute;right:-34px;top:0;width:24px;height:24px;border-radius:6px;
+  border:1px dashed var(--paper-line);background:transparent;color:#9A9182;
+  cursor:pointer;opacity:0;transition:.13s;font-size:15px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
+.sectie:hover .plus{opacity:1}
+.plus:hover{border-style:solid;border-color:var(--accent);color:var(--accent)}
+@media (max-width:760px){.plus{display:none}}
+
+.leeg{color:#A79E8E;font-style:italic}
+.velvoet{margin-top:30px;padding-top:14px;border-top:1px solid var(--paper-line);
+  font-size:9px;color:#8C8478;line-height:1.5}
+
+.legenda{width:100%;max-width:640px;display:flex;gap:16px;flex-wrap:wrap;
+  font-size:11.5px;color:var(--muted);padding:2px 2px 0}
+.legenda span{display:inline-flex;align-items:center;gap:6px}
+.staaf{width:2px;height:12px;border-radius:1px;background:var(--signal)}
+.staaf.blauw{background:var(--accent)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="kop">
+  <div class="merk">Brieventool <span class="bu">Schilt Airconditioning</span></div>
+  <div class="kop-mid">
+    <span class="kenmerk">Project&nbsp;no. <b id="k-project">—</b></span>
+    <span class="kenmerk">Ref. <b id="k-ref">—</b></span>
+  </div>
+  <div class="kop-acties">
+    <button class="knop" id="knop-waarom" aria-pressed="false">
+      <span class="stip"></span>Toon waarom</button>
+    <button class="knop hoofd" id="knop-word">Word-bestand maken</button>
+  </div>
+</header>
+
+<main class="blad">
+  <form class="vragen" id="vragen" autocomplete="off"></form>
+
+  <section class="briefkant">
+    <div class="briefbalk">
+      <span class="telling" id="telling">—</span>
+      <span class="rest"><span id="ontbreekt"></span></span>
+    </div>
+    <article class="vel" id="vel"></article>
+    <div class="legenda">
+      <span><i class="staaf"></i> door de tool gekozen — zet <b>Toon&nbsp;waarom</b> aan</span>
+      <span><i class="staaf blauw"></i> eigen alinea</span>
+      <span>zweef over een sectie voor <b>+</b></span>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const BLOKKEN = [{"id":"adres_organisatie","sectie":"geadresseerde","v":"klanttype == 'zakelijk' and organisatie","g":"","o":"","t":"{{ organisatie }}"},{"id":"adres_contactpersoon","sectie":"geadresseerde","v":"aanspreekvorm != 'Fam.'","g":"","o":"","t":"T.a.v. {{ aanspreekvorm }} {{ voorletters }} {{ achternaam }}"},{"id":"adres_familie","sectie":"geadresseerde","v":"aanspreekvorm == 'Fam.'","g":"","o":"","t":"Fam. {{ achternaam }}"},{"id":"adres_regels","sectie":"geadresseerde","v":"","g":"","o":"","t":"{{ straat_huisnummer }}
+{{ postcode }}  {{ plaats }}"},{"id":"betreft","sectie":"betreft","v":"","g":"","o":"Betreft-regel","t":"Betreft	{{ betreft_onderwerp }} t.b.v. {{ locatieaanduiding }}"},{"id":"kenmerken","sectie":"kenmerken","v":"","g":"","o":"","t":"Meerkerk	{{ briefdatum }}
+Ons project no. {{ projectnummer }}
+Ref. {{ referentie }}"},{"id":"aanhef","sectie":"aanhef","v":"","g":"","o":"","t":"Geachte {{ aanspreekvorm_aanhef }} {{ achternaam }},"},{"id":"aanleiding_onderhoud","sectie":"aanleiding","v":"aanleiding == 'onderhoud'","g":"aanleiding","o":"Na een bezoek of gesprek met een adviseur","t":"Naar aanleiding van het aangenaam onderhoud tussen u en {{ adviseur }} d.d. {{ datum_aanleiding }} jl. doen wij u hiermede onze aanbieding toekomen voor het leveren en monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemd project."},{"id":"aanleiding_aanvraag","sectie":"aanleiding","v":"aanleiding == 'aanvraag'","g":"aanleiding","o":"Na een aanvraag van de klant","t":"Naar aanleiding van uw aanvraag d.d. {{ datum_aanleiding }} jl. doen wij u hiermede onze aanbieding toekomen voor het leveren en monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemd project."},{"id":"aanleiding_telefonisch","sectie":"aanleiding","v":"aanleiding == 'telefonisch'","g":"aanleiding","o":"Na een telefonische aanvraag","t":"Naar aanleiding van uw telefonische aanvraag d.d. {{ datum_aanleiding }} jl. doen wij u hiermede onze aanbieding toekomen voor het leveren en monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemd project."},{"id":"aanleiding_servicebezoek","sectie":"aanleiding","v":"aanleiding == 'servicebezoek'","g":"aanleiding","o":"Na een servicebezoek","t":"Naar aanleiding van ons servicebezoek d.d. {{ datum_aanleiding }} jl. doen wij u hiermede onze aanbieding toekomen voor het leveren en monteren van een vervangende airconditioninginstallatie t.b.v. bovengenoemd project."},{"id":"aanleiding_opdrachtbevestiging","sectie":"aanleiding","v":"documentsoort == 'opdrachtbevestiging'","g":"aanleiding","o":"Bevestiging van een ontvangen opdracht","t":"Onder dankzegging bevestigen wij hiermede uw schriftelijke opdrachtnr. {{ opdrachtnummer }} d.d. {{ datum_opdracht }} jl. voor het leveren en monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemde vestiging."},{"id":"kop_aanbieding","sectie":"aanbieding","v":"documentsoort == 'offerte'","g":"","o":"","t":"Aanbieding
+Wij specificeren onze aanbieding als volgt:"},{"id":"kop_opdracht","sectie":"aanbieding","v":"documentsoort == 'opdrachtbevestiging'","g":"","o":"","t":"Opdracht
+Wij specificeren de opdracht als volgt:"},{"id":"spec_ruimte_kop","sectie":"specificatie","v":"regel.ruimte","g":"","o":"","t":"T.b.v. {{ regel.ruimte }}:"},{"id":"spec_split","sectie":"specificatie","v":"regel.systeemsoort == 'splitsystem'","g":"","o":"Enkelvoudig splitsysteem","t":"Het leveren en monteren van {{ telwoord(regel.aantal_systemen) }} luchtgekoelde splitsystem inverterunit{{ 's' if regel.aantal_systemen > 1 }} geschikt voor {{ regel.montagewijze }} fabrikaat {{ regel.merk }} type {{ regel.type_binnendeel }}."},{"id":"spec_multisplit","sectie":"specificatie","v":"regel.systeemsoort == 'multi-splitsystem'","g":"","o":"Multi-splitsysteem: meerdere binnendelen op één buitendeel","t":"Het leveren en monteren van één luchtgekoelde multi-splitsystem inverterunit geschikt voor {{ regel.montagewijze }} fabrikaat {{ regel.merk }} bestaande uit {{ regel.aantal_binnendelen }} binnendelen type {{ regel.type_binnendeel }} en {{ regel.aantal_buitendelen }} buitendeel type {{ regel.type_buitendeel }}."},{"id":"spec_vrf","sectie":"specificatie","v":"regel.systeemsoort == 'vrf'","g":"","o":"VRF-systeem","t":"Het leveren en monteren van één luchtgekoeld VRF systeem fabrikaat {{ regel.merk }} bestaande uit binnendelen type {{ regel.type_binnendeel }} en één buitendeel type {{ regel.type_buitendeel }}."},{"id":"spec_warmtepomp","sectie":"specificatie","v":"regel.systeemsoort == 'warmtepomp'","g":"","o":"Lucht-water warmtepomp","t":"Het leveren en monteren van {{ regel.aantal_systemen }} stuks lucht-water warmtepomp fabrikaat {{ regel.merk }}"},{"id":"spec_koelmachine","sectie":"specificatie","v":"regel.systeemsoort == 'vloeistofkoelmachine'","g":"","o":"Carrier vloeistofkoelmachine","t":"Het leveren en monteren van één Carrier luchtgekoelde vloeistofkoelmachine, type {{ regel.type_binnendeel }}, geschikt voor buitenopstelling. Deze volledig voor koudemiddel R410A ontwikkelde koelmachine is ontworpen voor een energiezuinige toepassing met een hoog deellast rendement (ESEER). De koelmachine heeft standaard een laaag geluidsniveau door de toepassing van scrolcompressoren en de unieke Flying Bird IV condensorventilatoren. De Condensorbatterijen (MCHE) zijn volledig vervaardigd van aluminium en hebben 3,5 maal hogere corrosiebestendigheid dan koper-aluminium batterijen."},{"id":"systeem_wand_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'wand' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is ontworpen voor montage hoog aan de wand, hierdoor wordt de geconditioneerde lucht hoog in de ruimte ingeblazen waardoor een optimale luchtverdeling in de ruimte wordt gecreëerd."},{"id":"systeem_wand_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'wand' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn ontworpen voor montage hoog aan de wand, hierdoor wordt de geconditioneerde lucht hoog in de ruimte ingeblazen waardoor een optimale luchtverdeling in de ruimte wordt gecreëerd."},{"id":"systeem_wand_zwenk_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'wand' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is voorzien van een automatisch mechanisme dat voortdurend de hoek waaronder de luchtstroom wordt uitgeblazen verandert."},{"id":"systeem_wand_zwenk_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'wand' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn voorzien van een automatisch mechanisme dat voortdurend de hoek waaronder de luchtstroom wordt uitgeblazen verandert."},{"id":"systeem_cassette_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'cassette' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is uitgevoerd als zogenaamde cassette-unit en is speciaal ontworpen voor inbouw in een verlaagd plafond. De benodigde ruimte tussen het systeemplafond hiervoor bedraagt 30 cm."},{"id":"systeem_cassette_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'cassette' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn uitgevoerd als zogenaamde cassette-units en zijn speciaal ontworpen voor inbouw in een verlaagd plafond. De benodigde ruimte tussen het systeemplafond hiervoor bedraagt 30 cm."},{"id":"systeem_cassette_schoepen","sectie":"systeemomschrijving","v":"model_binnenunit == 'cassette'","g":"","o":"","t":"Door de speciale vorm van de luchtgeleidende schoepen wordt de geconditioneerde lucht direct langs het plafond geleid waardoor een zeer gelijkmatige menging met de ruimtelucht wordt bereikt."},{"id":"systeem_kanaal_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'kanaal' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is speciaal ontworpen voor plaatsing boven het verlaagd plafond."},{"id":"systeem_kanaal_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'kanaal' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn speciaal ontworpen voor plaatsing boven het verlaagd plafond."},{"id":"systeem_vloer_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'vloer' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is speciaal ontworpen laag aan de muur waardoor de geconditioneerde lucht strak langs de muur wordt uitgeblazen en gelijkmatig in de ruimte wordt verdeeld."},{"id":"systeem_vloer_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'vloer' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn speciaal ontworpen laag aan de muur waardoor de geconditioneerde lucht strak langs de muur wordt uitgeblazen en gelijkmatig in de ruimte wordt verdeeld."},{"id":"systeem_plafondonderbouw_enkel","sectie":"systeemomschrijving","v":"model_binnenunit == 'plafondonderbouw' and aantal_binnenunits == 1","g":"","o":"","t":"De binnenunit is speciaal ontworpen voor montage direct onder het plafond waardoor de geconditioneerde lucht strak onder het plafond wordt uitgeblazen en gelijkmatig in de ruimte wordt verdeeld."},{"id":"systeem_plafondonderbouw_meervoud","sectie":"systeemomschrijving","v":"model_binnenunit == 'plafondonderbouw' and aantal_binnenunits > 1","g":"","o":"","t":"De binnenunits zijn speciaal ontworpen voor montage direct onder het plafond waardoor de geconditioneerde lucht strak onder het plafond wordt uitgeblazen en gelijkmatig in de ruimte wordt verdeeld."},{"id":"systeem_kanaal_toevoer","sectie":"systeemomschrijving","v":"model_binnenunit == 'kanaal'","g":"","o":"","t":"Vanaf de binnenunits wordt de lucht, door middel van een geïsoleerd luchtkanalensysteem met regelkleppen en wervelroosters van het fabrikaat Trox in de ruimte toegevoerd."},{"id":"systeem_opbouw_enkel","sectie":"systeemomschrijving","v":"aantal_binnenunits == 1 and systeemsoort == 'splitsystem'","g":"","o":"","t":"De installatie bestaat uit één binnenunit en één buitenunit die d.m.v. koelmiddelleidingen met elkaar verbonden worden."},{"id":"systeem_opbouw_meervoud","sectie":"systeemomschrijving","v":"aantal_binnenunits > 1","g":"","o":"","t":"De installaties bestaan uit één of meerdere binnenunits en één buitenunit die d.m.v. koelmiddelleidingen met elkaar verbonden worden."},{"id":"storingscontact_enkel","sectie":"systeemomschrijving","v":"storingscontact and aantal_binnenunits == 1","g":"","o":"Bedrijf-/storingscontact voor koppeling aan het GBS","t":"De binnenunit wordt voorzien van een bedrijf-/storingscontact welke door derden dienen te worden bedraad en gekoppeld aan het gebouw beheer systeem (GBS) e.d."},{"id":"storingscontact_meervoud","sectie":"systeemomschrijving","v":"storingscontact and aantal_binnenunits > 1","g":"","o":"Bedrijf-/storingscontact voor koppeling aan het GBS","t":"De binnenunits worden voorzien van een bedrijf-/storingscontact welke door derden dienen te worden bedraad en gekoppeld aan het gebouw beheer systeem (GBS) e.d."},{"id":"verse_lucht_enkel","sectie":"systeemomschrijving","v":"verse_luchtaansluiting and aantal_binnenunits == 1","g":"","o":"Verse-luchtaansluiting op de binnenunit","t":"De binnenunit wordt voorzien van een verse luchtaansluiting compleet met de benodigde geïsoleerde flexibele slang, dakdoorvoering/wanddoorvoering/regenkap/buitenluchtrooster."},{"id":"verse_lucht_meervoud","sectie":"systeemomschrijving","v":"verse_luchtaansluiting and aantal_binnenunits > 1","g":"","o":"Verse-luchtaansluiting op de binnenunits","t":"De binnenunits worden voorzien van een verse luchtaansluiting compleet met de benodigde geïsoleerde flexibele slang, dakdoorvoering/wanddoorvoering/regenkap/buitenluchtrooster."},{"id":"buitenunit_muursteun_enkel","sectie":"buitenunit","v":"opstelling_buitenunit == 'muursteun' and aantal_buitenunits == 1","g":"","o":"Aan de gevel op steunen met trillingsdempers","t":"De buitenunit wordt geplaatst op steunen met trillingsdempers tegen de buitengevel."},{"id":"buitenunit_muursteun_meervoud","sectie":"buitenunit","v":"opstelling_buitenunit == 'muursteun' and aantal_buitenunits > 1","g":"","o":"Aan de gevel op steunen met trillingsdempers","t":"De buitenunits worden geplaatst op steunen met trillingsdempers tegen de buitengevel."},{"id":"buitenunit_platdak_enkel","sectie":"buitenunit","v":"opstelling_buitenunit == 'plat_dak' and aantal_buitenunits == 1","g":"","o":"Op het platte dak op rubberen opstelbalken","t":"De buitenunit wordt geplaatst op geluiddempende rubberen opstelbalken op het platte dak."},{"id":"buitenunit_platdak_meervoud","sectie":"buitenunit","v":"opstelling_buitenunit == 'plat_dak' and aantal_buitenunits > 1","g":"","o":"Op het platte dak op rubberen opstelbalken","t":"De buitenunits worden geplaatst op geluiddempende rubberen opstelbalken op het platte dak."},{"id":"buitenunit_grond","sectie":"buitenunit","v":"opstelling_buitenunit == 'grond'","g":"","o":"Op de grond op rubberen opstelbalken","t":"De buitenunit voor {{ ruimte }} wordt geplaatst op geluiddempende rubberen opstelbalken op de grond."},{"id":"buitenunit_bigfoot_enkel","sectie":"buitenunit","v":"opstelling_buitenunit == 'bigfoot' and aantal_buitenunits == 1","g":"","o":"Op een metalen ondersteuningsframe (BigFoot) op het platte dak","t":"De buitenunit wordt geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."},{"id":"buitenunit_bigfoot_meervoud","sectie":"buitenunit","v":"opstelling_buitenunit == 'bigfoot' and aantal_buitenunits > 1","g":"","o":"Op een metalen ondersteuningsframe (BigFoot) op het platte dak","t":"De buitenunits worden geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."},{"id":"buitenunit_geruisarm_enkel","sectie":"buitenunit","v":"aantal_buitenunits == 1","g":"","o":"","t":"De buitenunit werkt zeer geruisarm en is voorzien van een weerbestendige metalen omkasting."},{"id":"buitenunit_geruisarm_meervoud","sectie":"buitenunit","v":"aantal_buitenunits > 1","g":"","o":"","t":"De buitenunits werken zeer geruisarm en zijn voorzien van een weerbestendige metalen omkasting."},{"id":"buitenunit_coating_enkel","sectie":"buitenunit","v":"coating_optioneel and aantal_buitenunits == 1","g":"","o":"Optionele beschermende coating op de condensor","t":"Optioneel kan de condensor van de buitenunit tegen meerprijs worden voorzien van een beschermende coating."},{"id":"buitenunit_coating_meervoud","sectie":"buitenunit","v":"coating_optioneel and aantal_buitenunits > 1","g":"","o":"Optionele beschermende coating op de condensors","t":"Optioneel kunnen de condensors van de buitenunits tegen meerprijs worden voorzien van een beschermende coating."},{"id":"buitenunit_winterregeling","sectie":"buitenunit","v":"winterregeling","g":"","o":"Winterregeling tot -15 °C","t":"De buitenunit is voorzien van een winterregeling, zodat de installatie kan functioneren tot een buitentemperatuur van -15°C."},{"id":"condens_riolering_enkel","sectie":"werkzaamheden","v":"condensafvoer == 'riolering_derden' and aantal_binnenunits == 1","g":"","o":"Condensafvoer op rioleringsaansluiting van derden","t":"Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde koelmiddel en verzorgen de condensafvoerleidingen op een door derden t.p.v. de binnenunit aan te leveren rioleringsaansluiting ø 32 mm PVC. Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_riolering_meervoud","sectie":"werkzaamheden","v":"condensafvoer == 'riolering_derden' and aantal_binnenunits > 1","g":"","o":"Condensafvoer op rioleringsaansluiting van derden","t":"Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde koelmiddel en verzorgen de condensafvoerleidingen op een door derden t.p.v. de binnenunit aan te leveren rioleringsaansluiting ø 32 mm PVC. Tevens worden de units door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_pomp_enkel","sectie":"werkzaamheden","v":"condensafvoer == 'condenswaterpomp' and aantal_binnenunits == 1","g":"","o":"Condensafvoer met een condenswaterpomp","t":"Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. een condenswaterpomp. Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_pomp_meervoud","sectie":"werkzaamheden","v":"condensafvoer == 'condenswaterpomp' and aantal_binnenunits > 1","g":"","o":"Condensafvoer met een condenswaterpomp","t":"Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. een condenswaterpomp. Tevens worden de units door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_natuurlijk_enkel","sectie":"werkzaamheden","v":"condensafvoer == 'natuurlijk_verloop' and aantal_binnenunits == 1","g":"","o":"Condensafvoer onder natuurlijk verloop","t":"Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. een natuurlijk verloop. Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_natuurlijk_meervoud","sectie":"werkzaamheden","v":"condensafvoer == 'natuurlijk_verloop' and aantal_binnenunits > 1","g":"","o":"Condensafvoer onder natuurlijk verloop","t":"Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. een natuurlijk verloop. Tevens worden de units door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_aanwezig_enkel","sectie":"werkzaamheden","v":"condensafvoer == 'aanwezige_afvoer' and aantal_binnenunits == 1","g":"","o":"Condensafvoer op de aanwezige afvoer","t":"Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. de aanwezige afvoer. Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"condens_bestaand_meervoud","sectie":"werkzaamheden","v":"condensafvoer == 'bestaande_afvoeren'","g":"","o":"Condensafvoer op de bestaande condensafvoeren","t":"Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde koelmiddel en verzorgen de condensafvoer d.m.v. de bestaande condensafvoeren. Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar."},{"id":"bediening_infrarood_enkel","sectie":"bediening","v":"bediening == 'infrarood' and aantal_binnenunits == 1","g":"","o":"Infrarood afstandsbediening","t":"De wandunit is voorzien van een infrarood afstandsbedieningspaneel."},{"id":"bediening_infrarood_meervoud","sectie":"bediening","v":"bediening == 'infrarood' and aantal_binnenunits > 1","g":"","o":"Infrarood afstandsbediening","t":"De units zijn voorzien van een infrarood afstandsbedieningspaneel."},{"id":"bediening_bedraad_enkel","sectie":"bediening","v":"bediening == 'bedraad' and aantal_binnenunits == 1","g":"","o":"Bedraad bedieningspaneel","t":"De unit is voorzien van een bedraad afstandsbedieningspaneel."},{"id":"bediening_bedraad_meervoud","sectie":"bediening","v":"bediening == 'bedraad' and aantal_binnenunits > 1","g":"","o":"Bedraad bedieningspaneel","t":"De units zijn voorzien van een bedraad afstandsbedieningspaneel."},{"id":"techspec_bijlage","sectie":"technische_specificaties","v":"technische_specificaties == 'zie_bijlage'","g":"","o":"Verwijzing naar een bijlage","t":"TECHNISCHE SPECIFICATIES
+Zie bijlage."},{"id":"techspec_uitgeschreven","sectie":"technische_specificaties","v":"technische_specificaties == 'uitgeschreven'","g":"","o":"Volledig uitgeschreven specificatieblok per unit","t":"TECHNISCHE SPECIFICATIES
+{{ technische_specificaties_tekst }}"},{"id":"inclusief_kop","sectie":"werkzaamheden_inclusief","v":"","g":"","o":"","t":"De installatie is aangeboden inclusief:"},{"id":"incl_demontage","sectie":"werkzaamheden_inclusief","v":"'demontage' in werk_inclusief","g":"","o":"Bestaand systeem demonteren en afvoeren","t":"demonteren en afvoeren bestaand airconditioning systeem;"},{"id":"incl_montage","sectie":"werkzaamheden_inclusief","v":"'montage' in werk_inclusief","g":"","o":"Montage van apparatuur en componenten","t":"montage van de genoemde apparatuur en componenten;"},{"id":"incl_bekabeling","sectie":"werkzaamheden_inclusief","v":"'bekabeling' in werk_inclusief","g":"","o":"Interne bekabeling binnen- naar buitenunit","t":"interne elektrische bekabeling tussen binnen- en buitenunit;"},{"id":"incl_sturingsbekabeling","sectie":"werkzaamheden_inclusief","v":"'sturingsbekabeling' in werk_inclusief","g":"","o":"Interne sturingsbekabeling (VRF)","t":"interne sturingsbekabeling tussen binnen- en buitenunit(s);"},{"id":"incl_transport","sectie":"werkzaamheden_inclusief","v":"'transport' in werk_inclusief","g":"","o":"Intern en verticaal transport","t":"intern en verticaal transport;"},{"id":"incl_transport_hoogwerker","sectie":"werkzaamheden_inclusief","v":"'transport_hoogwerker' in werk_inclusief","g":"","o":"Intern en verticaal transport, inclusief huur hoogwerker","t":"intern en verticaal transport (huur hoogwerker);"},{"id":"incl_transport_kraan","sectie":"werkzaamheden_inclusief","v":"'transport_kraan' in werk_inclusief","g":"","o":"Intern en verticaal transport, inclusief huur kraan","t":"intern en verticaal transport (huur kraan);"},{"id":"incl_flexibele_leidingen","sectie":"werkzaamheden_inclusief","v":"'flexibele_leidingen' in werk_inclusief","g":"","o":"Flexibele koelleidingen op flamco tegen het dek","t":"flexibele koelleidingen worden op flamco tegen het dek gemonteerd;"},{"id":"incl_starre_leidingen","sectie":"werkzaamheden_inclusief","v":"'starre_leidingen' in werk_inclusief","g":"","o":"Starre koelleidingen in beugels met isolatie-inlage","t":"starre koelleidingen worden in beugels met isolatie inlage gemonteerd;"},{"id":"incl_inbedrijfstelling","sectie":"werkzaamheden_inclusief","v":"'inbedrijfstelling' in werk_inclusief","g":"","o":"Inbedrijfstelling van de apparatuur","t":"inbedrijfstelling van de apparatuur."},{"id":"exclusief_kop","sectie":"werkzaamheden_exclusief","v":"","g":"","o":"","t":"Niet tot onze werkzaamheden behoren:"},{"id":"excl_bouwkundig","sectie":"werkzaamheden_exclusief","v":"'bouwkundig' in werk_exclusief","g":"","o":"Bouwkundige werkzaamheden","t":"alle benodigde bouwkundige werkzaamheden;"},{"id":"excl_sparingen","sectie":"werkzaamheden_exclusief","v":"'sparingen' in werk_exclusief","g":"","o":"(Brandwerende) sparingen en doorvoeringen","t":"verzorgen van (brandwerende) sparingen en doorvoeringen;"},{"id":"excl_sparingen_uitgebreid","sectie":"werkzaamheden_exclusief","v":"'sparingen_uitgebreid' in werk_exclusief","g":"","o":"Akoestische, brandwerende, gas- en waterdichte doorvoeringen","t":"het verzorgen van (akoestische, brandwerende, gas en waterdichte) doorvoeringen en sparingen;"},{"id":"excl_betonboringen","sectie":"werkzaamheden_exclusief","v":"'betonboringen' in werk_exclusief","g":"","o":"Betonboringen, hak-, breek-, frees-, timmer- en schilderwerk","t":"betonboringen, hak-, breek-, frees-, timmer- en schilderwerkzaamheden;"},{"id":"excl_elektra_stopcontact","sectie":"werkzaamheden_exclusief","v":"'elektra_stopcontact' in werk_exclusief","g":"","o":"Elektra — bestaand geaard stopcontact wordt hergebruikt","t":"de benodigde elektrotechnische werkzaamheden, indien mogelijk passen we het bestaande geaarde stopcontact toe;"},{"id":"excl_elektra_voeding","sectie":"werkzaamheden_exclusief","v":"'elektra_voeding' in werk_exclusief","g":"","o":"Elektra — bestaande voeding wordt hergebruikt","t":"de benodigde elektrotechnische werkzaamheden, indien mogelijk passen we de bestaande voeding toe;"},{"id":"excl_elektra_voedingskabel","sectie":"werkzaamheden_exclusief","v":"'elektra_voedingskabel' in werk_exclusief","g":"","o":"Elektra — voedingskabel bij de buitenunit","t":"de benodigde elektrotechnische werkzaamheden, d.w.z. de benodigde voedingskabel t.p.v. de buitenunit;"},{"id":"excl_elektra_alles","sectie":"werkzaamheden_exclusief","v":"'elektra_alles' in werk_exclusief","g":"","o":"Elektra — alle elektrotechnische werkzaamheden","t":"de benodigde elektrotechnische werkzaamheden;"},{"id":"excl_regeltechniek","sectie":"werkzaamheden_exclusief","v":"'regeltechniek' in werk_exclusief","g":"","o":"Regeltechniek (koppelingen GBS)","t":"de benodigde regeltechnische werkzaamheden (koppelingen GBS, etc.);"},{"id":"excl_regeltechniek_bedraden","sectie":"werkzaamheden_exclusief","v":"'regeltechniek_bedraden' in werk_exclusief","g":"","o":"Regeltechniek inclusief bedraden (VRF)","t":"de benodigde regeltechnische werkzaamheden (bedraden en koppelingen GBS, etc.);"},{"id":"excl_condensafvoerleiding","sectie":"werkzaamheden_exclusief","v":"'condensafvoerleiding' in werk_exclusief","g":"","o":"Condensafvoerleiding bij de binnenunit","t":"condensafvoerleiding t.p.v. de binnenunit ø 32 mm PVC;"},{"id":"excl_plakplaat","sectie":"werkzaamheden_exclusief","v":"'plakplaat' in werk_exclusief","g":"","o":"Inplakken plakplaat i.v.m. dakgarantie","t":"inplakken van de door Schilt toegeleverde plakplaat ø 120 mm i.v.m. dakgarantie;"},{"id":"excl_beplating","sectie":"werkzaamheden_exclusief","v":"'beplating' in werk_exclusief","g":"","o":"Leidingen afwerken met aluminium beplating","t":"leidingen afwerken met aluminium beplating."},{"id":"excl_koellast","sectie":"werkzaamheden_exclusief","v":"'koellast' in werk_exclusief","g":"","o":"Koellastberekeningen","t":"verzorgen koellastberekeningen;"},{"id":"excl_kabelgoot","sectie":"werkzaamheden_exclusief","v":"'kabelgoot' in werk_exclusief","g":"","o":"Kabelgoottracés voor koelleidingen","t":"leveren en monteren kabelgoot tracés t.b.v. koelleidingen;"},{"id":"excl_waterzijdig","sectie":"werkzaamheden_exclusief","v":"'waterzijdig' in werk_exclusief","g":"","o":"Waterzijdige werkzaamheden (CV en GKW)","t":"waterzijdige werkzaamheden (leveren en monteren CV- en GKW-installatie);"},{"id":"excl_hoogwerker","sectie":"werkzaamheden_exclusief","v":"'hoogwerker' in werk_exclusief","g":"","o":"Huur hoogwerkers","t":"huur hoogwerkers."},{"id":"excl_verticaal_transport","sectie":"werkzaamheden_exclusief","v":"'verticaal_transport' in werk_exclusief","g":"","o":"Verticaal transport (huur kraan)","t":"verticaal transport (huur kraan);"},{"id":"prijs_kop","sectie":"prijs","v":"prijssoort == 'totaalprijs'","g":"","o":"","t":"Totaalprijs:"},{"id":"prijs_kop_raamprijs","sectie":"prijs","v":"prijssoort == 'raamprijs'","g":"","o":"","t":"Raamprijs:"},{"id":"prijs_regel","sectie":"prijs","v":"prijssoort == 'totaalprijs' and not regel.positie","g":"","o":"","t":"De totaalprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."},{"id":"prijs_regel_positie","sectie":"prijs","v":"prijssoort == 'totaalprijs' and regel.positie","g":"","o":"","t":"De totaalprijs compleet geleverd en gemonteerd voor {{ regel.positie }} bedraagt {{ regel.bedrag }} netto."},{"id":"prijs_regel_raamprijs","sectie":"prijs","v":"prijssoort == 'raamprijs'","g":"","o":"","t":"De raamprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."},{"id":"meerprijs_coating_enkel","sectie":"prijs","v":"meerprijs_coating and aantal_buitenunits == 1","g":"","o":"Meerprijs coating buitenunit","t":"De meerprijs voor het coaten van de buitenunit bedraagt {{ meerprijs_coating }} netto."},{"id":"meerprijs_coating_meervoud","sectie":"prijs","v":"meerprijs_coating and aantal_buitenunits > 1","g":"","o":"Meerprijs coating buitenunits","t":"De meerprijs voor het coaten van de buitenunits bedraagt {{ meerprijs_coating }} netto."},{"id":"meerprijs_ral_enkel","sectie":"prijs","v":"meerprijs_ral and aantal_buitenunits == 1","g":"","o":"Meerprijs RAL-kleur buitenunit","t":"De meerprijs voor het uitvoeren van de buitenunit in een n.t.b. RAL-kleur bedraagt {{ meerprijs_ral }} netto."},{"id":"meerprijs_ral_meervoud","sectie":"prijs","v":"meerprijs_ral and aantal_buitenunits > 1","g":"","o":"Meerprijs RAL-kleur buitenunits","t":"De meerprijs voor het uitvoeren van de buitenunits in een n.t.b. RAL-kleur bedraagt {{ meerprijs_ral }} netto."},{"id":"onderhoud_niet_inbegrepen","sectie":"prijs","v":"onderhoud_alinea","g":"","o":"","t":"Onderhoudswerkzaamheden zijn niet inbegrepen. Het is echter mogelijk om met ons een onderhoudscontract af te sluiten."},{"id":"meerprijs_condenspomp_zakelijk","sectie":"prijs","v":"condenspomp_meerprijs and klanttype == 'zakelijk'","g":"","o":"Meerprijs condenswaterpomp (zakelijk, € 220,-)","t":"Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt € 220,- per stuk."},{"id":"meerprijs_condenspomp_particulier","sectie":"prijs","v":"condenspomp_meerprijs and klanttype == 'particulier'","g":"","o":"Meerprijs condenswaterpomp (particulier, € 260,-)","t":"Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt € 260,- per stuk."},{"id":"btw_exclusief","sectie":"prijs","v":"klanttype == 'zakelijk'","g":"","o":"","t":"De genoemde prijzen zijn exclusief 21% btw."},{"id":"btw_inclusief","sectie":"prijs","v":"klanttype == 'particulier'","g":"","o":"","t":"De genoemde prijzen zijn inclusief 21% btw."},{"id":"uitgangspunten_prijsvorming","sectie":"prijs","v":"","g":"","o":"","t":"Voor de prijsvorming zijn wij er van uitgegaan dat:
+- de (werk)locatie goed bereikbaar, veilig en vrij toegankelijk is;
+- de werkzaamheden aaneengesloten worden uitgevoerd;
+- de werkzaamheden tijdens normale werktijden (kantooruren) kunnen worden uitgevoerd."},{"id":"ontbindingsrecht_particulier","sectie":"levering","v":"klanttype == 'particulier'","g":"","o":"Ontbindingsrecht bij overschrijding leverdatum (consument)","t":"Als de oorspronkelijke (al dan niet geschatte) leverdatum met meer dan 6 maanden wordt overschreden, heeft u het recht de overeenkomst te ontbinden. Ontbinding van de overeenkomst geeft u echter geen recht op schadevergoeding."},{"id":"levering_standaard","sectie":"levering","v":"","g":"","o":"Franco werk, levertijd in onderling overleg","t":"Levering:
+De levering geschiedt franco werk.
+Levertijd: in onderling overleg."},{"id":"facturering_kop","sectie":"facturering","v":"","g":"","o":"","t":"Facturering en betaling:"},{"id":"facturering_100_gereed","sectie":"facturering","v":"facturering == 'volledig_gereed'","g":"","o":"100% wanneer de werkzaamheden gereed zijn","t":"Facturering: 100% wanneer de werkzaamheden gereed zijn."},{"id":"facturering_100_levering","sectie":"facturering","v":"facturering == 'volledig_levering'","g":"","o":"100% na levering","t":"Facturering: 100% na levering."},{"id":"facturering_25_evenredig","sectie":"facturering","v":"facturering == 'termijnen_25'","g":"","o":"In termijnen van 25%, naar evenredigheid","t":"Facturering: in termijnen van 25% naar evenredigheid van de leveringen en werkzaamheden."},{"id":"facturering_30_20_20_20_10","sectie":"facturering","v":"facturering == 'vijf_termijnen'","g":"","o":"30% opdracht, 20% aanvang, 20% bij 50%, 20% bij 90%, 10% oplevering","t":"Facturering:	30% bij opdracht, direct betaalbaar
+		20% bij aanvang werkzaamheden
+		20% bij 50% gereed
+		20% bij 90% gereed
+		10% bij oplevering"},{"id":"facturering_30_70","sectie":"facturering","v":"facturering == 'dertig_zeventig'","g":"","o":"30% bij opdracht, 70% bij aanvang werkzaamheden","t":"Facturering:	30% bij opdracht, direct betaalbaar
+		70% bij aanvang werkzaamheden"},{"id":"facturering_30_60_10","sectie":"facturering","v":"facturering == 'dertig_zestig_tien'","g":"","o":"30% bij opdracht, 60% bij aanvang, 10% bij oplevering","t":"Facturering:	30% bij opdracht, direct betaalbaar
+		60% bij aanvang werkzaamheden
+		10% bij oplevering"},{"id":"facturering_overleg","sectie":"facturering","v":"facturering == 'overleg'","g":"","o":"In onderling overleg","t":"Facturering: in onderling overleg."},{"id":"facturering_betaling_particulier","sectie":"facturering","v":"klanttype == 'particulier'","g":"","o":"Particulier: 50% vooraf, 50% na oplevering","t":"Facturering:	- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.
+		- laatste termijn, 50% na oplevering.
+Betaling:	- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.
+		- laatste termijn binnen 30 dagen na factuurdatum."},{"id":"betaling_30_dagen","sectie":"betaling","v":"betaling == 'dertig_dagen'","g":"","o":"Binnen 30 dagen na factuurdatum","t":"Betaling: binnen 30 dagen na de factuurdatum."},{"id":"betaling_aflevering","sectie":"betaling","v":"betaling == 'aflevering'","g":"","o":"Bij aflevering","t":"Betaling: bij aflevering."},{"id":"kredietwaardigheid","sectie":"voorwaarden","v":"klanttype == 'zakelijk'","g":"","o":"","t":"Kredietwaardigheid:
+Na ontvangst van een opdracht wordt door ons de kredietwaardigheid van de opdrachtgever getoetst bij onze kredietadviseurs. Indien dit advies daartoe aanleiding geeft, is het mogelijk dat er t.o.v. de in de offerte c.q. opdrachtbevestiging genoemde betalingscondities afwijkende condities overeengekomen dienen te worden."},{"id":"algemene_voorwaarden","sectie":"voorwaarden","v":"","g":"","o":"","t":"Algemene voorwaarden:
+Wij leveren volgens de algemene leverings- en betalingsvoorwaarden van de Koninklijke Metaalunie (Metaalunievoorwaarden), gedeponeerd ter griffie van de rechtbank te Rotterdam, zoals deze luiden volgens de laatstelijk aldaar neergelegde tekst, met uitsluiting van (alle) andere algemene voorwaarden. De voorwaarden worden u op verzoek toegezonden."},{"id":"garantie_standaard","sectie":"garantie","v":"installatietype != 'koelmachine'","g":"","o":"12 maanden op materiaal en werk, plus fabrieksgarantie","t":"Garantietermijn:
+De garantietermijn binnen Nederland is 12 maanden op geleverde materialen en door ons uitgevoerde werkzaamheden na inbedrijfstellen. Op geleverde onderdelen geldt een aanvullende fabrieksgarantie. Defecten welke te wijten zijn aan derden vallen buiten de garantie."},{"id":"garantie_koelmachine","sectie":"garantie","v":"installatietype == 'koelmachine'","g":"","o":"Koelmachine: 12 maanden, max. 18 maanden na aflevering","t":"Garantietermijn:
+Gedurende 12 maanden na inbedrijfstelling op materiaal en arbeidsloon met een maximum van 18 maanden na aflevering (de kortste termijn is doorslaggevend).
+Op de compressor en MCHE condensorbatterijen geldt een aanvullende 24 maanden garantie op materiaal."},{"id":"garantie_luchtslang","sectie":"garantie","v":"installatietype == 'luchtslangsysteem'","g":"","o":"KE-Fibertec luchtslang: 10 jaar materiaalgarantie","t":"Materiaal garantie:
+10 jaar garantie op de gehele slang inclusief ritsen en accessoires."},{"id":"aansprakelijkheid","sectie":"voorwaarden","v":"","g":"","o":"","t":"Aansprakelijkheid:
+- Indien wij bij u betonboringen uitvoeren, zullen deze met de uiterste zorgvuldigheid worden uitgevoerd. Business Unit Schilt Airconditioning is echter niet aansprakelijk voor het eventueel – onverhoopt – beschadigen van (leidingen in) vloeren of wanden.
+- Wij willen u erop attenderen geen apparatuur onder de binnenunits te plaatsen. Indien er wel apparatuur onder de binnenunits wordt geplaatst, is Business Unit Schilt Airconditioning niet aansprakelijk voor eventuele schade als gevolg van - onverhoopte - condenslekkages."},{"id":"tot_slot_kop","sectie":"afsluiting","v":"","g":"","o":"","t":"Tot slot"},{"id":"documentatie_bijgevoegd","sectie":"afsluiting","v":"documentatie_bijgevoegd","g":"","o":"","t":"Wij hebben documentatie van de betreffende apparatuur bijgevoegd."},{"id":"geldigheidsduur","sectie":"afsluiting","v":"documentsoort == 'offerte'","g":"","o":"","t":"Deze aanbieding wordt 30 dagen na heden gestand gedaan, daarna komt deze te vervallen."},{"id":"slotzin","sectie":"afsluiting","v":"documentsoort == 'offerte'","g":"","o":"","t":"Wij zijn ervan overtuigd u hiermede een zeer bruikbare en prijsgunstige aanbieding te hebben gemaakt en zullen het erg op prijs stellen wanneer wij de werkzaamheden voor u mogen uitvoeren."},{"id":"privacy","sectie":"afsluiting","v":"","g":"","o":"","t":"Wij maken u erop attent dat wij de persoonsgegevens die u ons heeft verstrekt en eventueel nog zult verstrekken, zullen verwerken op de manier zoals wij die in onze privacyverklaring hebben omschreven. Wij verwijzen u graag naar www.schiltbedrijven.nl/privacyverklaring voor meer informatie over de verwerking van uw persoonsgegevens en de rechten die u heeft."},{"id":"ondertekening","sectie":"afsluiting","v":"","g":"","o":"","t":"Vertrouwende u hiermee van dienst te zijn geweest, tekenen wij met vriendelijke groeten,
+Business Unit Schilt Airconditioning
+MEERKERK
+{{ ondertekenaar.naam }}
+{{ ondertekenaar.functie }}"}];
+
+/* ==================================================================
+   Expressies — dezelfde subset als brieventool/expressies.py
+   ================================================================== */
+function tokeniseer(s){
+  const t=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){i++;continue}
+    if(c==="'"||c==='"'){const q=c;let j=i+1,v="";while(j<s.length&&s[j]!==q){v+=s[j++]}
+      t.push({k:"str",v});i=j+1;continue}
+    if(/[0-9]/.test(c)){let j=i,v="";while(j<s.length&&/[0-9.]/.test(s[j])){v+=s[j++]}
+      t.push({k:"num",v:parseFloat(v)});i=j;continue}
+    if(/[A-Za-z_]/.test(c)){let j=i,v="";while(j<s.length&&/[A-Za-z0-9_]/.test(s[j])){v+=s[j++]}
+      t.push({k:"naam",v});i=j;continue}
+    const twee=s.slice(i,i+2);
+    if(["==","!=",">=","<="].includes(twee)){t.push({k:"op",v:twee});i+=2;continue}
+    if("<>().,".includes(c)){t.push({k:c==="("||c===")"?c:(c==="."||c===",")?c:"op",v:c});i++;continue}
+    i++;
+  }
+  return t;
+}
+function ontleed(tokens){
+  let p=0;
+  const kijk=()=>tokens[p], hap=()=>tokens[p++];
+  const isNaam=v=>kijk()&&kijk().k==="naam"&&kijk().v===v;
+
+  function ternair(){
+    const waar=of_();
+    if(isNaam("if")){hap();const test=of_();
+      let anders={k:"lit",v:""};
+      if(isNaam("else")){hap();anders=of_()}
+      return {k:"als",test,waar,anders};}
+    return waar;
+  }
+  function of_(){let l=en_();while(isNaam("or")){hap();l={k:"of",l,r:en_()}}return l}
+  function en_(){let l=niet();while(isNaam("and")){hap();l={k:"en",l,r:niet()}}return l}
+  function niet(){if(isNaam("not")){hap();return {k:"niet",e:niet()}}return vergelijk()}
+  function vergelijk(){
+    let l=primair();
+    while(kijk()&&((kijk().k==="op"&&["==","!=",">","<",">=","<="].includes(kijk().v))||isNaam("in"))){
+      const op=hap().v==="in"?"in":tokens[p-1].v;
+      l={k:"cmp",op,l,r:primair()};
+    }
+    return l;
+  }
+  function primair(){
+    const t=kijk();
+    if(!t)return {k:"lit",v:null};
+    if(t.k==="("){hap();const e=ternair();if(kijk()&&kijk().k===")")hap();return e}
+    if(t.k==="str"||t.k==="num"){hap();return {k:"lit",v:t.v}}
+    if(t.k==="naam"){
+      hap(); let knoop={k:"naam",v:t.v};
+      while(kijk()&&(kijk().k==="."||kijk().k==="(")){
+        if(kijk().k==="."){hap();const n=hap();knoop={k:"attr",e:knoop,naam:n?n.v:""}}
+        else{hap();const args=[];
+          while(kijk()&&kijk().k!==")"){args.push(ternair());if(kijk()&&kijk().k===",")hap()}
+          if(kijk())hap();
+          knoop={k:"roep",naam:knoop.v,args};}
+      }
+      return knoop;
+    }
+    hap(); return {k:"lit",v:null};
+  }
+  return ternair();
+}
+const FUNCTIES={
+  telwoord:n=>["nul","één","twee","drie","vier","vijf","zes","zeven","acht","negen","tien"][n]??String(n),
+  bedrag:v=>formatBedrag(v),
+};
+function reken(n,ctx){
+  switch(n.k){
+    case "lit": return n.v;
+    case "naam": return ctx[n.v];
+    case "attr": {const d=reken(n.e,ctx); return (d&&typeof d==="object")?d[n.naam]:null}
+    case "roep": {const f=FUNCTIES[n.naam]; return f?f(...n.args.map(a=>reken(a,ctx))):null}
+    case "niet": return !reken(n.e,ctx);
+    case "en": {const l=reken(n.l,ctx); return l?reken(n.r,ctx):l}
+    case "of": {const l=reken(n.l,ctx); return l?l:reken(n.r,ctx)}
+    case "als": return reken(n.test,ctx)?reken(n.waar,ctx):reken(n.anders,ctx);
+    case "cmp": {
+      const a=reken(n.l,ctx), b=reken(n.r,ctx);
+      switch(n.op){
+        case "==":return a===b; case "!=":return a!==b;
+        case ">":return a!=null&&b!=null&&a>b; case "<":return a!=null&&b!=null&&a<b;
+        case ">=":return a!=null&&b!=null&&a>=b; case "<=":return a!=null&&b!=null&&a<=b;
+        case "in":return Array.isArray(b)?b.includes(a):(typeof b==="string"?b.includes(a):false);
+      }
+      return false;
+    }
+  }
+  return null;
+}
+const cacheAst=new Map();
+function evalueer(expr,ctx){
+  if(!expr||!expr.trim())return true;
+  if(!cacheAst.has(expr))cacheAst.set(expr,ontleed(tokeniseer(expr)));
+  return reken(cacheAst.get(expr),ctx);
+}
+
+/* ==================================================================
+   Opmaak — spiegelt brieventool/opmaak.py
+   ================================================================== */
+const MAANDEN=["januari","februari","maart","april","mei","juni","juli","augustus",
+  "september","oktober","november","december"];
+function formatBedrag(v){
+  if(v===null||v===undefined||v==="")return "";
+  const n=typeof v==="number"?v:parseFloat(String(v).replace(/[^0-9,.-]/g,"").replace(/\./g,"").replace(",","."));
+  if(isNaN(n))return "";
+  const heel=Math.trunc(Math.abs(n)), cent=Math.round((Math.abs(n)-heel)*100);
+  const dz=heel.toLocaleString("nl-NL");
+  return "€ "+(n<0?"-":"")+dz+(cent?","+String(cent).padStart(2,"0"):",-");
+}
+function formatDatum(iso){
+  if(!iso)return "";
+  const d=new Date(iso+"T12:00:00");
+  if(isNaN(d))return iso;
+  return d.getDate()+" "+MAANDEN[d.getMonth()]+" "+d.getFullYear();
+}
+function formatPostcode(p){
+  const k=(p||"").replace(/\s/g,"").toUpperCase();
+  return /^[0-9]{4}[A-Z]{2}$/.test(k)?k.slice(0,4)+" "+k.slice(4):(p||"");
+}
+
+/* ==================================================================
+   Antwoorden — de staat van het formulier
+   ================================================================== */
+const ONDERTEKENAARS={
+  nick_vervoorn:{naam:"Nick Vervoorn",functie:"Technisch Commercieel Adviseur",initialen:"NV"},
+  john_van_de_weetering:{naam:"John van de Weetering",functie:"Technisch Commercieel Manager",initialen:"JvdW"},
+  ricardo_rozendaal:{naam:"Ricardo Rozendaal",functie:"Project Engineer",initialen:"RR"},
+  robert_hartman:{naam:"Robert Hartman",functie:"Business Unit General Manager",initialen:"RH"},
+};
+const A={
+  klanttype:"particulier", documentsoort:"offerte", installatietype:"airconditioning",
+  organisatie:"", aanspreekvorm:"de heer", voorletters:"K.", achternaam:"Ten Broek",
+  straat_huisnummer:"Spijksekweldijk 1", postcode:"4161BP", plaats:"Heukelum",
+  briefdatum:new Date().toISOString().slice(0,10),
+  projectnummer:"Q.1018394.6.01", ondertekenaar:"nick_vervoorn",
+  opsteller_initialen:"RdJ", sa_nummer:"35738",
+  aanleiding:"onderhoud", adviseur:"Nick Vervoorn", datum_aanleiding:"20 maart",
+  locatieaanduiding:"uw twee slaapkamers en de keuken",
+  model_binnenunit:"wand", opstelling_buitenunit:"muursteun",
+  condensafvoer:"natuurlijk_verloop", bediening:"infrarood",
+  winterregeling:false, storingscontact:false, coating_optioneel:false,
+  technische_specificaties:"zie_bijlage",
+  systeemsoort:"splitsystem", prijssoort:"totaalprijs",
+  condenspomp_meerprijs:true, onderhoud_alinea:true, documentatie_bijgevoegd:true,
+  meerprijs_coating:"",
+  facturering:"particulier_50_50", betaling:"particulier_50_50",
+  werk_inclusief:["montage","bekabeling","transport","inbedrijfstelling"],
+  werk_exclusief:["bouwkundig","betonboringen","elektra_stopcontact"],
+  installaties:[
+    {ruimte:"de slaapkamer op de eerste verdieping en de keuken",aantal_systemen:1,
+     systeemsoort:"multi-splitsystem",montagewijze:"wand/vloermontage",merk:"Panasonic",
+     type_binnendeel:"CS-TZ35CKEW (1x), CS-Z35CFEAW (1x)",aantal_binnendelen:2,
+     aantal_buitendelen:1,type_buitendeel:"CU-2Z50CBE"},
+    {ruimte:"de slaapkamer",aantal_systemen:1,systeemsoort:"splitsystem",
+     montagewijze:"vloermontage",merk:"Panasonic",type_binnendeel:"KIT-Z25-UFE"},
+  ],
+  prijsregels:[{positie:"",bedrag:10950}],
+  eigenAlineas:{},
+};
+
+/* ==================================================================
+   Context — spiegelt _bouw_context in samenstellen.py
+   ================================================================== */
+const OMSCHRIJVING={airconditioning:["een airconditioninginstallatie","airconditioninginstallaties"],
+  koelmachine:["een koelmachine","koelmachines"],
+  "mechanische ventilatie":["een mechanisch ventilatiesysteem","mechanische ventilatiesystemen"],
+  warmtepomp:["een warmtepompinstallatie","warmtepompinstallaties"]};
+const ONDERWERP={airconditioning:"Airconditioning",koelmachine:"Koelmachine",
+  "mechanische ventilatie":"Mechanische ventilatie",warmtepomp:"Warmtepomp"};
+const AANHEF={"de heer":"heer",mevrouw:"mevrouw","de heer en mevrouw":"heer en mevrouw","Fam.":"heer en mevrouw"};
+
+function bouwContext(){
+  const c=Object.assign({},A);
+  const binnen=A.installaties.reduce((s,i)=>s+(parseInt(i.aantal_binnendelen)||parseInt(i.aantal_systemen)||1),0)||1;
+  const buiten=A.installaties.reduce((s,i)=>s+(parseInt(i.aantal_buitendelen)||parseInt(i.aantal_systemen)||1),0)||1;
+  c.aantal_binnenunits=binnen; c.aantal_buitenunits=buiten;
+  c.aantal_installaties=A.installaties.length||1;
+  c.is_meervoud_binnen=binnen>1; c.is_meervoud_buiten=buiten>1;
+  c.is_meervoud_installatie=A.prijsregels.length>1||A.installaties.length>1;
+  const [enk,mv]=OMSCHRIJVING[A.installatietype]||["een installatie","installaties"];
+  c.installatie_omschrijving=c.is_meervoud_installatie?mv:enk;
+  c.betreft_onderwerp=ONDERWERP[A.installatietype]||A.installatietype;
+  c.aanspreekvorm_aanhef=AANHEF[A.aanspreekvorm]||A.aanspreekvorm;
+  c.btw_weergave=A.klanttype==="particulier"?"inclusief":"exclusief";
+  c.briefdatum=formatDatum(A.briefdatum);
+  c.postcode=formatPostcode(A.postcode);
+  c.ondertekenaar=ONDERTEKENAARS[A.ondertekenaar]||{};
+  c.referentie=[c.ondertekenaar.initialen,A.opsteller_initialen,"SA"+(A.sa_nummer||"")]
+    .filter(Boolean).join("/");
+  c.meerprijs_coating=formatBedrag(A.meerprijs_coating);
+  c.prijsregels=A.prijsregels.map(r=>Object.assign({},r,{bedrag:formatBedrag(r.bedrag)}));
+  c.installaties=A.installaties;
+  return c;
+}
+
+/* ==================================================================
+   Samenstellen — spiegelt stel_samen()
+   ================================================================== */
+const LOOP={specificatie:"installaties",prijs:"prijsregels"};
+const SECTIES=[...new Set(BLOKKEN.map(b=>b.sectie))];
+const verwijstNaarRegel=b=>b.v.includes("regel.")||b.t.includes("regel.");
+
+function vulIn(tekst,ctx){
+  return tekst.replace(/\{\{(.+?)\}\}/g,(_,e)=>{
+    const w=evalueer(e.trim(),ctx);
+    return (w===null||w===undefined||w===false)?"":String(w);
+  }).replace(/ {2,}/g," ").split("\n").map(r=>r.replace(/\s+$/,"")).join("\n").trim();
+}
+function redenVan(blok,ctx){
+  if(!blok.v)return null;
+  const m=blok.v.match(/([a-z_]+)\s*(==|!=|>|<|>=|<=)\s*'?([^']*)'?/);
+  if(m)return {veld:m[1],waarde:ctx[m[1]]};
+  const l=blok.v.match(/'([^']+)'\s+in\s+([a-z_]+)/);
+  if(l)return {veld:l[2],waarde:l[1]};
+  const n=blok.v.match(/^([a-z_]+)$/);
+  if(n)return {veld:n[1],waarde:ctx[n[1]]?"ja":"nee"};
+  return {veld:blok.v,waarde:""};
+}
+
+function stelSamen(){
+  const ctx=bouwContext(), uit={}, gebruikt=[];
+  const vergeven=new Set();
+  for(const sectie of SECTIES){
+    const alineas=[], lijst=LOOP[sectie], regels=lijst?(ctx[lijst]||[]):[];
+    const blokken=BLOKKEN.filter(b=>b.sectie===sectie);
+    let i=0;
+    while(i<blokken.length){
+      const herhaalt=lijst&&verwijstNaarRegel(blokken[i]);
+      const groep=[];
+      while(i<blokken.length&&(lijst&&verwijstNaarRegel(blokken[i]))===herhaalt){groep.push(blokken[i++])}
+      if(herhaalt){
+        regels.forEach((regel,n)=>{
+          const lok=Object.assign({},ctx,{regel,regelnummer:n+1});
+          for(const b of groep){ if(evalueer(b.v,lok)){
+            alineas.push({tekst:vulIn(b.t,lok),blok:b,reden:redenVan(b,lok)}); gebruikt.push(b.id);}}
+        });
+      }else{
+        for(const b of groep){
+          if(b.g&&vergeven.has(b.g))continue;
+          if(evalueer(b.v,ctx)){
+            alineas.push({tekst:vulIn(b.t,ctx),blok:b,reden:redenVan(b,ctx)});
+            gebruikt.push(b.id); if(b.g)vergeven.add(b.g);
+          }
+        }
+      }
+    }
+    for(const eigen of (A.eigenAlineas[sectie]||[])) alineas.push({tekst:eigen,eigen:true});
+    uit[sectie]=alineas;
+  }
+  return {secties:uit,gebruikt,ctx};
+}
+
+/* ==================================================================
+   Het formulier — vragen verschijnen alleen als ze ertoe doen
+   ================================================================== */
+const zakelijk=()=>A.klanttype==="zakelijk";
+const multi=()=>A.installaties.some(i=>i.systeemsoort==="multi-splitsystem"||i.systeemsoort==="vrf");
+
+const GROEPEN=[
+ {naam:"Klant", samen:()=>[A.organisatie||[A.aanspreekvorm,A.achternaam].filter(Boolean).join(" "),A.plaats].filter(Boolean).join(" · "),
+  velden:[
+   {t:"segment",n:"klanttype",l:"Soort klant",opties:[["particulier","Particulier"],["zakelijk","Zakelijk"]]},
+   {t:"tekst",n:"organisatie",l:"Organisatie",als:zakelijk},
+   {t:"rij",velden:[
+     {t:"keuze",n:"aanspreekvorm",l:"Aanhef",opties:[["de heer","de heer"],["mevrouw","mevrouw"],["de heer en mevrouw","de heer en mevrouw"],["Fam.","Fam."]]},
+     {t:"tekst",n:"voorletters",l:"Voorletters",als:()=>A.aanspreekvorm!=="Fam."}]},
+   {t:"tekst",n:"achternaam",l:"Achternaam"},
+   {t:"tekst",n:"straat_huisnummer",l:"Straat en huisnummer"},
+   {t:"rij",velden:[{t:"tekst",n:"postcode",l:"Postcode",code:true},{t:"tekst",n:"plaats",l:"Plaats"}]},
+  ]},
+
+ {naam:"Brief", samen:()=>[A.documentsoort==="offerte"?"Offerte":"Opdrachtbevestiging",
+    (ONDERTEKENAARS[A.ondertekenaar]||{}).naam].filter(Boolean).join(" · "),
+  velden:[
+   {t:"segment",n:"documentsoort",l:"Soort brief",opties:[["offerte","Offerte"],["opdrachtbevestiging","Opdrachtbevestiging"]]},
+   {t:"keuze",n:"installatietype",l:"Soort installatie",opties:[["airconditioning","Airconditioning"],["koelmachine","Koelmachine"],["mechanische ventilatie","Mechanische ventilatie"],["warmtepomp","Warmtepomp"]]},
+   {t:"rij",velden:[{t:"datum",n:"briefdatum",l:"Briefdatum"},{t:"tekst",n:"projectnummer",l:"Project no.",code:true}]},
+   {t:"keuze",n:"ondertekenaar",l:"Ondertekenaar",
+     opties:Object.entries(ONDERTEKENAARS).map(([k,v])=>[k,v.naam])},
+   {t:"rij",velden:[{t:"tekst",n:"opsteller_initialen",l:"Opsteller",code:true},{t:"tekst",n:"sa_nummer",l:"SA-nummer",code:true}]},
+   {t:"afgeleid",tekst:c=>`Ref. wordt <b>${c.referentie}</b> — samengesteld uit de initialen van de ondertekenaar, de opsteller en het SA-nummer.`},
+   {t:"keuze",n:"aanleiding",l:"Aanleiding",opties:[["onderhoud","Na een bezoek of gesprek"],["aanvraag","Na een aanvraag"],["telefonisch","Na een telefonische aanvraag"],["servicebezoek","Na een servicebezoek"],["opdrachtbevestiging","Bevestiging van een opdracht"]]},
+   {t:"rij",velden:[
+     {t:"tekst",n:"adviseur",l:"Adviseur",als:()=>A.aanleiding==="onderhoud"},
+     {t:"tekst",n:"datum_aanleiding",l:"Datum"}]},
+   {t:"tekst",n:"locatieaanduiding",l:"Betreft — na “t.b.v.”"},
+   {t:"afgeleid",tekst:c=>`De betreft-regel wordt <b>${c.betreft_onderwerp} t.b.v. ${A.locatieaanduiding||"…"}</b>. Het eerste woord volgt het soort installatie.`},
+  ]},
+
+ {naam:"Installaties", samen:()=>`${A.installaties.length} regel${A.installaties.length===1?"":"s"}`,
+  velden:[{t:"installaties"}]},
+
+ {naam:"Uitvoering", samen:()=>[({wand:"Wandmodel",cassette:"Cassette",kanaal:"Kanaal",vloer:"Vloermodel",plafondonderbouw:"Plafondonderbouw",vrf:"VRF"})[A.model_binnenunit],
+    ({muursteun:"gevel",plat_dak:"plat dak",bigfoot:"BigFoot",grond:"grond"})[A.opstelling_buitenunit]].join(" · "),
+  velden:[
+   {t:"keuze",n:"model_binnenunit",l:"Model binnenunit",opties:[["wand","Wandmodel"],["cassette","Cassette"],["kanaal","Kanaal, boven het plafond"],["vloer","Vloermodel / laag aan de muur"],["plafondonderbouw","Plafondonderbouw"],["vrf","VRF"]]},
+   {t:"keuze",n:"opstelling_buitenunit",l:"Opstelling buitenunit",opties:[["muursteun","Steunen tegen de gevel"],["plat_dak","Opstelbalken op het platte dak"],["grond","Opstelbalken op de grond"],["bigfoot","BigFoot-frame op het platte dak"]]},
+   {t:"keuze",n:"condensafvoer",l:"Condensafvoer",opties:[["natuurlijk_verloop","Natuurlijk verloop"],["condenswaterpomp","Condenswaterpomp"],["riolering_derden","Rioleringsaansluiting door derden"],["aanwezige_afvoer","Aanwezige afvoer"],["bestaande_afvoeren","Bestaande condensafvoeren"]]},
+   {t:"keuze",n:"bediening",l:"Bediening",opties:[["infrarood","Infrarood afstandsbediening"],["bedraad","Bedraad paneel"]]},
+   {t:"vink",n:"winterregeling",l:"Winterregeling tot −15 °C"},
+   {t:"vink",n:"storingscontact",l:"Bedrijf-/storingscontact voor het GBS",als:zakelijk},
+   {t:"vink",n:"coating_optioneel",l:"Coating op de condensor als optie aanbieden"},
+   {t:"keuze",n:"technische_specificaties",l:"Technische specificaties",opties:[["zie_bijlage","Verwijzen naar een bijlage"],["uitgeschreven","Uitgeschreven in de brief"],["geen","Weglaten"]]},
+  ]},
+
+ {naam:"Werkzaamheden", samen:()=>`${A.werk_inclusief.length} inbegrepen · ${A.werk_exclusief.length} niet`,
+  velden:[
+   {t:"vinklijst",n:"werk_inclusief",l:"Wel inbegrepen",sectie:"werkzaamheden_inclusief"},
+   {t:"vinklijst",n:"werk_exclusief",l:"Niet inbegrepen",sectie:"werkzaamheden_exclusief"},
+  ]},
+
+ {naam:"Prijs en betaling", samen:()=>formatBedrag(A.prijsregels[0]&&A.prijsregels[0].bedrag),
+  velden:[
+   {t:"prijsregels"},
+   {t:"afgeleid",tekst:c=>`De prijzen worden getoond <b>${c.btw_weergave} 21% btw</b>, omdat dit een ${A.klanttype}e klant is. Dat hoef je niet te kiezen.`},
+   {t:"geld",n:"meerprijs_coating",l:"Meerprijs coating",als:()=>A.coating_optioneel},
+   {t:"vink",n:"condenspomp_meerprijs",l:"Meerprijs condenswaterpomp noemen"},
+   {t:"afgeleid",als:()=>A.condenspomp_meerprijs,
+     tekst:()=>`Bedrag wordt <b>${zakelijk()?"€ 220,-":"€ 260,-"}</b> per stuk. Die twee tarieven staan zo in de bronbrieven en verschillen niet met btw — <b>vraag 7</b> in vragen.md.`},
+   {t:"keuze",n:"facturering",l:"Facturering",opties:()=>keuzesUit("facturering")},
+   {t:"keuze",n:"betaling",l:"Betaling",opties:()=>keuzesUit("betaling"),als:()=>A.klanttype!=="particulier"},
+  ]},
+
+ {naam:"Afsluiting", samen:()=>[A.documentatie_bijgevoegd?"documentatie bijgevoegd":null,A.onderhoud_alinea?"onderhoud genoemd":null].filter(Boolean).join(" · ")||"—",
+  velden:[
+   {t:"vink",n:"documentatie_bijgevoegd",l:"Documentatie van de apparatuur bijgevoegd"},
+   {t:"vink",n:"onderhoud_alinea",l:"Alinea over het onderhoudscontract opnemen"},
+  ]},
+];
+
+function keuzesUit(sectie){
+  const uit=[];
+  for(const b of BLOKKEN.filter(b=>b.sectie===sectie&&b.o)){
+    const m=b.v.match(/(?:facturering|betaling)\s*==\s*'([^']+)'/);
+    uit.push([m?m[1]:(b.id.includes("particulier")?"particulier_50_50":b.id),b.o]);
+  }
+  return uit.filter((v,i,a)=>a.findIndex(x=>x[0]===v[0])===i);
+}
+
+/* ==================================================================
+   Tekenen
+   ================================================================== */
+const el=(t,k,txt)=>{const e=document.createElement(t);if(k)e.className=k;if(txt!=null)e.textContent=txt;return e};
+const esc=s=>String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+const open=new Set(["Klant","Installaties"]);
+let vorigeTekst=new Map();
+
+function zetVeld(veld,ctx){
+  if(veld.als&&!veld.als())return null;
+
+  if(veld.t==="rij"){
+    const zichtbaar=veld.velden.filter(v=>!v.als||v.als());
+    if(!zichtbaar.length)return null;
+    const r=el("div",zichtbaar.length>1?"rij":"veld");
+    zichtbaar.forEach(v=>{const k=zetVeld(v,ctx);if(k)r.appendChild(k)});
+    return r;
+  }
+  if(veld.t==="afgeleid"){
+    const d=el("div","afgeleid");
+    d.appendChild(el("span","merkje","◆"));
+    const s=el("div"); s.innerHTML=veld.tekst(ctx); d.appendChild(s);
+    return d;
+  }
+
+  const w=el("div","veld");
+  if(veld.l&&veld.t!=="vink"){const lb=el("label",null,veld.l);lb.htmlFor="f-"+veld.n;w.appendChild(lb)}
+
+  if(veld.t==="segment"){
+    const s=el("div","segment");
+    veld.opties.forEach(([v,l])=>{
+      const b=el("button",null,l); b.type="button";
+      b.setAttribute("aria-pressed",String(A[veld.n]===v));
+      b.onclick=()=>{A[veld.n]=v;ververs()};
+      s.appendChild(b);
+    });
+    w.appendChild(s);
+  } else if(veld.t==="keuze"){
+    const s=el("select"); s.id="f-"+veld.n;
+    const opties=typeof veld.opties==="function"?veld.opties():veld.opties;
+    opties.forEach(([v,l])=>{const o=el("option",null,l);o.value=v;if(A[veld.n]===v)o.selected=true;s.appendChild(o)});
+    s.onchange=()=>{A[veld.n]=s.value;ververs()};
+    w.appendChild(s);
+  } else if(veld.t==="vink"){
+    const lb=el("label","vink"); const i=el("input"); i.type="checkbox"; i.checked=!!A[veld.n];
+    i.onchange=()=>{A[veld.n]=i.checked;ververs()};
+    lb.append(i,el("span",null,veld.l)); w.appendChild(lb);
+  } else if(veld.t==="vinklijst"){
+    w.appendChild(Object.assign(el("div","blabel"),{textContent:veld.l}));
+    const lijst=el("div","vinklijst");
+    BLOKKEN.filter(b=>b.sectie===veld.sectie&&b.o).forEach(b=>{
+      const m=b.v.match(/'([^']+)'\s+in/); if(!m)return;
+      const sleutel=m[1];
+      const lb=el("label","vink"); const i=el("input"); i.type="checkbox";
+      i.checked=A[veld.n].includes(sleutel);
+      i.onchange=()=>{
+        A[veld.n]=i.checked?[...A[veld.n],sleutel]:A[veld.n].filter(x=>x!==sleutel);
+        ververs();
+      };
+      lb.append(i,el("span",null,b.o)); lijst.appendChild(lb);
+    });
+    w.appendChild(lijst);
+  } else if(veld.t==="installaties"){
+    return bouwInstallaties();
+  } else if(veld.t==="prijsregels"){
+    return bouwPrijsregels();
+  } else {
+    const i=el("input"); i.id="f-"+veld.n;
+    i.type=veld.t==="datum"?"date":"text";
+    if(veld.code)i.className="code";
+    if(veld.t==="geld"){i.className="geld";i.placeholder="0"}
+    i.value=A[veld.n]??"";
+    i.oninput=()=>{A[veld.n]=i.value;ververs(true)};
+    w.appendChild(i);
+  }
+  return w;
+}
+
+function bouwInstallaties(){
+  const w=el("div","veld");
+  w.appendChild(Object.assign(el("div","blabel"),{textContent:"Aangeboden installaties"}));
+  const houder=el("div","vinklijst"); houder.style.gap="9px";
+  A.installaties.forEach((inst,n)=>{
+    const k=el("div","kaart");
+    const kop=el("div","kaartkop");
+    kop.append(el("span","kaartnr","REGEL "+(n+1)));
+    if(A.installaties.length>1){
+      const x=el("button","weg","×"); x.type="button"; x.title="Regel verwijderen";
+      x.onclick=()=>{A.installaties.splice(n,1);ververs()};
+      kop.appendChild(x);
+    }
+    k.appendChild(kop);
+    const tekstveld=(sleutel,label,klasse)=>{
+      const v=el("div","veld"); v.appendChild(el("label",null,label));
+      const i=el("input"); i.type="text"; if(klasse)i.className=klasse;
+      i.value=inst[sleutel]??""; i.oninput=()=>{inst[sleutel]=i.value;ververs(true)};
+      v.appendChild(i); return v;
+    };
+    k.appendChild(tekstveld("ruimte","Ruimte of verdieping"));
+    const r1=el("div","rij");
+    const vs=el("div","veld"); vs.appendChild(el("label",null,"Systeem"));
+    const s=el("select");
+    [["splitsystem","Split"],["multi-splitsystem","Multi-split"],["vrf","VRF"]].forEach(([v,l])=>{
+      const o=el("option",null,l);o.value=v;if(inst.systeemsoort===v)o.selected=true;s.appendChild(o)});
+    s.onchange=()=>{inst.systeemsoort=s.value;ververs()};
+    vs.appendChild(s); r1.append(vs,tekstveld("merk","Merk"));
+    k.appendChild(r1);
+    k.appendChild(tekstveld("montagewijze","Montagewijze"));
+    k.appendChild(tekstveld("type_binnendeel","Type binnendeel","code"));
+    if(inst.systeemsoort!=="splitsystem"){
+      const r2=el("div","rij");
+      const va=el("div","veld"); va.appendChild(el("label",null,"Aantal binnendelen"));
+      const a=el("input"); a.type="number"; a.min="1"; a.value=inst.aantal_binnendelen??1;
+      a.oninput=()=>{inst.aantal_binnendelen=parseInt(a.value)||1;ververs()};
+      va.appendChild(a);
+      r2.append(va,tekstveld("type_buitendeel","Type buitendeel","code"));
+      k.appendChild(r2);
+    }
+    houder.appendChild(k);
+  });
+  w.appendChild(houder);
+  const plus=el("button","toevoeg","+  Installatie toevoegen"); plus.type="button";
+  plus.onclick=()=>{A.installaties.push({ruimte:"",aantal_systemen:1,systeemsoort:"splitsystem",
+    montagewijze:"wandmontage",merk:"Panasonic",type_binnendeel:""});ververs()};
+  w.appendChild(plus);
+  return w;
+}
+
+function bouwPrijsregels(){
+  const w=el("div","veld");
+  w.appendChild(Object.assign(el("div","blabel"),{textContent:"Prijsregels"}));
+  const houder=el("div","vinklijst"); houder.style.gap="8px";
+  A.prijsregels.forEach((r,n)=>{
+    const rij=el("div","rij");
+    const vp=el("div","veld"); vp.appendChild(el("label",null,"Positie"));
+    const p=el("input"); p.type="text"; p.className="code"; p.placeholder="pos. A";
+    p.value=r.positie??""; p.oninput=()=>{r.positie=p.value;ververs(true)};
+    vp.appendChild(p);
+    const vb=el("div","veld");
+    const lb=el("label",null,"Bedrag netto"); vb.appendChild(lb);
+    const wrap=el("div"); wrap.style.display="flex"; wrap.style.gap="6px";
+    const b=el("input"); b.type="text"; b.className="geld"; b.value=r.bedrag??"";
+    b.oninput=()=>{r.bedrag=b.value;ververs(true)};
+    wrap.appendChild(b);
+    if(A.prijsregels.length>1){
+      const x=el("button","weg","×"); x.type="button";
+      x.onclick=()=>{A.prijsregels.splice(n,1);ververs()};
+      wrap.appendChild(x);
+    }
+    vb.appendChild(wrap); rij.append(vp,vb); houder.appendChild(rij);
+  });
+  w.appendChild(houder);
+  const plus=el("button","toevoeg","+  Prijspositie toevoegen"); plus.type="button";
+  plus.onclick=()=>{A.prijsregels.push({positie:"pos. "+String.fromCharCode(65+A.prijsregels.length),bedrag:""});ververs()};
+  w.appendChild(plus);
+  return w;
+}
+
+const KOPPEN=new Set(["Aanbieding","Opdracht","TECHNISCHE SPECIFICATIES","Totaalprijs:","Raamprijs:",
+  "Levering:","Facturering en betaling:","Kredietwaardigheid:","Algemene voorwaarden:",
+  "Garantietermijn:","Aansprakelijkheid:","Materiaal garantie:","Tot slot","Prijs"]);
+const LABELS={klanttype:"soort klant",aantal_binnenunits:"aantal binnenunits",
+  aantal_buitenunits:"aantal buitenunits",model_binnenunit:"model binnenunit",
+  opstelling_buitenunit:"opstelling buitenunit",condensafvoer:"condensafvoer",
+  bediening:"bediening",installatietype:"soort installatie",documentsoort:"soort brief",
+  aanleiding:"aanleiding",winterregeling:"winterregeling",storingscontact:"storingscontact",
+  werk_inclusief:"wel inbegrepen",werk_exclusief:"niet inbegrepen",
+  facturering:"facturering",betaling:"betaling",prijssoort:"soort prijs",
+  technische_specificaties:"technische specificaties",coating_optioneel:"coating als optie"};
+
+function tekenBrief(resultaat,alleenNieuw){
+  const vel=document.getElementById("vel");
+  vel.innerHTML="";
+  const c=resultaat.ctx;
+
+  const kop=el("div","velkop");
+  const links=el("div"); const naam=el("div","naam"); naam.innerHTML=
+    'Schilt Bedrijven B.V.<span>Business Unit Airconditioning</span>';
+  links.appendChild(naam); kop.appendChild(links);
+  const rechts=el("div","plek");
+  rechts.innerHTML="Energieweg 29 · 4231 DJ Meerkerk<br>+31 (0)183 35 25 44<br>schiltbedrijven.nl";
+  kop.appendChild(rechts); vel.appendChild(kop);
+
+  const nieuweTekst=new Map();
+  for(const sectie of SECTIES){
+    const alineas=resultaat.secties[sectie]||[];
+    if(!alineas.length)continue;
+    const s=el("div","sectie"); s.dataset.sectie=sectie;
+    alineas.forEach((a,n)=>{
+      const p=el("p","alinea");
+      if(a.eigen)p.classList.add("eigen");
+      if(KOPPEN.has(a.tekst.split("\n")[0].trim())&&a.tekst.split("\n").length===1)p.classList.add("kop");
+      p.textContent=a.tekst;
+      const sleutel=sectie+"#"+n;
+      nieuweTekst.set(sleutel,a.tekst);
+      if(alleenNieuw&&vorigeTekst.has(sleutel)&&vorigeTekst.get(sleutel)!==a.tekst){
+        p.classList.add("vers"); requestAnimationFrame(()=>requestAnimationFrame(()=>p.classList.remove("vers")));
+      }
+      if(a.reden&&a.reden.veld&&!a.eigen){
+        p.dataset.waarom="1";
+        const tip=el("div","tip");
+        const naamVeld=LABELS[a.reden.veld]||a.reden.veld;
+        const w=a.reden.waarde;
+        tip.innerHTML="Gekozen omdat <b>"+esc(naamVeld)+"</b> = <b>"+esc(w===true?"ja":w===false?"nee":(w??"—"))+"</b>";
+        p.appendChild(tip);
+      }
+      s.appendChild(p);
+    });
+    const plus=el("button","plus","+"); plus.type="button";
+    plus.title="Eigen alinea toevoegen aan deze sectie";
+    plus.onclick=()=>{
+      const t=prompt("Eigen alinea toevoegen aan deze sectie:");
+      if(t&&t.trim()){(A.eigenAlineas[sectie]=A.eigenAlineas[sectie]||[]).push(t.trim());ververs()}
+    };
+    s.appendChild(plus);
+    vel.appendChild(s);
+  }
+  vorigeTekst=nieuweTekst;
+
+  const voet=el("div","velvoet");
+  voet.textContent="Wij leveren volgens de algemene voorwaarden van de Koninklijke Metaalunie "+
+    "(Metaalunievoorwaarden), gedeponeerd ter griffie van de rechtbank te Rotterdam. "+
+    "Privacyverklaring: schiltbedrijven.nl/privacyverklaring";
+  vel.appendChild(voet);
+
+  document.getElementById("telling").textContent=
+    resultaat.gebruikt.length+" tekstblokken · "+
+    Object.values(resultaat.secties).reduce((n,a)=>n+a.length,0)+" alinea's";
+  document.getElementById("k-project").textContent=A.projectnummer||"—";
+  document.getElementById("k-ref").textContent=c.referentie||"—";
+
+  const leeg=[["achternaam","achternaam"],["straat_huisnummer","adres"],["plaats","plaats"],
+    ["projectnummer","project no."],["locatieaanduiding","betreft-regel"]]
+    .filter(([k])=>!String(A[k]||"").trim()).map(([,l])=>l);
+  const geen=!A.prijsregels.some(r=>String(r.bedrag||"").trim());
+  if(geen)leeg.push("bedrag");
+  const o=document.getElementById("ontbreekt");
+  o.textContent=leeg.length?"nog invullen: "+leeg.join(", "):"alles ingevuld";
+  o.style.color=leeg.length?"var(--signal)":"var(--muted)";
+}
+
+function tekenVragen(ctx){
+  const f=document.getElementById("vragen");
+  const scroll=f.scrollTop;
+  f.innerHTML="";
+  for(const g of GROEPEN){
+    const d=el("details","groep"); d.open=open.has(g.naam);
+    d.addEventListener("toggle",()=>{d.open?open.add(g.naam):open.delete(g.naam)});
+    const sm=el("summary");
+    sm.append(el("span","pijl"),el("span","gtitel",g.naam),el("span","gsamen",g.samen()));
+    d.appendChild(sm);
+    const inh=el("div","ginhoud");
+    g.velden.forEach(v=>{const k=zetVeld(v,ctx);if(k)inh.appendChild(k)});
+    d.appendChild(inh);
+    f.appendChild(d);
+  }
+  f.scrollTop=scroll;
+}
+
+let bezigMetTypen=null;
+function ververs(alleenBrief){
+  const resultaat=stelSamen();
+  tekenBrief(resultaat,true);
+  if(alleenBrief){
+    // Tijdens typen het formulier niet opnieuw opbouwen: dat zou de cursor verplaatsen.
+    clearTimeout(bezigMetTypen);
+    bezigMetTypen=setTimeout(()=>{
+      const actief=document.activeElement;
+      if(!actief||actief.tagName!=="INPUT")tekenVragen(resultaat.ctx);
+      else{document.querySelectorAll(".gsamen").forEach((e,i)=>{e.textContent=GROEPEN[i].samen()})}
+    },350);
+    return;
+  }
+  tekenVragen(resultaat.ctx);
+}
+
+document.getElementById("knop-waarom").onclick=e=>{
+  const aan=document.body.classList.toggle("waarom");
+  e.currentTarget.classList.toggle("aan",aan);
+  e.currentTarget.setAttribute("aria-pressed",String(aan));
+};
+document.getElementById("knop-word").onclick=()=>{
+  const r=stelSamen();
+  alert("In de echte tool schrijft deze knop een .docx op je eigen briefpapier.\n\n"+
+    "Deze brief gebruikt "+r.gebruikt.length+" tekstblokken uit teksten.yaml.\n"+
+    "Je opent hem in Word, kijkt hem na en slaat hem op als PDF.");
+};
+ververs();
+</script>

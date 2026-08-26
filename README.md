@@ -37,6 +37,9 @@ en circa 45 invulvariabelen.
       samenstellen.py    kiest de blokken en vult de plaatshouders in
       sjabloon.py        schrijft het Word-bestand (enige module met docxtpl)
       cli.py             opdrachtregel
+    ontwerp/
+      prototype.html     werkend prototype van de bediening, opent zonder server
+      ververs_prototype.py  zet de actuele tekstblokken in het prototype
     tests/               48 tests, draaien zonder externe pakketten
     voorbeelden/         twee ingevulde offertes om mee te proberen
 
