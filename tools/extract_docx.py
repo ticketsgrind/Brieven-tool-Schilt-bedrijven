@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Leest alle .docx uit bronbrieven/ uit met behoud van volgorde, kopjes en opsommingen.
+"""Leest alle .docx en .dotx uit bronbrieven/ uit met behoud van volgorde, kopjes en opsommingen.
 
 Gebruikt python-docx wanneer dat beschikbaar is. Is het niet geinstalleerd, dan valt
 het script terug op een parser die alleen de standaardbibliotheek gebruikt: een .docx
@@ -242,9 +242,14 @@ def main() -> int:
         print(f"Map {args.src} bestaat niet.", file=sys.stderr)
         return 1
 
-    files = sorted(p for p in args.src.glob("*.docx") if not p.name.startswith("~$"))
+    # .dotx is een Word-sjabloon, intern hetzelfde zip-met-XML formaat als .docx.
+    files = sorted(
+        p
+        for p in args.src.iterdir()
+        if p.suffix.lower() in (".docx", ".dotx") and not p.name.startswith("~$")
+    )
     if not files:
-        print(f"Geen .docx gevonden in {args.src}/.", file=sys.stderr)
+        print(f"Geen .docx of .dotx gevonden in {args.src}/.", file=sys.stderr)
         return 1
 
     try:

@@ -7,47 +7,48 @@ een Word-bestand en een PDF uitrollen.
 
 ## Waar staat het nu
 
-**Fase 1 — inventarisatie — is gestart maar nog niet uitgevoerd.** De map
-`bronbrieven/` is leeg, en zonder de bestaande brieven valt er niets te
-analyseren. Wat er nu staat is het gereedschap plus de vragen. Zie
-[`analyse/vragen.md`](analyse/vragen.md) §0.
+**Fase 1 — inventarisatie — is afgerond.** Er is nog geen applicatiecode: geen
+sjabloon, geen webformulier. Dat is fase 2, en daarvoor liggen er eerst vragen in
+[`analyse/vragen.md`](analyse/vragen.md).
 
-Er is nog geen applicatiecode: geen sjabloon, geen webformulier. Dat is fase 2.
+Geanalyseerd: 16 sjablonen en 7 uitgewerkte brieven. Resultaat: 141 tekstblokken
+en circa 45 invulvariabelen.
 
 ## Indeling
 
-    bronbrieven/         de bestaande offertebrieven als .docx  (nu leeg)
+    bronbrieven/         de 16 lege sjablonen (.dotx)
+      uitgewerkt/        ingevulde klantbrieven — niet in git, zie LEESMIJ.md
     tools/
-      extract_docx.py    leest de brieven uit met behoud van volgorde,
+      extract_docx.py    leest .docx en .dotx uit met behoud van volgorde,
                          kopjes, opsommingen, tabellen en kop-/voetteksten
+      extract_pdf.py     haalt tekst uit een PDF (standaardbibliotheek)
     analyse/
-      skelet.md          gemeenschappelijke structuur van een brief
-      variabelen.md      alle invulvariabelen
-      teksten.yaml       de tekstblokkenbibliotheek
-      vragen.md          inconsistenties, open vragen, suggesties
-      _extract/          uitvoer van extract_docx.py (niet in git)
+      skelet.md          38 secties, met per sectie of hij altijd voorkomt
+      variabelen.md      alle invulvariabelen, met de waarden uit de brieven
+      teksten.yaml       141 tekstblokken met voorwaarde en bronvermelding
+      vragen.md          antwoorden, inconsistenties en openstaande beslissingen
+      _extract/          uitvoer van de scripts (niet in git)
     config/
-      ondertekenaars.yaml   Nick, John en Ricardo; nieuwe collega = één blok erbij
+      ondertekenaars.yaml   vier ondertekenaars plus de bedrijfsgegevens
 
 ## Aan de slag
 
-1. Zet de `.docx`-brieven in `bronbrieven/`.
-2. Lees ze uit:
+    python3 tools/extract_docx.py
 
-       python3 tools/extract_docx.py
-
-   Het script gebruikt `python-docx` als dat geïnstalleerd is
-   (`pip install -r requirements.txt`) en valt anders terug op de
-   standaardbibliotheek — een `.docx` is een zip met XML, dus dat kan zonder
-   externe pakketten. De uitvoer is in beide gevallen gelijk.
-3. Vul op basis van `analyse/_extract/` de analysebestanden.
+Het script gebruikt `python-docx` als dat geïnstalleerd is
+(`pip install -r requirements.txt`) en valt anders terug op de
+standaardbibliotheek — een `.docx` is een zip met XML, dus dat kan zonder externe
+pakketten. De uitvoer is in beide gevallen gelijk.
 
 ## Uitgangspunten
 
-- Onze eigen formuleringen worden letterlijk overgenomen. Commerciële en
-  juridische zinnen zijn bewust zo gekozen; verbeteringen gaan als suggestie naar
-  `analyse/vragen.md` en het origineel blijft staan.
+- Onze eigen formuleringen zijn letterlijk overgenomen; er is niets herschreven.
+  Verbeteringen staan als suggestie in `analyse/vragen.md` §D, het origineel staat
+  ongewijzigd in `teksten.yaml`.
+- Elk blok in `teksten.yaml` heeft een `bron`-veld met het bestand waar de tekst
+  vandaan komt, zodat elke zin terug te voeren is op een echte brief.
 - Verschillen die alleen taalkundig zijn — enkelvoud versus meervoud, "de unit"
-  versus "de units", u versus jij — zijn variabelen binnen één blok, geen aparte
-  blokken.
-- Bij twijfel geen aanname, maar een vraag in `analyse/vragen.md`.
+  versus "de units" — zijn enkelvoud- en meervoudvarianten van hetzelfde blok, geen
+  losse blokken.
+- Waar de brieven onderling verschillen zonder duidelijke reden staan beide
+  varianten apart, met de vraag erbij in `analyse/vragen.md` §B.

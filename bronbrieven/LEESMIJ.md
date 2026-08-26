@@ -1,20 +1,26 @@
 # bronbrieven/
 
-Zet hier de bestaande offertebrieven neer als `.docx`. De bestandsnaam mag de
-variant aangeven, bijvoorbeeld:
+## Sjablonen (in git)
 
-    wandmodel-enkelvoud-particulier.docx
-    wandmodel-meervoud-bedrijf.docx
-    vloermodel-enkelvoud-particulier.docx
+De 16 lege sjablonen, `.dotx` op één `.docx` na. De bestandsnaam geeft de variant
+aan: model binnenunit, enkelvoud of meervoud, en of het een particuliere versie is.
 
 Uitlezen:
 
     python3 tools/extract_docx.py
 
 Dat schrijft per brief een leesbare `.md` en één gezamenlijke `_alles.json` naar
-`analyse/_extract/`. Die uitvoer is de basis voor `analyse/skelet.md`,
-`analyse/variabelen.md` en `analyse/teksten.yaml`.
+`analyse/_extract/`.
 
-**Let op — persoonsgegevens.** Staan er echte klantnamen en adressen in deze
-brieven, houd er dan rekening mee dat ze in de git-geschiedenis terechtkomen
-zodra je ze commit. Zie `analyse/vragen.md` §2.3.
+## uitgewerkt/ (niet in git)
+
+Ingevulde klantbrieven, gebruikt om de patronen in `projectnummer`, `referentie`,
+de btw-weergave en de facturering te achterhalen. Deze bevatten namen, adressen,
+e-mailadressen en prijzen van echte klanten en staan daarom in `.gitignore` — zie
+`analyse/vragen.md` vraag 18. De analyse verwijst ernaar als `uitgewerkt-1` tot
+en met `uitgewerkt-7`, zonder klantgegevens.
+
+Uitlezen:
+
+    python3 tools/extract_docx.py --in bronbrieven/uitgewerkt --out analyse/_extract/uitgewerkt
+    python3 tools/extract_pdf.py bronbrieven/uitgewerkt/<brief>.pdf

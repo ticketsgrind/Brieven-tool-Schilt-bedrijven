@@ -1,5 +1,9 @@
-# Uitvoer van het uitleesscript — regenereerbaar uit bronbrieven/
+# Uitvoer van de uitleesscripts — regenereerbaar uit bronbrieven/
 analyse/_extract/
+
+# Uitgewerkte klantbrieven: bevatten namen, adressen, e-mailadressen en prijzen
+# van echte klanten. Bewust NIET in git; zie analyse/vragen.md vraag 18.
+bronbrieven/uitgewerkt/
 
 # Word-tijdelijke bestanden
 ~$*

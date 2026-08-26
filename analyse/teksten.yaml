@@ -1,38 +1,1226 @@
-# Tekstblokkenbibliotheek
+# Tekstblokkenbibliotheek Schilt Airconditioning
 #
-# STATUS: LEEG — nog geen bronbrieven beschikbaar.
+# Alle teksten zijn LETTERLIJK overgenomen uit bronbrieven/ en
+# bronbrieven/uitgewerkt/. Er is niets herschreven. Waar de brieven zelf
+# inconsistent zijn staan de varianten apart, met de vindplaats in `bron`
+# en een verwijzing naar analyse/vragen.md.
 #
-# De map bronbrieven/ was leeg, dus er valt nog niets over te nemen. Er staan
-# hier bewust geen voorbeeldblokken in: teksten in dit bestand belanden
-# uiteindelijk letterlijk in offertes naar klanten, en een verzonnen garantie- of
-# betalingsalinea die per ongeluk blijft staan is een reeel risico.
-#
-# Zie analyse/vragen.md §0.
-#
-# ---------------------------------------------------------------------------
-# Schema dat elk blok straks krijgt
-# ---------------------------------------------------------------------------
-#
-#   - id:          unieke sleutel, snake_case
-#     sectie:      naam van de sectie uit skelet.md
-#     omschrijving: korte omschrijving in gewone taal; wordt het label in het
-#                   keuzemenu wanneer het blok een keuzevariant is
-#     voorwaarde:  Jinja-achtige expressie, of leeg wanneer het blok altijd meegaat
-#     bron:        bestandsnaam/namen van de brieven waar dit blok uit komt
-#     tekst:       de letterlijke tekst, met {{ variabele }}-placeholders
-#
-# Voorbeeld van de vorm (NIET onze tekst — puur ter illustratie van het schema,
-# afkomstig uit de opdrachtomschrijving):
-#
-#   - id: montage_buitenunit_muur
-#     sectie: werkzaamheden
-#     omschrijving: "Buitenunit aan de gevel op muurbeugel"
-#     voorwaarde: "opstelling == 'muurbeugel'"
-#     bron: nog-in-te-vullen.docx
-#     tekst: >
-#       De buitenunit wordt gemonteerd op een trillingsgedempte muurbeugel
-#       aan de gevel.
-#
-# ---------------------------------------------------------------------------
+# Schema per blok:
+#   id            unieke sleutel
+#   sectie        sectienaam uit skelet.md
+#   omschrijving  label voor het keuzemenu (alleen bij keuzeblokken)
+#   voorwaarde    Jinja-achtige expressie; leeg = altijd
+#   bron          bestand(en) waar de tekst uit komt
+#   tekst         letterlijke tekst met {{ }}-placeholders
 
-blokken: []
+blokken:
+
+# ===========================================================================
+# 2-6. GEADRESSEERDE, BETREFT, KENMERKEN, AANHEF
+# ===========================================================================
+
+- id: adres_organisatie
+  sectie: geadresseerde
+  voorwaarde: "klanttype == 'zakelijk' and organisatie"
+  bron: uitgewerkt-1.docx, uitgewerkt-2.docx
+  tekst: "{{ organisatie }}"
+
+- id: adres_contactpersoon
+  sectie: geadresseerde
+  voorwaarde: "aanspreekvorm != 'Fam.'"
+  bron: alle sjablonen
+  tekst: "T.a.v. {{ aanspreekvorm }} {{ voorletters }} {{ achternaam }}"
+
+- id: adres_familie
+  sectie: geadresseerde
+  voorwaarde: "aanspreekvorm == 'Fam.'"
+  bron: uitgewerkt-7.pdf
+  tekst: "Fam. {{ achternaam }}"
+
+- id: adres_regels
+  sectie: geadresseerde
+  voorwaarde: ""
+  bron: alle uitgewerkte brieven
+  tekst: |
+    {{ straat_huisnummer }}
+    {{ postcode }}  {{ plaats }}
+
+- id: betreft_algemeen
+  sectie: betreft
+  omschrijving: "Betreft-regel, vrij in te vullen"
+  voorwaarde: ""
+  bron: 11 sjablonen
+  tekst: "Betreft\tAirconditioning t.b.v. {{ locatieaanduiding }}"
+
+- id: betreft_woning
+  sectie: betreft
+  omschrijving: "Particuliere woning"
+  voorwaarde: "klanttype == 'particulier'"
+  bron: wand meervoud particulier.docx, uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: "Betreft\tAirconditioning t.b.v. uw woning"
+
+- id: betreft_vestiging
+  sectie: betreft
+  omschrijving: "Zakelijke vestiging op een plaats"
+  voorwaarde: "klanttype == 'zakelijk'"
+  bron: uitgewerkt-2.docx
+  tekst: "Betreft\tAirconditioning t.b.v. uw vestiging te {{ plaats_project }}"
+
+- id: betreft_project
+  sectie: betreft
+  omschrijving: "Zakelijk project met projectnaam"
+  voorwaarde: "klanttype == 'zakelijk'"
+  bron: uitgewerkt-1.docx
+  tekst: "Betreft\tAirconditioning t.b.v. uw project {{ projectnaam }}"
+
+- id: betreft_koelmachine
+  sectie: betreft
+  omschrijving: "Koelmachine"
+  voorwaarde: "installatietype == 'koelmachine'"
+  bron: koelmachine.dotx
+  tekst: "Betreft\tKoelmachine t.b.v. {{ locatieaanduiding }}"
+
+- id: betreft_ventilatie
+  sectie: betreft
+  omschrijving: "Mechanische ventilatie"
+  voorwaarde: "installatietype == 'mechanische ventilatie'"
+  bron: mechanische ventilatie.dotx
+  tekst: "Betreft\tMechanische ventilatie t.b.v. {{ locatieaanduiding }}"
+
+- id: kenmerken
+  sectie: kenmerken
+  voorwaarde: ""
+  bron: alle sjablonen
+  tekst: |
+    Meerkerk\t{{ briefdatum }}
+    Ons project no. {{ projectnummer }}
+    Ref. {{ referentie }}
+
+# De sjablonen bevatten vijf schrijfwijzen van de aanhef; zie vragen.md #5.
+# Hieronder de vorm zoals die in de uitgewerkte brieven werkelijk wordt gebruikt.
+- id: aanhef
+  sectie: aanhef
+  voorwaarde: ""
+  bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-7.pdf
+  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ achternaam }},"
+
+# ===========================================================================
+# 7. AANLEIDING
+# ===========================================================================
+
+- id: aanleiding_onderhoud
+  sectie: aanleiding
+  omschrijving: "Na een bezoek of gesprek met een adviseur"
+  voorwaarde: "aanleiding == 'onderhoud'"
+  bron: wand enkelvoud.dotx, uitgewerkt-3.docx
+  tekst: >
+    Naar aanleiding van het aangenaam onderhoud tussen u en {{ adviseur }}
+    d.d. {{ datum_aanleiding }} jl. doen wij u hiermede onze aanbieding toekomen
+    voor het leveren en monteren van {{ installatie_omschrijving }} t.b.v.
+    bovengenoemd project.
+
+- id: aanleiding_aanvraag
+  sectie: aanleiding
+  omschrijving: "Na een aanvraag van de klant"
+  voorwaarde: "aanleiding == 'aanvraag'"
+  bron: wand enkelvoud.dotx, uitgewerkt-4.docx
+  tekst: >
+    Naar aanleiding van uw aanvraag d.d. {{ datum_aanleiding }} jl. doen wij u
+    hiermede onze aanbieding toekomen voor het leveren en monteren van
+    {{ installatie_omschrijving }} t.b.v. bovengenoemd project.
+
+- id: aanleiding_telefonisch
+  sectie: aanleiding
+  omschrijving: "Na een telefonische aanvraag"
+  voorwaarde: "aanleiding == 'telefonisch'"
+  bron: wand meervoud particulier.docx
+  tekst: >
+    Naar aanleiding van uw telefonische aanvraag d.d. {{ datum_aanleiding }} jl.
+    doen wij u hiermede onze aanbieding toekomen voor het leveren en monteren van
+    {{ installatie_omschrijving }} t.b.v. bovengenoemd project.
+
+- id: aanleiding_servicebezoek
+  sectie: aanleiding
+  omschrijving: "Na een servicebezoek"
+  voorwaarde: "aanleiding == 'servicebezoek'"
+  bron: uitgewerkt-6.pdf
+  tekst: >
+    Naar aanleiding van ons servicebezoek d.d. {{ datum_aanleiding }} jl. doen wij
+    u hiermede onze aanbieding toekomen voor het leveren en monteren van een
+    vervangende airconditioninginstallatie t.b.v. bovengenoemd project.
+
+- id: aanleiding_opdrachtbevestiging
+  sectie: aanleiding
+  omschrijving: "Bevestiging van een ontvangen opdracht"
+  voorwaarde: "documentsoort == 'opdrachtbevestiging'"
+  bron: uitgewerkt-2.docx
+  tekst: >
+    Onder dankzegging bevestigen wij hiermede uw schriftelijke opdrachtnr.
+    {{ opdrachtnummer }} d.d. {{ datum_opdracht }} jl. voor het leveren en
+    monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemde vestiging.
+
+# installatie_omschrijving is afgeleid van installatietype en het aantal
+# installaties. Dit is de kern van het enkelvoud/meervoud-probleem:
+#   airconditioning, 1 installatie  -> "een airconditioninginstallatie"
+#   airconditioning, >1 installatie -> "airconditioninginstallaties"
+#   koelmachine                     -> "een koelmachine"
+#   mechanische ventilatie          -> "een mechanisch ventilatiesysteem"
+#   warmtepomp                      -> "een warmtepompinstallatie"
+
+- id: kop_aanbieding
+  sectie: aanbieding
+  voorwaarde: "documentsoort == 'offerte'"
+  bron: 15 sjablonen
+  tekst: |
+    Aanbieding
+    Wij specificeren onze aanbieding als volgt:
+
+- id: kop_opdracht
+  sectie: aanbieding
+  voorwaarde: "documentsoort == 'opdrachtbevestiging'"
+  bron: uitgewerkt-2.docx
+  tekst: |
+    Opdracht
+    Wij specificeren de opdracht als volgt:
+
+# ===========================================================================
+# 10. AANBIEDINGSSPECIFICATIE  (loop over prijsregels)
+# ===========================================================================
+
+- id: spec_ruimte_kop
+  sectie: specificatie
+  voorwaarde: "regel.ruimte"
+  bron: uitgewerkt-3.docx, uitgewerkt-7.pdf
+  tekst: "T.b.v. {{ regel.ruimte }}:"
+
+- id: spec_split
+  sectie: specificatie
+  omschrijving: "Enkelvoudig splitsysteem"
+  voorwaarde: "regel.systeemsoort == 'splitsystem'"
+  bron: wand enkelvoud.dotx, uitgewerkt-2.docx
+  tekst: >
+    Het leveren en monteren van {{ telwoord(regel.aantal_systemen) }} luchtgekoelde
+    splitsystem inverterunit{{ 's' if regel.aantal_systemen > 1 }} geschikt voor
+    {{ regel.montagewijze }} fabrikaat {{ regel.merk }} type {{ regel.type_binnendeel }}.
+
+- id: spec_multisplit
+  sectie: specificatie
+  omschrijving: "Multi-splitsysteem: meerdere binnendelen op één buitendeel"
+  voorwaarde: "regel.systeemsoort == 'multi-splitsystem'"
+  bron: multi split.dotx, uitgewerkt-3.docx
+  tekst: >
+    Het leveren en monteren van één luchtgekoelde multi-splitsystem inverterunit
+    geschikt voor {{ regel.montagewijze }} fabrikaat {{ regel.merk }} bestaande uit
+    {{ regel.aantal_binnendelen }} binnendelen type {{ regel.type_binnendeel }} en
+    {{ regel.aantal_buitendelen }} buitendeel type {{ regel.type_buitendeel }}.
+
+- id: spec_vrf
+  sectie: specificatie
+  omschrijving: "VRF-systeem"
+  voorwaarde: "regel.systeemsoort == 'vrf'"
+  bron: VRF.dotx
+  tekst: >
+    Het leveren en monteren van één luchtgekoeld VRF systeem fabrikaat
+    {{ regel.merk }} bestaande uit binnendelen type {{ regel.type_binnendeel }}
+    en één buitendeel type {{ regel.type_buitendeel }}.
+
+- id: spec_warmtepomp
+  sectie: specificatie
+  omschrijving: "Lucht-water warmtepomp"
+  voorwaarde: "regel.systeemsoort == 'warmtepomp'"
+  bron: warmtepomp.dotx
+  tekst: >
+    Het leveren en monteren van {{ regel.aantal_systemen }} stuks lucht-water
+    warmtepomp fabrikaat {{ regel.merk }}
+
+- id: spec_koelmachine
+  sectie: specificatie
+  omschrijving: "Carrier vloeistofkoelmachine"
+  voorwaarde: "regel.systeemsoort == 'vloeistofkoelmachine'"
+  bron: koelmachine.dotx
+  tekst: >
+    Het leveren en monteren van één Carrier luchtgekoelde vloeistofkoelmachine,
+    type {{ regel.type_binnendeel }}, geschikt voor buitenopstelling. Deze volledig
+    voor koudemiddel R410A ontwikkelde koelmachine is ontworpen voor een
+    energiezuinige toepassing met een hoog deellast rendement (ESEER). De
+    koelmachine heeft standaard een laaag geluidsniveau door de toepassing van
+    scrolcompressoren en de unieke Flying Bird IV condensorventilatoren. De
+    Condensorbatterijen (MCHE) zijn volledig vervaardigd van aluminium en hebben
+    3,5 maal hogere corrosiebestendigheid dan koper-aluminium batterijen.
+    # LET OP: "laaag" en "scrolcompressoren" staan zo in het origineel. Zie vragen.md #13.
+
+# ===========================================================================
+# 11. SYSTEEMOMSCHRIJVING  (per model binnenunit, enkelvoud + meervoud)
+# ===========================================================================
+
+- id: systeem_wand_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'wand' and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    De binnenunit is ontworpen voor montage hoog aan de wand, hierdoor wordt de
+    geconditioneerde lucht hoog in de ruimte ingeblazen waardoor een optimale
+    luchtverdeling in de ruimte wordt gecreëerd.
+
+- id: systeem_wand_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'wand' and aantal_binnenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: >
+    De binnenunits zijn ontworpen voor montage hoog aan de wand, hierdoor wordt de
+    geconditioneerde lucht hoog in de ruimte ingeblazen waardoor een optimale
+    luchtverdeling in de ruimte wordt gecreëerd.
+
+- id: systeem_wand_zwenk_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'wand' and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    De binnenunit is voorzien van een automatisch mechanisme dat voortdurend de
+    hoek waaronder de luchtstroom wordt uitgeblazen verandert.
+
+- id: systeem_wand_zwenk_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'wand' and aantal_binnenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: >
+    De binnenunits zijn voorzien van een automatisch mechanisme dat voortdurend de
+    hoek waaronder de luchtstroom wordt uitgeblazen verandert.
+
+- id: systeem_cassette_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'cassette' and aantal_binnenunits == 1"
+  bron: cassette enkelvoud.dotx
+  tekst: >
+    De binnenunit is uitgevoerd als zogenaamde cassette-unit en is speciaal
+    ontworpen voor inbouw in een verlaagd plafond. De benodigde ruimte tussen het
+    systeemplafond hiervoor bedraagt 30 cm.
+
+- id: systeem_cassette_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'cassette' and aantal_binnenunits > 1"
+  bron: cassette meervoud.dotx
+  tekst: >
+    De binnenunits zijn uitgevoerd als zogenaamde cassette-units en zijn speciaal
+    ontworpen voor inbouw in een verlaagd plafond. De benodigde ruimte tussen het
+    systeemplafond hiervoor bedraagt 30 cm.
+
+- id: systeem_cassette_schoepen
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'cassette'"
+  bron: cassette enkelvoud.dotx, uitgewerkt-2.docx
+  tekst: >
+    Door de speciale vorm van de luchtgeleidende schoepen wordt de geconditioneerde
+    lucht direct langs het plafond geleid waardoor een zeer gelijkmatige menging
+    met de ruimtelucht wordt bereikt.
+
+- id: systeem_kanaal_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'kanaal' and aantal_binnenunits == 1"
+  bron: kanaal enkelvoud.dotx
+  tekst: "De binnenunit is speciaal ontworpen voor plaatsing boven het verlaagd plafond."
+
+- id: systeem_kanaal_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'kanaal' and aantal_binnenunits > 1"
+  bron: kanaal meervoud.dotx, VRF.dotx
+  tekst: "De binnenunits zijn speciaal ontworpen voor plaatsing boven het verlaagd plafond."
+
+- id: systeem_vloer_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'vloer' and aantal_binnenunits == 1"
+  bron: VRF.dotx
+  tekst: >
+    De binnenunit is speciaal ontworpen laag aan de muur waardoor de
+    geconditioneerde lucht strak langs de muur wordt uitgeblazen en gelijkmatig in
+    de ruimte wordt verdeeld.
+
+- id: systeem_vloer_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'vloer' and aantal_binnenunits > 1"
+  bron: multi split.dotx
+  tekst: >
+    De binnenunits zijn speciaal ontworpen laag aan de muur waardoor de
+    geconditioneerde lucht strak langs de muur wordt uitgeblazen en gelijkmatig in
+    de ruimte wordt verdeeld.
+
+- id: systeem_plafondonderbouw_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'plafondonderbouw' and aantal_binnenunits == 1"
+  bron: VRF.dotx, uitgewerkt-6.pdf
+  tekst: >
+    De binnenunit is speciaal ontworpen voor montage direct onder het plafond
+    waardoor de geconditioneerde lucht strak onder het plafond wordt uitgeblazen en
+    gelijkmatig in de ruimte wordt verdeeld.
+
+- id: systeem_plafondonderbouw_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'plafondonderbouw' and aantal_binnenunits > 1"
+  bron: multi split.dotx
+  tekst: >
+    De binnenunits zijn speciaal ontworpen voor montage direct onder het plafond
+    waardoor de geconditioneerde lucht strak onder het plafond wordt uitgeblazen en
+    gelijkmatig in de ruimte wordt verdeeld.
+
+- id: systeem_kanaal_toevoer
+  sectie: systeemomschrijving
+  voorwaarde: "model_binnenunit == 'kanaal'"
+  bron: VRF.dotx, uitgewerkt-1.docx
+  tekst: >
+    Vanaf de binnenunits wordt de lucht, door middel van een geïsoleerd
+    luchtkanalensysteem met regelkleppen en wervelroosters van het fabrikaat Trox
+    in de ruimte toegevoerd.
+
+- id: systeem_opbouw_enkel
+  sectie: systeemomschrijving
+  voorwaarde: "aantal_binnenunits == 1 and systeemsoort == 'splitsystem'"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    De installatie bestaat uit één binnenunit en één buitenunit die d.m.v.
+    koelmiddelleidingen met elkaar verbonden worden.
+
+- id: systeem_opbouw_meervoud
+  sectie: systeemomschrijving
+  voorwaarde: "aantal_binnenunits > 1"
+  bron: uitgewerkt-7.pdf
+  tekst: >
+    De installaties bestaan uit één of meerdere binnenunits en één buitenunit die
+    d.m.v. koelmiddelleidingen met elkaar verbonden worden.
+
+- id: storingscontact_enkel
+  sectie: systeemomschrijving
+  omschrijving: "Bedrijf-/storingscontact voor koppeling aan het GBS"
+  voorwaarde: "storingscontact and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    De binnenunit wordt voorzien van een bedrijf-/storingscontact welke door derden
+    dienen te worden bedraad en gekoppeld aan het gebouw beheer systeem (GBS) e.d.
+
+- id: storingscontact_meervoud
+  sectie: systeemomschrijving
+  omschrijving: "Bedrijf-/storingscontact voor koppeling aan het GBS"
+  voorwaarde: "storingscontact and aantal_binnenunits > 1"
+  bron: cassette meervoud.dotx
+  tekst: >
+    De binnenunits worden voorzien van een bedrijf-/storingscontact welke door
+    derden dienen te worden bedraad en gekoppeld aan het gebouw beheer systeem
+    (GBS) e.d.
+
+- id: verse_lucht_enkel
+  sectie: systeemomschrijving
+  omschrijving: "Verse-luchtaansluiting op de binnenunit"
+  voorwaarde: "verse_luchtaansluiting and aantal_binnenunits == 1"
+  bron: cassette enkelvoud.dotx
+  tekst: >
+    De binnenunit wordt voorzien van een verse luchtaansluiting compleet met de
+    benodigde geïsoleerde flexibele slang,
+    dakdoorvoering/wanddoorvoering/regenkap/buitenluchtrooster.
+
+- id: verse_lucht_meervoud
+  sectie: systeemomschrijving
+  omschrijving: "Verse-luchtaansluiting op de binnenunits"
+  voorwaarde: "verse_luchtaansluiting and aantal_binnenunits > 1"
+  bron: cassette meervoud.dotx
+  tekst: >
+    De binnenunits worden voorzien van een verse luchtaansluiting compleet met de
+    benodigde geïsoleerde flexibele slang,
+    dakdoorvoering/wanddoorvoering/regenkap/buitenluchtrooster.
+
+# ===========================================================================
+# 12. BUITENUNIT
+# ===========================================================================
+
+- id: buitenunit_muursteun_enkel
+  sectie: buitenunit
+  omschrijving: "Aan de gevel op steunen met trillingsdempers"
+  voorwaarde: "opstelling_buitenunit == 'muursteun' and aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx, uitgewerkt-4.docx
+  tekst: "De buitenunit wordt geplaatst op steunen met trillingsdempers tegen de buitengevel."
+
+- id: buitenunit_muursteun_meervoud
+  sectie: buitenunit
+  omschrijving: "Aan de gevel op steunen met trillingsdempers"
+  voorwaarde: "opstelling_buitenunit == 'muursteun' and aantal_buitenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: "De buitenunits worden geplaatst op steunen met trillingsdempers tegen de buitengevel."
+
+- id: buitenunit_platdak_enkel
+  sectie: buitenunit
+  omschrijving: "Op het platte dak op rubberen opstelbalken"
+  voorwaarde: "opstelling_buitenunit == 'plat_dak' and aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx, uitgewerkt-2.docx
+  tekst: "De buitenunit wordt geplaatst op geluiddempende rubberen opstelbalken op het platte dak."
+
+- id: buitenunit_platdak_meervoud
+  sectie: buitenunit
+  omschrijving: "Op het platte dak op rubberen opstelbalken"
+  voorwaarde: "opstelling_buitenunit == 'plat_dak' and aantal_buitenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: "De buitenunits worden geplaatst op geluiddempende rubberen opstelbalken op het platte dak."
+
+- id: buitenunit_grond
+  sectie: buitenunit
+  omschrijving: "Op de grond op rubberen opstelbalken"
+  voorwaarde: "opstelling_buitenunit == 'grond'"
+  bron: uitgewerkt-3.docx
+  tekst: >
+    De buitenunit voor {{ ruimte }} wordt geplaatst op geluiddempende rubberen
+    opstelbalken op de grond.
+
+- id: buitenunit_bigfoot_enkel
+  sectie: buitenunit
+  omschrijving: "Op een metalen ondersteuningsframe (BigFoot) op het platte dak"
+  voorwaarde: "opstelling_buitenunit == 'bigfoot' and aantal_buitenunits == 1"
+  bron: VRF.dotx
+  tekst: "De buitenunit wordt geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."
+
+- id: buitenunit_bigfoot_meervoud
+  sectie: buitenunit
+  omschrijving: "Op een metalen ondersteuningsframe (BigFoot) op het platte dak"
+  voorwaarde: "opstelling_buitenunit == 'bigfoot' and aantal_buitenunits > 1"
+  bron: uitgewerkt-1.docx
+  tekst: "De buitenunits worden geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."
+
+- id: buitenunit_geruisarm_enkel
+  sectie: buitenunit
+  voorwaarde: "aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: "De buitenunit werkt zeer geruisarm en is voorzien van een weerbestendige metalen omkasting."
+
+- id: buitenunit_geruisarm_meervoud
+  sectie: buitenunit
+  voorwaarde: "aantal_buitenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: "De buitenunits werken zeer geruisarm en zijn voorzien van een weerbestendige metalen omkasting."
+
+- id: buitenunit_coating_enkel
+  sectie: buitenunit
+  omschrijving: "Optionele beschermende coating op de condensor"
+  voorwaarde: "coating_optioneel and aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    Optioneel kan de condensor van de buitenunit tegen meerprijs worden voorzien
+    van een beschermende coating.
+
+- id: buitenunit_coating_meervoud
+  sectie: buitenunit
+  omschrijving: "Optionele beschermende coating op de condensors"
+  voorwaarde: "coating_optioneel and aantal_buitenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: >
+    Optioneel kunnen de condensors van de buitenunits tegen meerprijs worden
+    voorzien van een beschermende coating.
+    # cassette meervoud.dotx heeft hier "de condensor van de buitenunits" (enkelvoud
+    # condensor bij meervoud buitenunits). Zie vragen.md #13.
+
+- id: buitenunit_winterregeling
+  sectie: buitenunit
+  omschrijving: "Winterregeling tot -15 °C"
+  voorwaarde: "winterregeling"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    De buitenunit is voorzien van een winterregeling, zodat de installatie kan
+    functioneren tot een buitentemperatuur van -15°C.
+
+# ===========================================================================
+# 14. LEIDINGWERK EN CONDENSAFVOER
+# ===========================================================================
+
+- id: condens_riolering_enkel
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer op rioleringsaansluiting van derden"
+  voorwaarde: "condensafvoer == 'riolering_derden' and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde
+    koelmiddel en verzorgen de condensafvoerleidingen op een door derden t.p.v. de
+    binnenunit aan te leveren rioleringsaansluiting ø 32 mm PVC. Tevens wordt de
+    unit door ons in bedrijf gesteld, ingeregeld en voorzien van een
+    werkschakelaar.
+
+- id: condens_riolering_meervoud
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer op rioleringsaansluiting van derden"
+  voorwaarde: "condensafvoer == 'riolering_derden' and aantal_binnenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: >
+    Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde
+    koelmiddel en verzorgen de condensafvoerleidingen op een door derden t.p.v. de
+    binnenunit aan te leveren rioleringsaansluiting ø 32 mm PVC. Tevens worden de
+    units door ons in bedrijf gesteld, ingeregeld en voorzien van een
+    werkschakelaar.
+
+- id: condens_pomp_enkel
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer met een condenswaterpomp"
+  voorwaarde: "condensafvoer == 'condenswaterpomp' and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: >
+    Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en
+    verzorgen de condensafvoer d.m.v. een condenswaterpomp. Tevens wordt de unit
+    door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar.
+
+- id: condens_pomp_meervoud
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer met een condenswaterpomp"
+  voorwaarde: "condensafvoer == 'condenswaterpomp' and aantal_binnenunits > 1"
+  bron: wand meervoud.dotx
+  tekst: >
+    Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en
+    verzorgen de condensafvoer d.m.v. een condenswaterpomp. Tevens worden de units
+    door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar.
+
+- id: condens_natuurlijk_enkel
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer onder natuurlijk verloop"
+  voorwaarde: "condensafvoer == 'natuurlijk_verloop' and aantal_binnenunits == 1"
+  bron: uitgewerkt-4.docx
+  tekst: >
+    Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en
+    verzorgen de condensafvoer d.m.v. een natuurlijk verloop. Tevens wordt de unit
+    door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar.
+
+- id: condens_natuurlijk_meervoud
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer onder natuurlijk verloop"
+  voorwaarde: "condensafvoer == 'natuurlijk_verloop' and aantal_binnenunits > 1"
+  bron: uitgewerkt-7.pdf
+  tekst: >
+    Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en
+    verzorgen de condensafvoer d.m.v. een natuurlijk verloop. Tevens worden de
+    units door ons in bedrijf gesteld, ingeregeld en voorzien van een
+    werkschakelaar.
+
+- id: condens_aanwezig_enkel
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer op de aanwezige afvoer"
+  voorwaarde: "condensafvoer == 'aanwezige_afvoer' and aantal_binnenunits == 1"
+  bron: uitgewerkt-2.docx
+  tekst: >
+    Wij leveren en monteren de benodigde koelleidingen, het benodigde koelmiddel en
+    verzorgen de condensafvoer d.m.v. de aanwezige afvoer. Tevens wordt de unit
+    door ons in bedrijf gesteld, ingeregeld en voorzien van een werkschakelaar.
+
+- id: condens_bestaand_meervoud
+  sectie: werkzaamheden
+  omschrijving: "Condensafvoer op de bestaande condensafvoeren"
+  voorwaarde: "condensafvoer == 'bestaande_afvoeren'"
+  bron: uitgewerkt-5.pdf
+  tekst: >
+    Wij leveren en monteren de benodigde koelmiddelleidingen, het benodigde
+    koelmiddel en verzorgen de condensafvoer d.m.v. de bestaande condensafvoeren.
+    Tevens wordt de unit door ons in bedrijf gesteld, ingeregeld en voorzien van
+    een werkschakelaar.
+
+# ===========================================================================
+# 15. BEDIENING
+# ===========================================================================
+
+- id: bediening_infrarood_enkel
+  sectie: bediening
+  omschrijving: "Infrarood afstandsbediening"
+  voorwaarde: "bediening == 'infrarood' and aantal_binnenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: "De wandunit is voorzien van een infrarood afstandsbedieningspaneel."
+
+- id: bediening_infrarood_meervoud
+  sectie: bediening
+  omschrijving: "Infrarood afstandsbediening"
+  voorwaarde: "bediening == 'infrarood' and aantal_binnenunits > 1"
+  bron: uitgewerkt-3.docx
+  tekst: "De units zijn voorzien van een infrarood afstandsbedieningspaneel."
+
+- id: bediening_bedraad_enkel
+  sectie: bediening
+  omschrijving: "Bedraad bedieningspaneel"
+  voorwaarde: "bediening == 'bedraad' and aantal_binnenunits == 1"
+  bron: uitgewerkt-2.docx
+  tekst: "De unit is voorzien van een bedraad afstandsbedieningspaneel."
+
+- id: bediening_bedraad_meervoud
+  sectie: bediening
+  omschrijving: "Bedraad bedieningspaneel"
+  voorwaarde: "bediening == 'bedraad' and aantal_binnenunits > 1"
+  bron: uitgewerkt-1.docx
+  tekst: "De units zijn voorzien van een bedraad afstandsbedieningspaneel."
+
+# ===========================================================================
+# 17. TECHNISCHE SPECIFICATIES
+# ===========================================================================
+
+- id: techspec_bijlage
+  sectie: technische_specificaties
+  omschrijving: "Verwijzing naar een bijlage"
+  voorwaarde: "technische_specificaties == 'zie_bijlage'"
+  bron: uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: |
+    TECHNISCHE SPECIFICATIES
+    Zie bijlage.
+
+- id: techspec_uitgeschreven
+  sectie: technische_specificaties
+  omschrijving: "Volledig uitgeschreven specificatieblok per unit"
+  voorwaarde: "technische_specificaties == 'uitgeschreven'"
+  bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-6.pdf
+  tekst: |
+    TECHNISCHE SPECIFICATIES
+    # Vrij tekstblok per unit, met regels als "Koelvermogen : 7,1 (2,6 - 7,7) kW".
+    # Dit is te gestructureerd voor een vrij veld en te variabel voor een vast blok.
+    # Zie vragen.md #9 - dit is de belangrijkste openstaande beslissing.
+
+# ===========================================================================
+# 18-19. INBEGREPEN / NIET-INBEGREPEN WERKZAAMHEDEN
+# ===========================================================================
+
+- id: inclusief_kop
+  sectie: werkzaamheden_inclusief
+  voorwaarde: ""
+  bron: 14 sjablonen
+  tekst: "De installatie is aangeboden inclusief:"
+
+# Keuzelijst; de opsteller vinkt aan wat van toepassing is.
+- id: incl_demontage
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Bestaand systeem demonteren en afvoeren"
+  voorwaarde: "'demontage' in werk_inclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "demonteren en afvoeren bestaand airconditioning systeem;"
+
+- id: incl_montage
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Montage van apparatuur en componenten"
+  voorwaarde: "'montage' in werk_inclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "montage van de genoemde apparatuur en componenten;"
+
+- id: incl_bekabeling
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Interne bekabeling binnen- naar buitenunit"
+  voorwaarde: "'bekabeling' in werk_inclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "interne elektrische bekabeling tussen binnen- en buitenunit;"
+
+- id: incl_sturingsbekabeling
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Interne sturingsbekabeling (VRF)"
+  voorwaarde: "'sturingsbekabeling' in werk_inclusief"
+  bron: VRF.dotx
+  tekst: "interne sturingsbekabeling tussen binnen- en buitenunit(s);"
+
+- id: incl_transport
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Intern en verticaal transport"
+  voorwaarde: "'transport' in werk_inclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "intern en verticaal transport;"
+
+- id: incl_transport_hoogwerker
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Intern en verticaal transport, inclusief huur hoogwerker"
+  voorwaarde: "'transport_hoogwerker' in werk_inclusief"
+  bron: uitgewerkt-2.docx
+  tekst: "intern en verticaal transport (huur hoogwerker);"
+
+- id: incl_transport_kraan
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Intern en verticaal transport, inclusief huur kraan"
+  voorwaarde: "'transport_kraan' in werk_inclusief"
+  bron: uitgewerkt-5.pdf
+  tekst: "intern en verticaal transport (huur kraan);"
+
+- id: incl_flexibele_leidingen
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Flexibele koelleidingen op flamco tegen het dek"
+  voorwaarde: "'flexibele_leidingen' in werk_inclusief"
+  bron: VRF.dotx
+  tekst: "flexibele koelleidingen worden op flamco tegen het dek gemonteerd;"
+
+- id: incl_starre_leidingen
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Starre koelleidingen in beugels met isolatie-inlage"
+  voorwaarde: "'starre_leidingen' in werk_inclusief"
+  bron: VRF.dotx
+  tekst: "starre koelleidingen worden in beugels met isolatie inlage gemonteerd;"
+
+- id: incl_inbedrijfstelling
+  sectie: werkzaamheden_inclusief
+  omschrijving: "Inbedrijfstelling van de apparatuur"
+  voorwaarde: "'inbedrijfstelling' in werk_inclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "inbedrijfstelling van de apparatuur."
+
+- id: exclusief_kop
+  sectie: werkzaamheden_exclusief
+  voorwaarde: ""
+  bron: 15 sjablonen
+  tekst: "Niet tot onze werkzaamheden behoren:"
+
+- id: excl_bouwkundig
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Bouwkundige werkzaamheden"
+  voorwaarde: "'bouwkundig' in werk_exclusief"
+  bron: alle sjablonen
+  tekst: "alle benodigde bouwkundige werkzaamheden;"
+
+- id: excl_sparingen
+  sectie: werkzaamheden_exclusief
+  omschrijving: "(Brandwerende) sparingen en doorvoeringen"
+  voorwaarde: "'sparingen' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "verzorgen van (brandwerende) sparingen en doorvoeringen;"
+
+- id: excl_sparingen_uitgebreid
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Akoestische, brandwerende, gas- en waterdichte doorvoeringen"
+  voorwaarde: "'sparingen_uitgebreid' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "het verzorgen van (akoestische, brandwerende, gas en waterdichte) doorvoeringen en sparingen;"
+
+- id: excl_betonboringen
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Betonboringen, hak-, breek-, frees-, timmer- en schilderwerk"
+  voorwaarde: "'betonboringen' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "betonboringen, hak-, breek-, frees-, timmer- en schilderwerkzaamheden;"
+
+- id: excl_elektra_stopcontact
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Elektra — bestaand geaard stopcontact wordt hergebruikt"
+  voorwaarde: "'elektra_stopcontact' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "de benodigde elektrotechnische werkzaamheden, indien mogelijk passen we het bestaande geaarde stopcontact toe;"
+
+- id: excl_elektra_voeding
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Elektra — bestaande voeding wordt hergebruikt"
+  voorwaarde: "'elektra_voeding' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "de benodigde elektrotechnische werkzaamheden, indien mogelijk passen we de bestaande voeding toe;"
+
+- id: excl_elektra_voedingskabel
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Elektra — voedingskabel bij de buitenunit"
+  voorwaarde: "'elektra_voedingskabel' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "de benodigde elektrotechnische werkzaamheden, d.w.z. de benodigde voedingskabel t.p.v. de buitenunit;"
+
+- id: excl_elektra_alles
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Elektra — alle elektrotechnische werkzaamheden"
+  voorwaarde: "'elektra_alles' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "de benodigde elektrotechnische werkzaamheden;"
+
+- id: excl_regeltechniek
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Regeltechniek (koppelingen GBS)"
+  voorwaarde: "'regeltechniek' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "de benodigde regeltechnische werkzaamheden (koppelingen GBS, etc.);"
+
+- id: excl_regeltechniek_bedraden
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Regeltechniek inclusief bedraden (VRF)"
+  voorwaarde: "'regeltechniek_bedraden' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "de benodigde regeltechnische werkzaamheden (bedraden en koppelingen GBS, etc.);"
+
+- id: excl_condensafvoerleiding
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Condensafvoerleiding bij de binnenunit"
+  voorwaarde: "'condensafvoerleiding' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "condensafvoerleiding t.p.v. de binnenunit ø 32 mm PVC;"
+
+- id: excl_plakplaat
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Inplakken plakplaat i.v.m. dakgarantie"
+  voorwaarde: "'plakplaat' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "inplakken van de door Schilt toegeleverde plakplaat ø 120 mm i.v.m. dakgarantie;"
+
+- id: excl_beplating
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Leidingen afwerken met aluminium beplating"
+  voorwaarde: "'beplating' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "leidingen afwerken met aluminium beplating."
+
+- id: excl_koellast
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Koellastberekeningen"
+  voorwaarde: "'koellast' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "verzorgen koellastberekeningen;"
+
+- id: excl_kabelgoot
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Kabelgoottracés voor koelleidingen"
+  voorwaarde: "'kabelgoot' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "leveren en monteren kabelgoot tracés t.b.v. koelleidingen;"
+
+- id: excl_waterzijdig
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Waterzijdige werkzaamheden (CV en GKW)"
+  voorwaarde: "'waterzijdig' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "waterzijdige werkzaamheden (leveren en monteren CV- en GKW-installatie);"
+
+- id: excl_hoogwerker
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Huur hoogwerkers"
+  voorwaarde: "'hoogwerker' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "huur hoogwerkers."
+
+- id: excl_verticaal_transport
+  sectie: werkzaamheden_exclusief
+  omschrijving: "Verticaal transport (huur kraan)"
+  voorwaarde: "'verticaal_transport' in werk_exclusief"
+  bron: uitgewerkt-6.pdf
+  tekst: "verticaal transport (huur kraan);"
+
+# ===========================================================================
+# 21-26. PRIJS, BTW, UITGANGSPUNTEN
+# ===========================================================================
+
+- id: prijs_kop
+  sectie: prijs
+  voorwaarde: "prijssoort == 'totaalprijs'"
+  bron: 15 sjablonen
+  tekst: "Totaalprijs:"
+
+- id: prijs_kop_raamprijs
+  sectie: prijs
+  voorwaarde: "prijssoort == 'raamprijs'"
+  bron: uitgewerkt-1.docx
+  tekst: "Raamprijs:"
+
+- id: prijs_regel
+  sectie: prijs
+  voorwaarde: "prijssoort == 'totaalprijs' and not regel.positie"
+  bron: wand enkelvoud.dotx
+  tekst: "De totaalprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."
+
+- id: prijs_regel_positie
+  sectie: prijs
+  voorwaarde: "prijssoort == 'totaalprijs' and regel.positie"
+  bron: uitgewerkt-7.pdf
+  tekst: >
+    De totaalprijs compleet geleverd en gemonteerd voor {{ regel.positie }} bedraagt
+    {{ regel.bedrag }} netto.
+
+- id: prijs_regel_raamprijs
+  sectie: prijs
+  voorwaarde: "prijssoort == 'raamprijs'"
+  bron: uitgewerkt-1.docx
+  tekst: "De raamprijs compleet geleverd en gemonteerd bedraagt {{ regel.bedrag }} netto."
+
+- id: meerprijs_coating_enkel
+  sectie: prijs
+  omschrijving: "Meerprijs coating buitenunit"
+  voorwaarde: "meerprijs_coating and aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: "De meerprijs voor het coaten van de buitenunit bedraagt {{ meerprijs_coating }} netto."
+
+- id: meerprijs_coating_meervoud
+  sectie: prijs
+  omschrijving: "Meerprijs coating buitenunits"
+  voorwaarde: "meerprijs_coating and aantal_buitenunits > 1"
+  bron: cassette meervoud.dotx
+  tekst: "De meerprijs voor het coaten van de buitenunits bedraagt {{ meerprijs_coating }} netto."
+
+- id: meerprijs_ral_enkel
+  sectie: prijs
+  omschrijving: "Meerprijs RAL-kleur buitenunit"
+  voorwaarde: "meerprijs_ral and aantal_buitenunits == 1"
+  bron: wand enkelvoud.dotx
+  tekst: "De meerprijs voor het uitvoeren van de buitenunit in een n.t.b. RAL-kleur bedraagt {{ meerprijs_ral }} netto."
+
+- id: meerprijs_ral_meervoud
+  sectie: prijs
+  omschrijving: "Meerprijs RAL-kleur buitenunits"
+  voorwaarde: "meerprijs_ral and aantal_buitenunits > 1"
+  bron: cassette meervoud.dotx
+  tekst: "De meerprijs voor het uitvoeren van de buitenunits in een n.t.b. RAL-kleur bedraagt {{ meerprijs_ral }} netto."
+
+- id: onderhoud_niet_inbegrepen
+  sectie: prijs
+  voorwaarde: "onderhoud_alinea"
+  bron: 14 sjablonen
+  tekst: >
+    Onderhoudswerkzaamheden zijn niet inbegrepen. Het is echter mogelijk om met ons
+    een onderhoudscontract af te sluiten.
+
+- id: meerprijs_condenspomp_zakelijk
+  sectie: prijs
+  omschrijving: "Meerprijs condenswaterpomp (zakelijk, € 220,-)"
+  voorwaarde: "condenspomp_meerprijs and klanttype == 'zakelijk'"
+  bron: 9 zakelijke sjablonen
+  tekst: >
+    Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik
+    gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt
+    € 220,- per stuk.
+
+- id: meerprijs_condenspomp_particulier
+  sectie: prijs
+  omschrijving: "Meerprijs condenswaterpomp (particulier, € 260,-)"
+  voorwaarde: "condenspomp_meerprijs and klanttype == 'particulier'"
+  bron: 3 particuliere sjablonen
+  tekst: >
+    Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik
+    gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt
+    € 260,- per stuk.
+    # Bedrag wijkt af van de zakelijke variant. Zie vragen.md #3.
+
+- id: btw_exclusief
+  sectie: prijs
+  voorwaarde: "klanttype == 'zakelijk'"
+  bron: wand enkelvoud.dotx, uitgewerkt-5.pdf, uitgewerkt-6.pdf
+  tekst: "De genoemde prijzen zijn exclusief 21% btw."
+  # 9 sjablonen schrijven "exclusief btw" zonder percentage. Zie vragen.md #2.
+
+- id: btw_inclusief
+  sectie: prijs
+  voorwaarde: "klanttype == 'particulier'"
+  bron: wand enkelvoud particulier.dotx, uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: "De genoemde prijzen zijn inclusief 21% btw."
+  # multi split particulier.dotx schrijft "inclusief btw" zonder percentage.
+
+- id: uitgangspunten_prijsvorming
+  sectie: prijs
+  voorwaarde: ""
+  bron: 13 sjablonen
+  tekst: |
+    Voor de prijsvorming zijn wij er van uitgegaan dat:
+    - de (werk)locatie goed bereikbaar, veilig en vrij toegankelijk is;
+    - de werkzaamheden aaneengesloten worden uitgevoerd;
+    - de werkzaamheden tijdens normale werktijden (kantooruren) kunnen worden uitgevoerd.
+
+- id: ontbindingsrecht_particulier
+  sectie: levering
+  omschrijving: "Ontbindingsrecht bij overschrijding leverdatum (consument)"
+  voorwaarde: "klanttype == 'particulier'"
+  bron: wand enkelvoud particulier.dotx, wand meervoud particulier.docx
+  tekst: >
+    Als de oorspronkelijke (al dan niet geschatte) leverdatum met meer dan 6 maanden
+    wordt overschreden, heeft u het recht de overeenkomst te ontbinden. Ontbinding
+    van de overeenkomst geeft u echter geen recht op schadevergoeding.
+
+# ===========================================================================
+# 27. LEVERING
+# ===========================================================================
+
+- id: levering_standaard
+  sectie: levering
+  omschrijving: "Franco werk, levertijd in onderling overleg"
+  voorwaarde: ""
+  bron: alle 15 sjablonen, letterlijk gelijk
+  tekst: |
+    Levering:
+    De levering geschiedt franco werk.
+    Levertijd: in onderling overleg.
+
+# ===========================================================================
+# 28. FACTURERING EN BETALING
+# ===========================================================================
+
+- id: facturering_kop
+  sectie: facturering
+  voorwaarde: ""
+  bron: alle 15 sjablonen
+  tekst: "Facturering en betaling:"
+
+- id: facturering_100_gereed
+  sectie: facturering
+  omschrijving: "100% wanneer de werkzaamheden gereed zijn"
+  voorwaarde: "facturering == 'volledig_gereed'"
+  bron: 11 sjablonen
+  tekst: "Facturering: 100% wanneer de werkzaamheden gereed zijn."
+
+- id: facturering_100_levering
+  sectie: facturering
+  omschrijving: "100% na levering"
+  voorwaarde: "facturering == 'volledig_levering'"
+  bron: 11 sjablonen
+  tekst: "Facturering: 100% na levering."
+
+- id: facturering_25_evenredig
+  sectie: facturering
+  omschrijving: "In termijnen van 25%, naar evenredigheid"
+  voorwaarde: "facturering == 'termijnen_25'"
+  bron: 11 sjablonen
+  tekst: "Facturering: in termijnen van 25% naar evenredigheid van de leveringen en werkzaamheden."
+
+- id: facturering_30_20_20_20_10
+  sectie: facturering
+  omschrijving: "30% opdracht, 20% aanvang, 20% bij 50%, 20% bij 90%, 10% oplevering"
+  voorwaarde: "facturering == 'vijf_termijnen'"
+  bron: 11 sjablonen
+  tekst: |
+    Facturering:\t30% bij opdracht, direct betaalbaar
+    \t\t20% bij aanvang werkzaamheden
+    \t\t20% bij 50% gereed
+    \t\t20% bij 90% gereed
+    \t\t10% bij oplevering
+
+- id: facturering_30_70
+  sectie: facturering
+  omschrijving: "30% bij opdracht, 70% bij aanvang werkzaamheden"
+  voorwaarde: "facturering == 'dertig_zeventig'"
+  bron: 11 sjablonen, uitgewerkt-2.docx, uitgewerkt-6.pdf
+  tekst: |
+    Facturering:\t30% bij opdracht, direct betaalbaar
+    \t\t70% bij aanvang werkzaamheden
+
+- id: facturering_30_60_10
+  sectie: facturering
+  omschrijving: "30% bij opdracht, 60% bij aanvang, 10% bij oplevering"
+  voorwaarde: "facturering == 'dertig_zestig_tien'"
+  bron: 11 sjablonen, uitgewerkt-5.pdf
+  tekst: |
+    Facturering:\t30% bij opdracht, direct betaalbaar
+    \t\t60% bij aanvang werkzaamheden
+    \t\t10% bij oplevering
+
+- id: facturering_overleg
+  sectie: facturering
+  omschrijving: "In onderling overleg"
+  voorwaarde: "facturering == 'overleg'"
+  bron: 12 sjablonen, uitgewerkt-1.docx
+  tekst: "Facturering: in onderling overleg."
+
+- id: facturering_betaling_particulier
+  sectie: facturering
+  omschrijving: "Particulier: 50% vooraf, 50% na oplevering"
+  voorwaarde: "klanttype == 'particulier'"
+  bron: wand enkelvoud particulier.dotx, uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: |
+    Facturering:\t- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.
+    \t\t- laatste termijn, 50% na oplevering.
+    Betaling:\t- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.
+    \t\t- laatste termijn binnen 30 dagen na factuurdatum.
+
+- id: betaling_30_dagen
+  sectie: betaling
+  omschrijving: "Binnen 30 dagen na factuurdatum"
+  voorwaarde: "betaling == 'dertig_dagen'"
+  bron: 12 sjablonen
+  tekst: "Betaling: binnen 30 dagen na de factuurdatum."
+
+- id: betaling_aflevering
+  sectie: betaling
+  omschrijving: "Bij aflevering"
+  voorwaarde: "betaling == 'aflevering'"
+  bron: 10 sjablonen
+  tekst: "Betaling: bij aflevering."
+
+# ===========================================================================
+# 29-36. JURIDISCHE STAART
+# ===========================================================================
+
+- id: kredietwaardigheid
+  sectie: voorwaarden
+  voorwaarde: "klanttype == 'zakelijk'"
+  bron: 13 sjablonen
+  tekst: |
+    Kredietwaardigheid:
+    Na ontvangst van een opdracht wordt door ons de kredietwaardigheid van de opdrachtgever getoetst bij onze kredietadviseurs. Indien dit advies daartoe aanleiding geeft, is het mogelijk dat er t.o.v. de in de offerte c.q. opdrachtbevestiging genoemde betalingscondities afwijkende condities overeengekomen dienen te worden.
+
+- id: algemene_voorwaarden
+  sectie: voorwaarden
+  voorwaarde: ""
+  bron: alle 15 sjablonen, letterlijk gelijk
+  tekst: |
+    Algemene voorwaarden:
+    Wij leveren volgens de algemene leverings- en betalingsvoorwaarden van de Koninklijke Metaalunie (Metaalunievoorwaarden), gedeponeerd ter griffie van de rechtbank te Rotterdam, zoals deze luiden volgens de laatstelijk aldaar neergelegde tekst, met uitsluiting van (alle) andere algemene voorwaarden. De voorwaarden worden u op verzoek toegezonden.
+
+- id: garantie_standaard
+  sectie: garantie
+  omschrijving: "12 maanden op materiaal en werk, plus fabrieksgarantie"
+  voorwaarde: "installatietype != 'koelmachine'"
+  bron: 14 sjablonen
+  tekst: |
+    Garantietermijn:
+    De garantietermijn binnen Nederland is 12 maanden op geleverde materialen en door ons uitgevoerde werkzaamheden na inbedrijfstellen. Op geleverde onderdelen geldt een aanvullende fabrieksgarantie. Defecten welke te wijten zijn aan derden vallen buiten de garantie.
+
+- id: garantie_koelmachine
+  sectie: garantie
+  omschrijving: "Koelmachine: 12 maanden, max. 18 maanden na aflevering"
+  voorwaarde: "installatietype == 'koelmachine'"
+  bron: koelmachine.dotx
+  tekst: |
+    Garantietermijn:
+    Gedurende 12 maanden na inbedrijfstelling op materiaal en arbeidsloon met een maximum van 18 maanden na aflevering (de kortste termijn is doorslaggevend).
+    Op de compressor en MCHE condensorbatterijen geldt een aanvullende 24 maanden garantie op materiaal.
+  # Wijkt af van de standaardtekst. Zie vragen.md #4.
+
+- id: garantie_luchtslang
+  sectie: garantie
+  omschrijving: "KE-Fibertec luchtslang: 10 jaar materiaalgarantie"
+  voorwaarde: "installatietype == 'luchtslangsysteem'"
+  bron: KE-Fibertec halfrond luchtslangsysteem.dotx
+  tekst: |
+    Materiaal garantie:
+    10 jaar garantie op de gehele slang inclusief ritsen en accessoires.
+
+- id: aansprakelijkheid
+  sectie: voorwaarden
+  voorwaarde: ""
+  bron: 13 sjablonen
+  tekst: |
+    Aansprakelijkheid:
+    - Indien wij bij u betonboringen uitvoeren, zullen deze met de uiterste zorgvuldigheid worden uitgevoerd. Business Unit Schilt Airconditioning is echter niet aansprakelijk voor het eventueel – onverhoopt – beschadigen van (leidingen in) vloeren of wanden.
+    - Wij willen u erop attenderen geen apparatuur onder de binnenunits te plaatsen. Indien er wel apparatuur onder de binnenunits wordt geplaatst, is Business Unit Schilt Airconditioning niet aansprakelijk voor eventuele schade als gevolg van - onverhoopte - condenslekkages.
+  # cassette meervoud.dotx schrijft "Schilt Airconditioning B.V." in plaats van
+  # "Business Unit Schilt Airconditioning". Zie vragen.md #11.
+
+- id: tot_slot_kop
+  sectie: afsluiting
+  voorwaarde: ""
+  bron: 15 sjablonen
+  tekst: "Tot slot"
+
+- id: documentatie_bijgevoegd
+  sectie: afsluiting
+  voorwaarde: "documentatie_bijgevoegd"
+  bron: 14 sjablonen
+  tekst: "Wij hebben documentatie van de betreffende apparatuur bijgevoegd."
+
+- id: geldigheidsduur
+  sectie: afsluiting
+  voorwaarde: "documentsoort == 'offerte'"
+  bron: alle 15 sjablonen, letterlijk gelijk
+  tekst: "Deze aanbieding wordt 30 dagen na heden gestand gedaan, daarna komt deze te vervallen."
+
+- id: slotzin
+  sectie: afsluiting
+  voorwaarde: "documentsoort == 'offerte'"
+  bron: 14 sjablonen
+  tekst: >
+    Wij zijn ervan overtuigd u hiermede een zeer bruikbare en prijsgunstige
+    aanbieding te hebben gemaakt en zullen het erg op prijs stellen wanneer wij de
+    werkzaamheden voor u mogen uitvoeren.
+
+- id: privacy
+  sectie: afsluiting
+  voorwaarde: ""
+  bron: alle 15 sjablonen
+  tekst: >
+    Wij maken u erop attent dat wij de persoonsgegevens die u ons heeft verstrekt en
+    eventueel nog zult verstrekken, zullen verwerken op de manier zoals wij die in
+    onze privacyverklaring hebben omschreven. Wij verwijzen u graag naar
+    www.schiltbedrijven.nl/privacyverklaring voor meer informatie over de
+    verwerking van uw persoonsgegevens en de rechten die u heeft.
+
+- id: ondertekening
+  sectie: afsluiting
+  voorwaarde: ""
+  bron: alle 15 sjablonen
+  tekst: |
+    Vertrouwende u hiermee van dienst te zijn geweest, tekenen wij met vriendelijke groeten,
+    Business Unit Schilt Airconditioning
+    MEERKERK
+    {{ ondertekenaar.naam }}
+    {{ ondertekenaar.functie }}
