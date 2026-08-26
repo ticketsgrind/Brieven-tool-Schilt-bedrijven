@@ -26,6 +26,11 @@ from xml.sax.saxutils import escape
 STIJL_TEKST = "Standaard"
 STIJL_OPSOMMING = "Lijstalinea"
 
+# De lijstdefinitie in numbering.xml die het streepje levert. De bronbrief
+# gebruikt er vier (1, 3, 4 en 5) die alleen verschillen in het lettertype van
+# het streepje -- onzichtbaar bij een liggend streepje -- dus een volstaat.
+LIJST_ID = "3"
+
 CT_SJABLOON = "application/vnd.openxmlformats-officedocument.wordprocessingml.template.main+xml"
 CT_DOCUMENT = "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"
 
@@ -50,46 +55,73 @@ def alinea(tekst: str, *, stijl: str | None = None, vet: bool = False,
             f'<w:t xml:space="preserve">{escape(tekst)}</w:t></w:r></w:p>')
 
 
-def sjabloonbody() -> str:
-    """De lussen die docxtpl invult.
+def leeg(aantal: int = 1) -> str:
+    """Lege alinea's. De bronbrieven gebruiken die voor alle witruimte."""
+    return alinea("") * aantal
 
-    De kop van de brief staat er los in omdat de betreft-regel een eigen
-    inspringing heeft. Alles daarna loopt door één lus, zodat een nieuwe sectie
-    in teksten.yaml geen wijziging in dit sjabloon vergt.
+
+def opsommingsregel() -> str:
+    """Een opsommingsregel met streepje.
+
+    De stijl Lijstalinea zorgt alleen voor de inspringing; het streepje komt uit
+    een verwijzing naar een lijstdefinitie in numbering.xml. Zonder die
+    verwijzing staat de regel ingesprongen maar zonder teken ervoor.
     """
-    delen: list[str] = []
+    return (f'<w:p><w:pPr><w:pStyle w:val="{STIJL_OPSOMMING}"/>'
+            f'<w:numPr><w:ilvl w:val="0"/><w:numId w:val="{LIJST_ID}"/></w:numPr>'
+            '</w:pPr><w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
 
-    for sectie, opties in (("geadresseerde", {}),
-                           ("betreft", {"vet": True, "hangend": 709}),
-                           ("kenmerken", {})):
-        delen += [
-            alinea("{%p for a in secties." + sectie + " %}"),
-            alinea("{{ a.tekst }}", **opties),
-            alinea("{%p endfor %}"),
-            alinea(""),
-        ]
 
-    delen += [
-        alinea("{%p for a in secties.aanhef %}"),
+def kenmerkregel() -> str:
+    """Plaats en datum springen in; de regels eronder niet."""
+    return ('<w:p><w:pPr>{% if loop.first %}<w:ind w:hanging="851"/>{% endif %}</w:pPr>'
+            '<w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
+
+
+def sjabloonbody() -> str:
+    """De lussen die het sjabloon invullen.
+
+    De kop van de brief is nagemeten aan de bronbrief: het aantal lege alinea's
+    boven het adresblok, de inspringing van de betreft-regel en van de regel met
+    plaats en datum staan daar zo. De rest loopt door een lus, zodat een nieuwe
+    sectie in teksten.yaml geen wijziging in dit sjabloon vergt.
+    """
+    delen = [
+        leeg(4),                                   # ruimte voor de briefkop
+        "{%p for a in secties.geadresseerde %}",
         alinea("{{ a.tekst }}"),
-        alinea("{%p endfor %}"),
-        alinea(""),
-        # Vanaf hier alle overige secties in volgorde. Drie vormen: een kop,
-        # een opsommingsregel en een gewone alinea.
-        alinea("{%p for sectie in romp %}"),
-        alinea("{%p for a in sectie %}"),
-        alinea("{%p if a.stijl == 'kop' %}"),
+        "{%p endfor %}",
+        leeg(6),
+        "{%p for a in secties.betreft %}",
+        alinea("{{ a.tekst }}", vet=True, hangend=709),
+        "{%p endfor %}",
+        leeg(1),
+        "{%p for a in secties.kenmerken %}",
+        kenmerkregel(),
+        "{%p if loop.first %}", leeg(1), "{%p endif %}",
+        "{%p endfor %}",
+        leeg(3),
+        "{%p for a in secties.aanhef %}",
+        alinea("{{ a.tekst }}"),
+        "{%p endfor %}",
+        leeg(1),
+        # Vanaf hier alle overige secties in volgorde. Drie vormen: een kop, een
+        # opsommingsregel en een gewone alinea; de witregel erna bepaalt de motor.
+        "{%p for sectie in romp %}",
+        "{%p for a in sectie %}",
+        "{%p if a.stijl == 'kop' %}",
         alinea("{{ a.tekst }}", vet=True),
-        alinea("{%p elif a.stijl == 'opsomming' %}"),
-        alinea("{{ a.tekst }}", stijl=STIJL_OPSOMMING),
-        alinea("{%p else %}"),
+        "{%p elif a.stijl == 'opsomming' %}",
+        opsommingsregel(),
+        "{%p else %}",
         alinea("{{ a.tekst }}", stijl=STIJL_TEKST),
-        alinea("{%p endif %}"),
-        alinea("{%p endfor %}"),
-        alinea(""),
-        alinea("{%p endfor %}"),
+        "{%p endif %}",
+        "{%p if a.witregel_erna %}", leeg(1), "{%p endif %}",
+        "{%p endfor %}",
+        "{%p endfor %}",
     ]
-    return "".join(delen)
+    # Een losse {%p ... %} krijgt zijn eigen alinea, zodat hij zelf verdwijnt.
+    return "".join(alinea(d) if d.startswith("{%p") else d for d in delen)
 
 
 def bouw(bron: Path, doel: Path) -> Path:

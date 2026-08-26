@@ -98,6 +98,22 @@ de Schilt-gegevens rechtsboven op pagina 1, `footerReference type="first"` naar
 `footer3.xml`, en `titlePg` zet aan dat pagina 1 die afwijkende kop en voet
 gebruikt. Alle afbeeldingen zitten in de kop- en voetteksten, niet in de body.
 
+**De opmaak is nagemeten aan de bronbrief, niet benaderd.** Twee dingen bepalen
+of de brief er verzorgd uitziet:
+
+- *Witregels.* De bronbrieven zetten een lege alinea na elke gewone alinea.
+  Uitzonderingen: opsommingsregels staan tegen elkaar aan (alleen na de laatste
+  een witregel), en een met tabs uitgelijnde vervolgregel staat direct onder de
+  regel waar hij bij hoort. `_zet_witregels` in `samenstellen.py` bepaalt dat;
+  het sjabloon volgt alleen `a.witregel_erna`.
+- *Opsommingstekens.* De stijl `Lijstalinea` zorgt alleen voor inspringing. Het
+  streepje komt uit een `numPr`-verwijzing naar een lijstdefinitie in
+  `numbering.xml`. Zonder die verwijzing staat de regel ingesprongen maar zonder
+  teken ervoor.
+
+Een regel die met een tab of een vaste spatie begint is een uitgelijnde
+vervolgregel, geen opsomming — een streepje daarin hoort bij de tekst.
+
 Twee andere dingen zijn subtiel en hebben allebei een test: een alinea die
 alleen een `{%p ... %}`-tag bevat wordt zelf verwijderd (maar een zelfsluitende
 `<w:p />` mag niet worden opgeslokt, anders verdwijnen de witregels tussen de

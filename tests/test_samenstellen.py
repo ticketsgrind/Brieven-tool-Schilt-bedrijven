@@ -110,6 +110,61 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertNotIn("{{", self.brief.tekst())
 
 
+class TestOpmaakVanAlineas(unittest.TestCase):
+    """De opmaak is nagemeten aan de bronbrieven; zie analyse/skelet.md."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.brief = stel_samen(voorbeeld("particulier-wand-enkelvoud.yaml"), laad(WORTEL))
+
+    def test_opsommingsregels_staan_tegen_elkaar_aan(self):
+        # In de bronbrieven staat er geen witregel tussen twee opsommingsregels,
+        # wel na de laatste. Zonder dat onderscheid staat de brief opgepropt.
+        regels = self.brief.secties["werkzaamheden_inclusief"]
+        opsommingen = [a for a in regels if a.stijl == "opsomming"]
+        self.assertGreater(len(opsommingen), 2)
+        for alinea in opsommingen[:-1]:
+            self.assertFalse(alinea.witregel_erna, alinea.tekst)
+        self.assertTrue(opsommingen[-1].witregel_erna)
+
+    def test_witregel_na_elke_gewone_alinea(self):
+        prijs = [a for a in self.brief.secties["prijs"] if a.stijl == "tekst"]
+        for alinea in prijs:
+            self.assertTrue(alinea.witregel_erna, alinea.tekst)
+
+    def test_kop_gevolgd_door_witregel(self):
+        koppen = [a for a in self.brief.alle_alineas if a.stijl == "kop"]
+        self.assertGreater(len(koppen), 3)
+        for kop in koppen:
+            self.assertTrue(kop.witregel_erna, kop.tekst)
+
+    def test_uitgelijnde_vervolgregel_hoort_bij_de_regel_erboven(self):
+        # De factureringstermijnen zijn met tabs uitgelijnd; tussen een regel en
+        # zijn vervolgregel hoort geen witregel.
+        regels = self.brief.secties["facturering"]
+        vervolg = [n for n, a in enumerate(regels) if a.uitgelijnd]
+        self.assertTrue(vervolg, "geen uitgelijnde vervolgregels gevonden")
+        for nummer in vervolg:
+            self.assertFalse(regels[nummer - 1].witregel_erna)
+
+    def test_streepje_in_een_uitgelijnde_regel_is_geen_opsomming(self):
+        # "\t\t- laatste termijn" begint na strippen met "- ", maar is een
+        # uitgelijnde vervolgregel en geen opsommingsregel.
+        for alinea in self.brief.secties["facturering"]:
+            if alinea.uitgelijnd:
+                self.assertEqual(alinea.stijl, "tekst")
+                self.assertIn("- laatste termijn", alinea.tekst)
+                self.assertTrue(alinea.tekst.startswith("\t"))
+
+    def test_streepje_aan_het_begin_wordt_wel_een_opsomming(self):
+        # De uitgangspunten bij de prijsvorming staan met "- " in teksten.yaml.
+        uitgangspunten = [a for a in self.brief.secties["prijs"]
+                          if "goed bereikbaar" in a.tekst]
+        self.assertEqual(len(uitgangspunten), 1)
+        self.assertEqual(uitgangspunten[0].stijl, "opsomming")
+        self.assertFalse(uitgangspunten[0].tekst.startswith("-"))
+
+
 class TestKeuzegroepen(unittest.TestCase):
     """Binnen een keuzegroep hoort precies één blok in de brief te komen."""
 

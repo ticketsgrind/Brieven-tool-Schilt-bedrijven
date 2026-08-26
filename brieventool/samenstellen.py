@@ -12,7 +12,7 @@ per prijsregel. De rest wordt eenmalig beoordeeld.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
 from .bibliotheek import Bibliotheek, Tekstblok
@@ -43,6 +43,8 @@ class Alinea:
     tekst: str
     stijl: str = "tekst"      # "tekst", "kop" of "opsomming"
     blok_id: str = ""
+    uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
+    witregel_erna: bool = True
 
     def __str__(self) -> str:
         return self.tekst
@@ -108,9 +110,29 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
                         if blok.keuzegroep:
                             vergeven_groepen.add(blok.keuzegroep)
 
-        brief.secties[sectie] = alineas
+        brief.secties[sectie] = _zet_witregels(alineas)
 
     return brief
+
+
+def _zet_witregels(alineas: list[Alinea]) -> list[Alinea]:
+    """Bepaalt na welke alinea's een lege regel hoort.
+
+    De bronbrieven zetten een lege alinea na elke gewone alinea, maar niet
+    tussen de regels van een opsomming; die staan tegen elkaar aan, met alleen
+    een lege regel na de laatste. Zonder dat onderscheid staat de hele brief op
+    elkaar gepropt. Hetzelfde geldt voor een uitgelijnde vervolgregel: die hoort
+    direct onder de regel waar hij bij hoort.
+    """
+    uit: list[Alinea] = []
+    for nummer, alinea in enumerate(alineas):
+        volgende = alineas[nummer + 1] if nummer + 1 < len(alineas) else None
+        aaneengesloten = volgende is not None and (
+            (alinea.stijl == "opsomming" and volgende.stijl == "opsomming")
+            or volgende.uitgelijnd
+        )
+        uit.append(replace(alinea, witregel_erna=not aaneengesloten))
+    return uit
 
 
 def _groepeer(blokken: list[Tekstblok], sectie_herhaalt: bool):
@@ -197,18 +219,23 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
         kaal = regel.strip()
         if not kaal:
             continue
-        if blok.stijl:
-            stijl = blok.stijl
+        # Een regel die met een tab of een vaste spatie begint is een
+        # uitgelijnde vervolgregel van de regel erboven -- zo staan de
+        # factureringstermijnen in de brieven. Die uitlijning blijft staan, en
+        # een streepje erin is onderdeel van de tekst en geen opsommingsteken.
+        uitgelijnd = regel.startswith(("\t", "\u00a0"))
+        if uitgelijnd:
+            stijl, tekst = "tekst", regel.rstrip()
+        elif blok.stijl:
+            stijl, tekst = blok.stijl, kaal
         elif kaal.startswith("- "):
-            stijl, kaal = "opsomming", kaal[2:].strip()
+            stijl, tekst = "opsomming", kaal[2:].strip()
         elif kaal in KOPWOORDEN or _is_kopregel(kaal):
-            stijl = "kop"
+            stijl, tekst = "kop", kaal
         else:
-            stijl = "tekst"
-        # Tabs aan het begin van een vervolgregel horen bij de uitlijning van de
-        # factureringstermijnen en blijven daarom staan.
-        tekst = regel.rstrip() if regel.startswith("\t") else kaal
-        uit.append(Alinea(tekst=tekst, stijl=stijl, blok_id=blok.id))
+            stijl, tekst = "tekst", kaal
+        uit.append(Alinea(tekst=tekst, stijl=stijl, blok_id=blok.id,
+                          uitgelijnd=uitgelijnd))
     return uit
 
 

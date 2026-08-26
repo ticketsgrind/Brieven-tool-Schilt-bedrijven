@@ -165,12 +165,51 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         self.assertTrue(any(r.startswith("Betreft\t") for r in regels))
         self.assertTrue(any(r.startswith("\t\t") for r in regels), "termijnen niet ingesprongen")
 
-    def test_opsommingen_hebben_de_lijststijl(self):
+    def test_opsommingen_hebben_een_streepje(self):
+        # De stijl Lijstalinea zorgt alleen voor inspringing; het streepje komt
+        # uit de verwijzing naar een lijstdefinitie in numbering.xml.
         for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
             if "betonboringen, hak-" in alinea:
                 self.assertIn('w:val="Lijstalinea"', alinea)
+                self.assertIn("<w:numPr>", alinea,
+                              "zonder numPr staat de regel ingesprongen maar zonder streepje")
                 return
         self.fail("de opsommingsregel is niet gevonden")
+
+    def test_evenveel_opsommingstekens_als_opsommingsregels(self):
+        verwacht = sum(1 for a in brief("zakelijk-cassette-meervoud.yaml").alle_alineas
+                       if a.stijl == "opsomming")
+        self.assertEqual(self.xml.count("<w:numPr>"), verwacht)
+        self.assertGreater(verwacht, 5)
+
+    def test_witregel_tussen_de_alineas(self):
+        """Na elke gewone alinea hoort een lege alinea.
+
+        Twee uitzonderingen, allebei uit de bronbrieven: opsommingsregels staan
+        tegen elkaar aan, en een met tabs uitgelijnde vervolgregel staat direct
+        onder de regel waar hij bij hoort. De briefkop telt niet mee -- het
+        adresblok en de regels met project no. en Ref. horen aaneengesloten.
+        """
+        paren = self._opeenvolgende_gevulde_alineas()
+        self.assertGreater(len(paren), 3, "geen aaneengesloten alinea's gevonden")
+        for huidige, volgende in paren:
+            vervolgregel = volgende["tekst"].startswith("\t")
+            beide_opsomming = huidige["opsomming"] and volgende["opsomming"]
+            self.assertTrue(
+                vervolgregel or beide_opsomming,
+                f"geen witregel tussen {huidige['tekst'][:44]!r} en {volgende['tekst'][:44]!r}",
+            )
+
+    def _opeenvolgende_gevulde_alineas(self):
+        alineas = []
+        for xml in re.findall(r"<w:p\b.*?</w:p>|<w:p\b[^>]*/>", self.xml, re.S):
+            delen = re.findall(r"<w:t[^>]*>([^<]*)</w:t>|(<w:tab/>)", xml)
+            alineas.append({"tekst": "".join(t or "\t" for t, _ in delen),
+                            "opsomming": "<w:numPr>" in xml})
+        begin = next(n for n, a in enumerate(alineas) if a["tekst"].startswith("Geachte"))
+        alineas = alineas[begin:]
+        return [(a, b) for a, b in zip(alineas, alineas[1:])
+                if a["tekst"].strip() and b["tekst"].strip()]
 
     def test_de_brief_bevat_de_juiste_inhoud(self):
         tekst = "\n".join(self.regels())
