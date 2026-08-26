@@ -45,54 +45,25 @@ blokken:
     {{ straat_huisnummer }}
     {{ postcode }}  {{ plaats }}
 
-- id: betreft_algemeen
+- id: betreft
   sectie: betreft
-  omschrijving: "Betreft-regel, vrij in te vullen"
+  omschrijving: "Betreft-regel"
   voorwaarde: ""
-  bron: 11 sjablonen
-  tekst: "Betreft\tAirconditioning t.b.v. {{ locatieaanduiding }}"
-
-- id: betreft_woning
-  sectie: betreft
-  omschrijving: "Particuliere woning"
-  voorwaarde: "klanttype == 'particulier'"
-  bron: wand meervoud particulier.docx, uitgewerkt-4.docx, uitgewerkt-7.pdf
-  tekst: "Betreft\tAirconditioning t.b.v. uw woning"
-
-- id: betreft_vestiging
-  sectie: betreft
-  omschrijving: "Zakelijke vestiging op een plaats"
-  voorwaarde: "klanttype == 'zakelijk'"
-  bron: uitgewerkt-2.docx
-  tekst: "Betreft\tAirconditioning t.b.v. uw vestiging te {{ plaats_project }}"
-
-- id: betreft_project
-  sectie: betreft
-  omschrijving: "Zakelijk project met projectnaam"
-  voorwaarde: "klanttype == 'zakelijk'"
-  bron: uitgewerkt-1.docx
-  tekst: "Betreft\tAirconditioning t.b.v. uw project {{ projectnaam }}"
-
-- id: betreft_koelmachine
-  sectie: betreft
-  omschrijving: "Koelmachine"
-  voorwaarde: "installatietype == 'koelmachine'"
-  bron: koelmachine.dotx
-  tekst: "Betreft\tKoelmachine t.b.v. {{ locatieaanduiding }}"
-
-- id: betreft_ventilatie
-  sectie: betreft
-  omschrijving: "Mechanische ventilatie"
-  voorwaarde: "installatietype == 'mechanische ventilatie'"
-  bron: mechanische ventilatie.dotx
-  tekst: "Betreft\tMechanische ventilatie t.b.v. {{ locatieaanduiding }}"
+  bron: alle sjablonen en alle uitgewerkte brieven
+  tekst: "Betreft	{{ betreft_onderwerp }} t.b.v. {{ locatieaanduiding }}"
+  notitie: >
+    Het eerste woord volgt het installatietype (Airconditioning, Koelmachine,
+    Mechanische ventilatie). Het deel na "t.b.v." is vrije tekst; de vormen die
+    in de brieven voorkomen zijn "uw woning", "uw vestiging te <plaats>",
+    "uw project <projectnaam>", "uw <ruimten>" en "uw woning <adres> <plaats>".
+    Er staan nergens aanhalingstekens omheen. Zie vragen.md vraag 3.
 
 - id: kenmerken
   sectie: kenmerken
   voorwaarde: ""
   bron: alle sjablonen
   tekst: |
-    Meerkerk\t{{ briefdatum }}
+    Meerkerk	{{ briefdatum }}
     Ons project no. {{ projectnummer }}
     Ref. {{ referentie }}
 
@@ -110,6 +81,7 @@ blokken:
 
 - id: aanleiding_onderhoud
   sectie: aanleiding
+  keuzegroep: aanleiding
   omschrijving: "Na een bezoek of gesprek met een adviseur"
   voorwaarde: "aanleiding == 'onderhoud'"
   bron: wand enkelvoud.dotx, uitgewerkt-3.docx
@@ -121,6 +93,7 @@ blokken:
 
 - id: aanleiding_aanvraag
   sectie: aanleiding
+  keuzegroep: aanleiding
   omschrijving: "Na een aanvraag van de klant"
   voorwaarde: "aanleiding == 'aanvraag'"
   bron: wand enkelvoud.dotx, uitgewerkt-4.docx
@@ -131,6 +104,7 @@ blokken:
 
 - id: aanleiding_telefonisch
   sectie: aanleiding
+  keuzegroep: aanleiding
   omschrijving: "Na een telefonische aanvraag"
   voorwaarde: "aanleiding == 'telefonisch'"
   bron: wand meervoud particulier.docx
@@ -141,6 +115,7 @@ blokken:
 
 - id: aanleiding_servicebezoek
   sectie: aanleiding
+  keuzegroep: aanleiding
   omschrijving: "Na een servicebezoek"
   voorwaarde: "aanleiding == 'servicebezoek'"
   bron: uitgewerkt-6.pdf
@@ -151,6 +126,7 @@ blokken:
 
 - id: aanleiding_opdrachtbevestiging
   sectie: aanleiding
+  keuzegroep: aanleiding
   omschrijving: "Bevestiging van een ontvangen opdracht"
   voorwaarde: "documentsoort == 'opdrachtbevestiging'"
   bron: uitgewerkt-2.docx
@@ -247,7 +223,7 @@ blokken:
     scrolcompressoren en de unieke Flying Bird IV condensorventilatoren. De
     Condensorbatterijen (MCHE) zijn volledig vervaardigd van aluminium en hebben
     3,5 maal hogere corrosiebestendigheid dan koper-aluminium batterijen.
-    # LET OP: "laaag" en "scrolcompressoren" staan zo in het origineel. Zie vragen.md #13.
+  notitie: '"laaag" en "scrolcompressoren" staan zo in het origineel. Zie vragen.md inconsistentie 9.'
 
 # ===========================================================================
 # 11. SYSTEEMOMSCHRIJVING  (per model binnenunit, enkelvoud + meervoud)
@@ -510,8 +486,7 @@ blokken:
   tekst: >
     Optioneel kunnen de condensors van de buitenunits tegen meerprijs worden
     voorzien van een beschermende coating.
-    # cassette meervoud.dotx heeft hier "de condensor van de buitenunits" (enkelvoud
-    # condensor bij meervoud buitenunits). Zie vragen.md #13.
+  notitie: 'cassette meervoud.dotx heeft hier "de condensor van de buitenunits". Zie vragen.md inconsistentie 9.'
 
 - id: buitenunit_winterregeling
   sectie: buitenunit
@@ -664,9 +639,8 @@ blokken:
   bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-6.pdf
   tekst: |
     TECHNISCHE SPECIFICATIES
-    # Vrij tekstblok per unit, met regels als "Koelvermogen : 7,1 (2,6 - 7,7) kW".
-    # Dit is te gestructureerd voor een vrij veld en te variabel voor een vast blok.
-    # Zie vragen.md #9 - dit is de belangrijkste openstaande beslissing.
+    {{ technische_specificaties_tekst }}
+  notitie: 'Vrij tekstblok per unit. Zie vragen.md beslissing 1 - nog te bepalen of dit uit een productdatabase komt.'
 
 # ===========================================================================
 # 18-19. INBEGREPEN / NIET-INBEGREPEN WERKZAAMHEDEN
@@ -972,7 +946,7 @@ blokken:
     Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik
     gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt
     € 260,- per stuk.
-    # Bedrag wijkt af van de zakelijke variant. Zie vragen.md #3.
+  notitie: 'Bedrag wijkt af van de zakelijke variant (€ 220,-). Zie vragen.md inconsistentie 1.'
 
 - id: btw_exclusief
   sectie: prijs
@@ -1059,11 +1033,11 @@ blokken:
   voorwaarde: "facturering == 'vijf_termijnen'"
   bron: 11 sjablonen
   tekst: |
-    Facturering:\t30% bij opdracht, direct betaalbaar
-    \t\t20% bij aanvang werkzaamheden
-    \t\t20% bij 50% gereed
-    \t\t20% bij 90% gereed
-    \t\t10% bij oplevering
+    Facturering:	30% bij opdracht, direct betaalbaar
+    		20% bij aanvang werkzaamheden
+    		20% bij 50% gereed
+    		20% bij 90% gereed
+    		10% bij oplevering
 
 - id: facturering_30_70
   sectie: facturering
@@ -1071,8 +1045,8 @@ blokken:
   voorwaarde: "facturering == 'dertig_zeventig'"
   bron: 11 sjablonen, uitgewerkt-2.docx, uitgewerkt-6.pdf
   tekst: |
-    Facturering:\t30% bij opdracht, direct betaalbaar
-    \t\t70% bij aanvang werkzaamheden
+    Facturering:	30% bij opdracht, direct betaalbaar
+    		70% bij aanvang werkzaamheden
 
 - id: facturering_30_60_10
   sectie: facturering
@@ -1080,9 +1054,9 @@ blokken:
   voorwaarde: "facturering == 'dertig_zestig_tien'"
   bron: 11 sjablonen, uitgewerkt-5.pdf
   tekst: |
-    Facturering:\t30% bij opdracht, direct betaalbaar
-    \t\t60% bij aanvang werkzaamheden
-    \t\t10% bij oplevering
+    Facturering:	30% bij opdracht, direct betaalbaar
+    		60% bij aanvang werkzaamheden
+    		10% bij oplevering
 
 - id: facturering_overleg
   sectie: facturering
@@ -1097,10 +1071,10 @@ blokken:
   voorwaarde: "klanttype == 'particulier'"
   bron: wand enkelvoud particulier.dotx, uitgewerkt-4.docx, uitgewerkt-7.pdf
   tekst: |
-    Facturering:\t- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.
-    \t\t- laatste termijn, 50% na oplevering.
-    Betaling:\t- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.
-    \t\t- laatste termijn binnen 30 dagen na factuurdatum.
+    Facturering:	- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.
+    		- laatste termijn, 50% na oplevering.
+    Betaling:	- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.
+    		- laatste termijn binnen 30 dagen na factuurdatum.
 
 - id: betaling_30_dagen
   sectie: betaling

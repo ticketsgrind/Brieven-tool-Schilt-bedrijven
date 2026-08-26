@@ -254,6 +254,21 @@ spatie), `€ 1.265.000,-`, `€ 220,-`.
 > tool overgaat op `€ 4.995,00`, of houden we jullie eigen `€ 4.995,-` aan? Ik
 > neig naar het laatste, want dat is wat klanten van jullie gewend zijn.
 
+### Inconsistentie 10 — ontbrekende meervoudsvormen
+
+Bij het bouwen van de motor bleek dat een paar blokken alleen in het enkelvoud
+bestaan, terwijl ze ook bij meerdere units gebruikt worden. De brief zegt dan
+"de buitenunit" terwijl er twee staan:
+
+| Blok | Tekst nu | Ontbreekt |
+|---|---|---|
+| `buitenunit_winterregeling` | "De buitenunit **is** voorzien van een winterregeling" | meervoudsvorm |
+| `systeem_opbouw_meervoud` | "... en **één buitenunit** die d.m.v. koelmiddelleidingen" | vorm voor meerdere buitenunits |
+
+> **Vraag 21.** Mag ik hiervoor een meervoudsvariant schrijven ("De buitenunits
+> zijn voorzien van een winterregeling"), of wil je de formulering zelf
+> aanleveren? Het is nieuwe tekst en die verzin ik liever niet zelf.
+
 ### Inconsistentie 9 — spel- en typefouten in de sjablonen
 
 Onaangeroerd gelaten, maar de moeite van het corrigeren waard:

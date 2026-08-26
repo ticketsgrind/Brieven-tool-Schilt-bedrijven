@@ -30,15 +30,48 @@ en circa 45 invulvariabelen.
       _extract/          uitvoer van de scripts (niet in git)
     config/
       ondertekenaars.yaml   vier ondertekenaars plus de bedrijfsgegevens
+    brieventool/
+      expressies.py      veilige evaluatie van de voorwaarden uit teksten.yaml
+      bibliotheek.py     laadt de tekstblokken en de ondertekenaars
+      opmaak.py          bedragen, telwoorden, datums in Nederlandse notatie
+      samenstellen.py    kiest de blokken en vult de plaatshouders in
+      sjabloon.py        schrijft het Word-bestand (enige module met docxtpl)
+      cli.py             opdrachtregel
+    tests/               48 tests, draaien zonder externe pakketten
+    voorbeelden/         twee ingevulde offertes om mee te proberen
 
 ## Aan de slag
 
+Een brief samenstellen en de tekst bekijken:
+
+    python3 -m brieventool voorbeelden/particulier-wand-enkelvoud.yaml
+
+Met `--blokken` zie je erbij welke tekstblokken zijn gebruikt. Met
+`--docx uit/offerte.docx` schrijft hij een Word-bestand, zodra er een sjabloon is.
+
+De tests draaien:
+
+    python3 -m unittest discover -s tests -t .
+
+De bronbrieven opnieuw uitlezen:
+
     python3 tools/extract_docx.py
 
-Het script gebruikt `python-docx` als dat geïnstalleerd is
+Dat script gebruikt `python-docx` als dat geïnstalleerd is
 (`pip install -r requirements.txt`) en valt anders terug op de
 standaardbibliotheek — een `.docx` is een zip met XML, dus dat kan zonder externe
 pakketten. De uitvoer is in beide gevallen gelijk.
+
+## Het tekstenbestand centraal houden
+
+De tool draait lokaal, maar `teksten.yaml` hoort op één plek te staan. Anders
+lopen de teksten alsnog uit elkaar zodra meer mensen de tool gebruiken. Zet
+daarom de omgevingsvariabele `BRIEVENTOOL_BIBLIOTHEEK` op een gedeelde map,
+bijvoorbeeld een gesynchroniseerde OneDrive-map:
+
+    set BRIEVENTOOL_BIBLIOTHEEK=C:\Users\<naam>\OneDrive - Schilt\Brieventool
+
+Zonder die variabele leest de tool de bibliotheek uit de projectmap.
 
 ## Uitgangspunten
 
