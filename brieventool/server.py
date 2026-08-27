@@ -26,6 +26,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from .bibliotheek import BibliotheekFout, laad
+from .controle import melding, ontbrekende_gegevens
 from .bijlage import SOORTEN, BijlageFout, tekst_uit_bestand
 from .briefpapier import BriefpapierFout, beeld, lees
 from .samenstellen import SamenstelFout, stel_samen
@@ -100,11 +101,16 @@ class Bediening(BaseHTTPRequestHandler):
             ],
             "blokken": brief.gebruikte_blokken,
             "waarschuwingen": brief.waarschuwingen,
+            "ontbreekt": ontbrekende_gegevens(offerte),
             "kenmerken": {"projectnummer": offerte.get("projectnummer") or "",
                           "referentie": brief.context.get("referentie") or ""},
         })
 
     def _docx(self, offerte: dict) -> None:
+        # Een gat in een verstuurde brief valt niemand meer op; hier nog wel.
+        ontbreekt = ontbrekende_gegevens(offerte)
+        if ontbreekt:
+            return self._antwoord(200, {"fout": melding(ontbreekt), "ontbreekt": ontbreekt})
         try:
             brief = stel_samen(offerte, self.server.bibliotheek)
             with tempfile.TemporaryDirectory() as tijdelijk:

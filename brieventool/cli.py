@@ -16,6 +16,7 @@ from pathlib import Path
 import yaml
 
 from .bibliotheek import BibliotheekFout, laad
+from .controle import melding, ontbrekende_gegevens
 from .samenstellen import SamenstelFout, stel_samen
 from .sjabloon import SjabloonFout, schrijf_docx
 
@@ -31,6 +32,8 @@ def main(argumenten: list[str] | None = None) -> int:
                           help="het Word-sjabloon (standaard: sjablonen/brief.docx)")
     ontleder.add_argument("--bibliotheek", type=Path,
                           help="map met teksten.yaml (standaard: BRIEVENTOOL_BIBLIOTHEEK of de projectmap)")
+    ontleder.add_argument("--toch", action="store_true",
+                          help="schrijf het Word-bestand ook als er nog gegevens ontbreken")
     ontleder.add_argument("--blokken", action="store_true",
                           help="toon welke tekstblokken zijn gebruikt")
     keuzes = ontleder.parse_args(argumenten)
@@ -50,6 +53,11 @@ def main(argumenten: list[str] | None = None) -> int:
         return 1
 
     if keuzes.docx:
+        ontbreekt = ontbrekende_gegevens(offerte)
+        if ontbreekt and not keuzes.toch:
+            print(f"Fout: {melding(ontbreekt)}", file=sys.stderr)
+            print("Wil je hem toch, gebruik dan --toch.", file=sys.stderr)
+            return 1
         try:
             geschreven = schrijf_docx(brief, keuzes.sjabloon, keuzes.docx)
         except SjabloonFout as fout:

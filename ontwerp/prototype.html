@@ -273,6 +273,10 @@ body:not(.waarom) .tip{display:none}
   <div class="kop-acties">
     <button class="knop" id="knop-waarom" aria-pressed="false">
       <span class="stip"></span>Toon waarom</button>
+    <button class="knop" id="knop-nieuw" type="button">Nieuw</button>
+    <button class="knop" id="knop-openen" type="button">Openen</button>
+    <button class="knop" id="knop-opslaan" type="button">Opslaan</button>
+    <input type="file" id="bestand-openen" accept=".json,application/json" hidden>
     <button class="knop hoofd" id="knop-word">Word-bestand maken</button>
     <div class="naamkiezer" id="naamkiezer" hidden>
       <label for="veld-bestandsnaam">Bestandsnaam</label>
@@ -505,6 +509,9 @@ const A={
   prijsregels:[{positie:"",bedrag:10950}],
   eigenAlineas:{},
 };
+// De beginstand, voor "Nieuw". Een diepe kopie, anders wijzen de installaties
+// en prijsregels naar dezelfde lijsten als A en verandert de beginstand mee.
+const BEGINSTAND=JSON.parse(JSON.stringify(A));
 
 /* ==================================================================
    Context — spiegelt _bouw_context in samenstellen.py
@@ -623,6 +630,47 @@ function redenVan(blok,ctx){
   const n=blok.v.match(/^([a-z_]+)$/);
   if(n)return {veld:n[1],waarde:ctx[n[1]]?"ja":"nee"};
   return {veld:blok.v,waarde:""};
+}
+
+/* Wat er nog ontbreekt -- spiegelt brieventool/controle.py. Zonder deze
+   controle vult de tool een leeg antwoord in als niets, en dan staat er
+   "bedraagt netto." of "Ons project no." in een brief aan een klant. */
+const VASTE_VELDEN=[["achternaam","de achternaam"],["straat_huisnummer","straat en huisnummer"],
+  ["postcode","de postcode"],["plaats","de plaats"],
+  ["locatieaanduiding","de betreft-regel"],["projectnummer","het projectnummer"],
+  ["sa_nummer","het SA-nummer"]];
+const INSTALLATIEVELDEN=[["ruimte","de ruimte"],["merk","het merk"],
+  ["type_binnendeel","het type binnendeel"]];
+const gevuld=w=>w!==null&&w!==undefined&&String(w).trim()!=="";
+
+function ontbrekendeGegevens(){
+  const uit=[];
+  for(const [veld,omschrijving] of VASTE_VELDEN) if(!gevuld(A[veld]))uit.push(omschrijving);
+  if(A.documentsoort!=="opdrachtbevestiging"){
+    if(!gevuld(A.datum_aanleiding))uit.push("de datum van de aanleiding");
+    if(A.aanleiding==="onderhoud"&&!gevuld(A.adviseur))uit.push("de naam van de adviseur");
+  }
+  if(!(A.prijsregels||[]).some(r=>gevuld(r.bedrag)))uit.push("het bedrag");
+  const installaties=A.installaties||[];
+  if(!installaties.length)uit.push("een installatie");
+  installaties.forEach((inst,n)=>{
+    const erbij=installaties.length>1?" van regel "+(n+1):"";
+    for(const [veld,omschrijving] of INSTALLATIEVELDEN)
+      if(!gevuld(inst[veld]))uit.push(omschrijving+erbij);
+    if((inst.systeemsoort==="multi-splitsystem"||inst.systeemsoort==="vrf")
+       &&!gevuld(inst.type_buitendeel))uit.push("het type buitendeel"+erbij);
+  });
+  if(A.technische_specificaties==="uitgeschreven"
+     &&!gevuld(A.technische_specificaties_tekst)&&!gevuld(A.specBestand))
+    uit.push("de technische specificaties");
+  return uit;
+}
+function ontbreektMelding(ontbreekt){
+  const lijst=ontbreekt.length===1 ? ontbreekt[0]
+    : ontbreekt.slice(0,-1).join(", ")+" en "+ontbreekt[ontbreekt.length-1];
+  return "De brief is nog niet compleet: "+lijst+
+    (ontbreekt.length===1?" ontbreekt":" ontbreken")+" nog. Vul dat eerst in; "+
+    "anders staat er straks een gat in de brief.";
 }
 
 function stelSamen(){
@@ -1361,11 +1409,9 @@ function tekenBrief(resultaat,alleenNieuw){
   document.getElementById("k-project").textContent=A.projectnummer||"—";
   document.getElementById("k-ref").textContent=c.referentie||"—";
 
-  const leeg=[["achternaam","achternaam"],["straat_huisnummer","adres"],["plaats","plaats"],
-    ["projectnummer","project no."],["locatieaanduiding","betreft-regel"]]
-    .filter(([k])=>!String(A[k]||"").trim()).map(([,l])=>l);
-  const geen=!A.prijsregels.some(r=>String(r.bedrag||"").trim());
-  if(geen)leeg.push("bedrag");
+  // Dezelfde lijst als die het Word-bestand tegenhoudt; draait de app, dan komt
+  // hij van de motor zodat er maar één waarheid is.
+  const leeg=resultaat.ontbreekt||ontbrekendeGegevens();
   const o=document.getElementById("ontbreekt");
   o.textContent=leeg.length?"nog invullen: "+leeg.join(", "):"alles ingevuld";
   o.style.color=leeg.length?"var(--signal)":"var(--muted)";
@@ -1447,7 +1493,8 @@ async function vraagAanApp(){
       tekst:a.tekst, stijl:a.stijl, nadruk:a.nadruk, uitgelijnd:a.uitgelijnd,
       letterlijk:a.letterlijk, blok:{id:a.blok,stijl:a.stijl}, reden:null})));
   }
-  return {secties,gebruikt:uit.blokken,ctx:uit.kenmerken,waarschuwingen:uit.waarschuwingen};
+  return {secties,gebruikt:uit.blokken,ctx:uit.kenmerken,
+          waarschuwingen:uit.waarschuwingen,ontbreekt:uit.ontbreekt};
 }
 
 function toonFout(tekst){
@@ -1470,6 +1517,7 @@ function toonMelding(tekst){
 }
 
 function ververs(alleenBrief){
+  bewaarConcept();
   if(VIA_APP)return verversViaApp(alleenBrief);
   const resultaat=stelSamen();
   tekenBrief(resultaat,true);
@@ -1606,13 +1654,115 @@ async function maakWord(){
 }
 
 document.getElementById("knop-word").onclick=()=>{
+  // Een gat in een verstuurde brief valt niemand meer op; hier nog wel.
+  const ontbreekt=ontbrekendeGegevens();
+  if(ontbreekt.length){ sluitNaamkiezer(); toonFout(ontbreektMelding(ontbreekt)); return }
+  toonFout(null);
   if(naamkiezer.hidden)openNaamkiezer(); else sluitNaamkiezer();
 };
 
 
+/* ==================================================================
+   Bewaren en hervatten — een brief is zelden in één keer af
+   ================================================================== */
+const CONCEPT="brieventool.concept";     // waar de browser het werk bewaart
+const BESTANDSMERK="brieventool-offerte";
+
+function vulAntwoorden(nieuw){
+  // A is een const die overal is doorgegeven, dus vullen in plaats van vervangen.
+  for(const sleutel of Object.keys(A))delete A[sleutel];
+  Object.assign(A,JSON.parse(JSON.stringify(nieuw)));
+}
+
+/* De browser onthoudt waar je gebleven was. Alleen op deze computer en in deze
+   browser: het is een vangnet tegen een dichtgeklapt tabblad, geen archief. */
+let bewaarWacht=null;
+function bewaarConcept(){
+  clearTimeout(bewaarWacht);
+  bewaarWacht=setTimeout(()=>{
+    try{ localStorage.setItem(CONCEPT,JSON.stringify(A)) }
+    catch(_){ /* privévenster of vol geheugen; dan gewoon niet */ }
+  },400);
+}
+function haalConceptOp(){
+  try{
+    const bewaard=localStorage.getItem(CONCEPT);
+    return bewaard?JSON.parse(bewaard):null;
+  }catch(_){ return null }
+}
+function vergeetConcept(){
+  try{ localStorage.removeItem(CONCEPT) }catch(_){}
+}
+
+/* Opslaan als bestand: dat kun je bewaren, mailen of later weer openen. */
+async function slaOfferteOp(){
+  const inhoud=JSON.stringify({
+    [BESTANDSMERK]:1, opgeslagen:new Date().toISOString(), antwoorden:A,
+  },null,1);
+  const naam=(A.bestandsnaam||kaleNaam(bestandsnaam()))+".json";
+  try{
+    toonMelding(await bewaarBestand(naam,new TextEncoder().encode(inhoud)));
+  }catch(fout){ toonFout("Opslaan lukte niet: "+fout.message) }
+}
+
+async function openOfferte(bestand){
+  try{
+    const gelezen=JSON.parse(await bestand.text());
+    const antwoorden=gelezen&&gelezen.antwoorden;
+    if(!antwoorden||typeof antwoorden!=="object")
+      throw new Error("dit is geen opgeslagen offerte van de brieventool");
+    vulAntwoorden(antwoorden);
+    ververs();
+    toonFout(null);
+    toonMelding("De offerte uit "+bestand.name+" staat klaar.");
+  }catch(fout){
+    toonFout("Kon "+bestand.name+" niet openen: "+fout.message);
+  }
+}
+
+function nieuweBrief(){
+  vulAntwoorden(BEGINSTAND);
+  vergeetConcept();
+  ververs();
+  toonFout(null);
+  toonMelding("Een nieuwe brief; de vorige is niet bewaard.");
+}
+
+document.getElementById("knop-opslaan").onclick=()=>slaOfferteOp();
+document.getElementById("knop-openen").onclick=()=>
+  document.getElementById("bestand-openen").click();
+document.getElementById("bestand-openen").onchange=function(){
+  if(this.files[0])openOfferte(this.files[0]);
+  this.value="";                    // zodat hetzelfde bestand opnieuw kan
+};
+
+/* "Nieuw" gooit werk weg, dus vraagt eerst na. Geen confirm(): een ingelijste
+   pagina mag geen venster openen. */
+const knopNieuw=document.getElementById("knop-nieuw");
+let nieuwGevraagd=null;
+knopNieuw.onclick=()=>{
+  if(nieuwGevraagd){
+    clearTimeout(nieuwGevraagd); nieuwGevraagd=null;
+    knopNieuw.textContent="Nieuw"; knopNieuw.classList.remove("aan");
+    nieuweBrief();
+    return;
+  }
+  knopNieuw.textContent="Alles wissen?"; knopNieuw.classList.add("aan");
+  nieuwGevraagd=setTimeout(()=>{
+    nieuwGevraagd=null;
+    knopNieuw.textContent="Nieuw"; knopNieuw.classList.remove("aan");
+  },4000);
+};
+
 (async () => {
   VIA_APP = await isErEenMotor();
   BRIEFPAPIER = await haalBriefpapier();
+  // Waar je gebleven was, als de browser dat nog weet. Terugzetten voor het
+  // eerste tekenen, zodat het scherm niet eerst de voorbeeldbrief laat zien.
+  const concept=haalConceptOp();
+  if(concept)vulAntwoorden(concept);
   ververs();
+  if(concept)toonMelding("De brief waar je mee bezig was staat weer klaar. "+
+    "Met Nieuw begin je opnieuw.");
 })();
 </script>

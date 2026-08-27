@@ -51,6 +51,26 @@ class TestApp(unittest.TestCase):
         with urllib.request.urlopen(verzoek) as antwoord:
             return antwoord.status, antwoord.read(), dict(antwoord.headers)
 
+    # --- geen halve brief --------------------------------------------------
+
+    def test_docx_weigert_een_onvolledige_offerte(self):
+        gegevens = offerte()
+        gegevens["prijsregels"] = [{"bedrag": ""}]
+        code, inhoud, koppen = self.stuur("/docx", gegevens)
+        self.assertEqual(code, 200)
+        self.assertIn("application/json", koppen["Content-Type"])
+        uit = json.loads(inhoud)
+        self.assertIn("het bedrag", uit["fout"])
+        self.assertEqual(uit["ontbreekt"], ["het bedrag"])
+
+    def test_brief_vertelt_wat_er_ontbreekt(self):
+        gegevens = offerte()
+        gegevens["projectnummer"] = ""
+        uit = json.loads(self.stuur("/brief", gegevens)[1])
+        self.assertEqual(uit["ontbreekt"], ["het projectnummer"])
+        # De voorvertoning blijft wel gewoon werken tijdens het invullen.
+        self.assertTrue(uit["secties"])
+
     # --- het scherm --------------------------------------------------------
 
     def test_app_meldt_zich(self):

@@ -30,6 +30,7 @@ python3 tools/maak_sjabloon.py
 python3 -m brieventool voorbeelden/particulier-wand-enkelvoud.yaml
 python3 -m brieventool <offerte>.yaml --blokken          # toon gebruikte blok-id's
 python3 -m brieventool <offerte>.yaml --docx uit/brief.docx
+python3 -m brieventool <offerte>.yaml --docx uit/brief.docx --toch   # ook met gaten erin
 
 # Tests
 python3 -m unittest discover -s tests -t .
@@ -61,8 +62,18 @@ De kern is dat **de inhoud niet in de code zit**. Alle brieftekst staat in
 plaatshouders in. Een gewijzigde garantietekst is dus een tekstwijziging, geen
 codewijziging.
 
-**De keten:** `analyse/teksten.yaml` (136 blokken) → `bibliotheek.py` laadt ze →
+**De keten:** `analyse/teksten.yaml` (143 blokken) → `bibliotheek.py` laadt ze →
 `samenstellen.py` kiest en vult → `sjabloon.py` schrijft het Word-bestand.
+`controle.py` staat ertussen: het weigert een Word-bestand zolang er nog
+gegevens ontbreken.
+
+**Een halve brief wordt geen Word-bestand.** Een leeg antwoord werd stilzwijgend
+als niets ingevuld, en dan staat er `bedraagt netto.` of `Ons project no.` in een
+brief aan een klant. `controle.py` noemt bij naam wat er nog mist; `server.py`
+weigert `/docx`, de opdrachtregel weigert `--docx` (met `--toch` als noodrem) en
+het scherm weigert de knop. De **voorvertoning blijft wel werken** — je moet
+kunnen meelezen terwijl je invult. Elke controle daar staat omdat het gat is
+nagemeten in de samengestelde brief; voeg er geen toe op gevoel.
 
 **Blokselectie werkt op gewone antwoorden, niet op blok-id's.** Wie
 `condensafvoer: natuurlijk_verloop` en `aantal_binnenunits: 3` invult krijgt
@@ -189,6 +200,15 @@ gecomprimeerd hoeft te worden. `tests/test_spiegel.py` draait de spiegel in node
 en legt beide brieven naast elkaar: dezelfde alinea's, dezelfde blokken en een
 Word-bestand dat op de regeleinden in de XML-kop na byte voor byte gelijk is.
 Wijk je in de een af, dan valt die toets om.
+
+**Bewaren gebeurt op twee manieren.** De browser onthoudt de antwoorden in
+`localStorage` (sleutel `brieventool.concept`), zodat een dichtgeklapt tabblad
+geen werk kost; dat is een vangnet, geen archief, en het staat alleen op die ene
+computer. Daarnaast slaat **Opslaan** de antwoorden op als `.json` met een merk
+erin (`brieventool-offerte`), en leest **Openen** zo'n bestand terug. `A` is een
+`const` die overal is doorgegeven, dus terugzetten gebeurt met `vulAntwoorden`:
+leegmaken en vullen, niet vervangen. **Nieuw** vraagt eerst na door zelf even in
+`Alles wissen?` te veranderen — een `confirm()` mag niet.
 
 **De bestandsnaam is aan te passen voor het downloaden.** De knop opent eerst
 een veldje met de voorgestelde naam (`achternaam-plaats-sa-nummer`, dezelfde als

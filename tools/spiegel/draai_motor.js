@@ -15,7 +15,7 @@ function stuk(naam) {
 
 const tijdelijk = pad.join(fs.mkdtempSync("/tmp/spiegel-"), "motor.js");
 fs.writeFileSync(tijdelijk, stuk("motor") + stuk("word") +
-  "\n;module.exports={A,stelSamen,maakDocument,maakWordBestand};");
+  "\n;module.exports={A,stelSamen,maakDocument,maakWordBestand,ontbrekendeGegevens};");
 const motor = require(tijdelijk);
 
 const offerte = JSON.parse(fs.readFileSync(process.argv[3], "utf8"));
@@ -29,6 +29,7 @@ Object.assign(motor.A, {eigenAlineas: {}}, offerte);
   } else {
     process.stdout.write(JSON.stringify({
       secties: brief.secties, gebruikt: brief.gebruikt,
+      ontbreekt: motor.ontbrekendeGegevens(),
     }, (sleutel, waarde) => sleutel === "blok" || sleutel === "reden" ? undefined : waarde));
   }
 })();
