@@ -166,6 +166,24 @@ class TestApp(unittest.TestCase):
 
     # --- keuzes voor het formulier ----------------------------------------
 
+    def test_briefpapier_wordt_bediend(self):
+        _, inhoud, _ = self.haal("/briefpapier")
+        uit = json.loads(inhoud)
+        self.assertAlmostEqual(uit["pagina"]["breedte"], 210.0, delta=0.5)
+        self.assertIn("Schilt Bedrijven B.V.", uit["kop"]["regels"])
+        self.assertTrue(uit["kop"]["beelden"])
+
+    def test_beeld_wordt_bediend(self):
+        _, inhoud, koppen = self.haal("/beeld/image1.jpeg")
+        self.assertEqual(koppen["Content-Type"], "image/jpeg")
+        self.assertGreater(len(inhoud), 1000)
+
+    def test_beeld_buiten_het_sjabloon_wordt_geweigerd(self):
+        for poging in ("..%2f..%2fetc%2fpasswd", "image3.emf", "bestaatniet.png"):
+            with self.subTest(poging), self.assertRaises(urllib.error.HTTPError) as gevangen:
+                self.haal(f"/beeld/{poging}")
+            self.assertEqual(gevangen.exception.code, 404)
+
     def test_keuzes_voor_het_formulier(self):
         _, inhoud, _ = self.haal("/keuzes")
         uit = json.loads(inhoud)

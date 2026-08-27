@@ -163,6 +163,16 @@ selectielogica in Python, werk dan ook de spiegel bij. Draai
 daarna met `node --check` dat het script nog geldig is, want een fout in de
 ingebakken gegevens breekt de hele pagina.
 
+**De voorvertoning gebruikt het echte briefpapier.** `briefpapier.py` leest uit
+`sjablonen/brief.docx` het paginaformaat, de marges, de gegevens rechtsboven, de
+voettekst en de afbeeldingen; de app bedient die via `/briefpapier` en
+`/beeld/<naam>`. Het vel op het scherm heeft daardoor A4-verhoudingen met de
+echte marges, zodat de regels ongeveer op dezelfde plek afbreken als in Word.
+Verzin hier nooit een kop of voet: dan wekt het scherm de indruk dat de brief er
+zo uitziet terwijl het Word-bestand iets anders doet. Een EMF-afbeelding kan een
+browser niet tonen; die komt als `onbekende_beelden` terug in plaats van
+stilzwijgend te verdwijnen.
+
 **De motor levert `tekst` en `nadruk` apart** waar een alinea uit twee
 tekstdelen bestaat: bij `stijl: prijs` het bedrag, bij `stijl: label` de inhoud
 achter de tab. In Word worden dat twee runs met eigen opmaak; het scherm plakt

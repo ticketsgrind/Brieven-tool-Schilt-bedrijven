@@ -27,6 +27,7 @@ from urllib.parse import urlparse
 
 from .bibliotheek import BibliotheekFout, laad
 from .bijlage import SOORTEN, BijlageFout, tekst_uit_bestand
+from .briefpapier import BriefpapierFout, beeld, lees
 from .samenstellen import SamenstelFout, stel_samen
 from .sjabloon import SjabloonFout, schrijf_docx
 
@@ -47,6 +48,10 @@ class Bediening(BaseHTTPRequestHandler):
             self._scherm()
         elif pad == "/keuzes":
             self._antwoord(200, self._keuzes())
+        elif pad == "/briefpapier":
+            self._briefpapier()
+        elif pad.startswith("/beeld/"):
+            self._beeld(pad[len("/beeld/"):])
         elif pad == "/favicon.ico":
             # De browser vraagt hier altijd om; een leeg antwoord is genoeg.
             self.send_response(204)
@@ -141,6 +146,25 @@ class Bediening(BaseHTTPRequestHandler):
         }
 
     # --- plumbing ----------------------------------------------------------
+
+    def _briefpapier(self) -> None:
+        """Het echte briefpapier, zodat de voorvertoning erop lijkt."""
+        try:
+            self._antwoord(200, lees(SJABLOON))
+        except BriefpapierFout as fout:
+            self._antwoord(200, {"fout": str(fout)})
+
+    def _beeld(self, naam: str) -> None:
+        try:
+            inhoud, soort = beeld(SJABLOON, naam)
+        except BriefpapierFout as fout:
+            return self._antwoord(404, {"fout": str(fout)})
+        self.send_response(200)
+        self.send_header("Content-Type", soort)
+        self.send_header("Content-Length", str(len(inhoud)))
+        self.send_header("Cache-Control", "max-age=3600")
+        self.end_headers()
+        self.wfile.write(inhoud)
 
     def _scherm(self) -> None:
         try:

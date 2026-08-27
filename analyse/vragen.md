@@ -454,6 +454,26 @@ leidinglengteregel die net anders geformuleerd zijn dan de opgenomen versie.
 
 ---
 
+## B4. Wat de voorvertoning wel en niet laat zien
+
+Het scherm bootst de eerste pagina na met het echte briefpapier uit het
+sjabloon: A4 met de marges van 4 cm boven en 2,8 cm links, de logostrip
+linksboven, de bedrijfsgegevens rechtsboven en de voorwaardentekst onderaan.
+
+Twee dingen wijken bewust af, en die staan er niet in:
+
+- **De verticale strip in de voettekst** is een EMF-afbeelding. Browsers kunnen
+  dat formaat niet tonen. Hij zit wel gewoon in het Word-bestand.
+- **Paginaovergangen.** De voorvertoning is één doorlopend vel; waar Word een
+  pagina afbreekt is op het scherm niet te zien.
+
+> **Vraag 30.** Is dat laatste hinderlijk? Ik kan een lijn tekenen op elke
+> 297 mm, zodat je ziet of een brief op twee of drie pagina's uitkomt. Dat is
+> een benadering -- Word rekent regelafbrekingen net iets anders -- dus het is
+> de vraag of dat helpt of juist verwarring geeft.
+
+---
+
 ## C. Openstaande beslissingen voor fase 2
 
 ### Beslissing 1 — wat doen we met de technische specificaties?
