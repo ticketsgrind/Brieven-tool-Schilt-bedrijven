@@ -36,6 +36,10 @@ python3 -m unittest discover -s tests -t .
 python3 -m unittest tests.test_samenstellen -v
 python3 -m unittest tests.test_samenstellen.TestZakelijkeBrief.test_meervoud
 
+# De brief die het scherm zonder Python maakt naast die van de motor leggen
+node tools/spiegel/draai_motor.js ontwerp/prototype.html <offerte>.json > brief.json
+node tools/spiegel/draai_motor.js ontwerp/prototype.html <offerte>.json docx > brief.docx
+
 # Meten hoeveel van de bestaande brieven de bibliotheek dekt
 python3 tools/dekkingstoets.py
 
@@ -167,9 +171,29 @@ niet `fetch("/brief")`), en valt de verbinding halverwege weg, dan zet
 `verversViaApp` de stand terug op zelf rekenen. Er staan twee tests op in
 `tests/test_server.py`.
 
+**Het scherm maakt zelf een Word-bestand als er geen motor is.** Draait de app,
+dan levert Python het bestand — die is de maat. Zonder app bouwt het scherm het
+uit het sjabloon dat `ververs_prototype.py` als base64 in de pagina zet:
+`maakDocument` vervangt de body van `word/document.xml` op precies dezelfde
+manier als `tools/maak_sjabloon.py` hem opbouwt, en `schrijfZip` pakt het weer
+in — de onderdelen die niet veranderen gaan ingepakt en al weer mee, alleen het
+nieuwe document.xml gaat er onverpakt in, zodat er in de browser niets
+gecomprimeerd hoeft te worden. `tests/test_spiegel.py` draait de spiegel in node
+en legt beide brieven naast elkaar: dezelfde alinea's, dezelfde blokken en een
+Word-bestand dat op de regeleinden in de XML-kop na byte voor byte gelijk is.
+Wijk je in de een af, dan valt die toets om.
+
+**Geen `alert()`, `confirm()` of `prompt()` in het scherm.** Een ingelijste
+pagina — het scherm als artefact — mag geen venster openen; de aanroep doet dan
+zichtbaar niets. Meldingen gaan via `toonFout` en `toonMelding`, en invoer via
+een veld in de pagina zelf. Om dezelfde reden komt het bestand daar niet uit een
+downloadkoppeling maar uit `claude.use("downloads")`; een gewone koppeling is er
+inert. Buiten die omgeving blijft de koppeling de weg.
+
 Alleen die tweede stand kan uit de pas lopen met de motor. Wijzig je de
 selectielogica in Python, werk dan ook de spiegel bij. Draai
-`ontwerp/ververs_prototype.py` na elke wijziging in `teksten.yaml`; controleer
+`ontwerp/ververs_prototype.py` na elke wijziging in `teksten.yaml` én na elke
+`tools/maak_sjabloon.py`, want het sjabloon zit ook in die pagina; controleer
 daarna met `node --check` dat het script nog geldig is, want een fout in de
 ingebakken gegevens breekt de hele pagina.
 

@@ -5,6 +5,7 @@ Het prototype heeft de bibliotheek ingebakken zodat het zonder server werkt.
 Na een wijziging in teksten.yaml draai je dit script om beide gelijk te trekken.
 """
 
+import base64
 import json
 import re
 from pathlib import Path
@@ -17,6 +18,9 @@ PROTOTYPE = WORTEL / "ontwerp" / "prototype.html"
 # ";" op een regeleinde zocht ging mis: dat teken staat ook aan het eind van een
 # opsommingsregel in de brieftekst, waardoor maar een deel werd vervangen.
 BLOKKEN = re.compile(r"/\*<blokken>\*/.*?/\*</blokken>\*/", re.S)
+# Het Word-sjabloon zit ook in het prototype, zodat het scherm zonder Python een
+# brief op het echte briefpapier kan opleveren.
+SJABLOON = re.compile(r"/\*<sjabloon>\*/.*?/\*</sjabloon>\*/", re.S)
 
 
 def main() -> int:
@@ -43,8 +47,23 @@ def main() -> int:
         print(f"Kon de markering /*<blokken>*/ niet vinden in {PROTOTYPE.name}.")
         return 1
 
+    sjabloon = WORTEL / "sjablonen" / "brief.docx"
+    if sjabloon.is_file():
+        ingepakt = base64.b64encode(sjabloon.read_bytes()).decode("ascii")
+        vervangen, gevonden = SJABLOON.subn(
+            lambda _: f'/*<sjabloon>*/"{ingepakt}"/*</sjabloon>*/', vervangen, count=1
+        )
+        if not gevonden:
+            print(f"Kon de markering /*<sjabloon>*/ niet vinden in {PROTOTYPE.name}.")
+            return 1
+    else:
+        print(f"Let op: {sjabloon} bestaat niet; het scherm kan dan geen Word-bestand "
+              f"maken. Maak het eerst met: python3 tools/maak_sjabloon.py")
+
     PROTOTYPE.write_text(vervangen, encoding="utf-8")
     print(f"{len(blokken)} tekstblokken bijgewerkt in {PROTOTYPE.relative_to(WORTEL)}")
+    if sjabloon.is_file():
+        print(f"  sjabloon meegenomen: {len(ingepakt) // 1024} kB aan tekens")
     return 0
 
 
