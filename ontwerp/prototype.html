@@ -274,11 +274,22 @@ body:not(.waarom) .tip{display:none}
 
 <script>
 "use strict";
-/* Twee standen. Los geopend (file://) rekent deze pagina de brief zelf uit met
-   de motor hieronder -- dat is de ontwerpversie. Bediend door de app (http://)
-   stuurt hij de antwoorden naar Python en toont wat daar uitkomt. Dan kan het
-   scherm niet uit de pas lopen met het Word-bestand. */
-const VIA_APP = location.protocol.startsWith("http");
+/* Twee standen. Bediend door de app stuurt deze pagina de antwoorden naar
+   Python en toont wat daar uitkomt; dan kan het scherm niet uit de pas lopen met
+   het Word-bestand. Staat er geen motor achter, dan rekent hij de brief zelf uit
+   met de spiegel hieronder -- dat is de ontwerpversie.
+
+   Waaraan we dat herkennen: de app antwoordt op /app. Niet aan het protocol,
+   want het ontwerpbestand wordt ook over https bediend en dan is er geen
+   Python; de pagina bleef dan leeg. */
+let VIA_APP = false;
+async function isErEenMotor(){
+  try{
+    const antwoord = await fetch("app", {cache:"no-store"});
+    if(!antwoord.ok) return false;
+    return (await antwoord.json()).app === true;
+  }catch(_){ return false }
+}
 
 /* Het echte briefpapier uit sjablonen/brief.docx. Alleen beschikbaar wanneer de
    app draait; los geopend valt de voorvertoning terug op een eenvoudige kop met
@@ -287,7 +298,7 @@ let BRIEFPAPIER = null;
 async function haalBriefpapier(){
   if(!VIA_APP) return null;
   try{
-    const uit = await (await fetch("/briefpapier")).json();
+    const uit = await (await fetch("briefpapier")).json();
     return uit.fout ? null : uit;
   }catch(_){ return null }
 }
@@ -810,7 +821,7 @@ async function leesDatablad(bestand){
       // brief wordt gebruikt -- inclusief PDF.
       const bytes=new Uint8Array(await bestand.arrayBuffer());
       let binair=""; for(const b of bytes) binair+=String.fromCharCode(b);
-      const antwoord=await fetch("/datablad",{method:"POST",
+      const antwoord=await fetch("datablad",{method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({naam,inhoud:btoa(binair)})});
       const uit=await antwoord.json();
@@ -1061,7 +1072,7 @@ function tekenBriefpapier(){
   }
   const p=BRIEFPAPIER.pagina, kop=el("div","papierkop");
   for(const beeld of BRIEFPAPIER.kop.beelden){
-    const afb=el("img"); afb.src="/beeld/"+encodeURIComponent(beeld.naam); afb.alt="";
+    const afb=el("img"); afb.src="beeld/"+encodeURIComponent(beeld.naam); afb.alt="";
     afb.style.width=`calc(${beeld.breedte} * var(--mm))`;
     afb.style.height=`calc(${beeld.hoogte} * var(--mm))`;
     afb.style.left=`calc(${(beeld.links_vanaf==="margin"?p.links:0)+(beeld.links??0)} * var(--mm))`;
@@ -1076,7 +1087,7 @@ function tekenBriefpapier(){
   const voet=el("div","papiervoet");
   voet.textContent=BRIEFPAPIER.voet.regels.join(" ");
   for(const beeld of BRIEFPAPIER.voet.beelden){
-    const afb=el("img"); afb.src="/beeld/"+encodeURIComponent(beeld.naam); afb.alt="";
+    const afb=el("img"); afb.src="beeld/"+encodeURIComponent(beeld.naam); afb.alt="";
     afb.style.width=`calc(${beeld.breedte} * var(--mm))`;
     afb.style.height=`calc(${beeld.hoogte} * var(--mm))`;
     afb.style.right="0"; afb.style.bottom=`calc(${(beeld.hoogte)+2} * var(--mm))`;
@@ -1108,7 +1119,7 @@ let bezigMetTypen=null, vraagTeller=0;
 
 async function vraagAanApp(){
   const nummer=++vraagTeller;
-  const antwoord=await fetch("/brief",{method:"POST",
+  const antwoord=await fetch("brief",{method:"POST",
     headers:{"Content-Type":"application/json"},body:JSON.stringify(A)});
   const uit=await antwoord.json();
   if(nummer!==vraagTeller)return null;      // er is alweer een nieuwere vraag
@@ -1153,7 +1164,15 @@ function ververs(alleenBrief){
 }
 
 async function verversViaApp(alleenBrief){
-  const resultaat=await vraagAanApp();
+  let resultaat;
+  try{ resultaat=await vraagAanApp() }
+  catch(fout){
+    // De motor is onderweg weggevallen; verder met de eigen berekening zodat
+    // het scherm blijft werken in plaats van leeg te raken.
+    VIA_APP=false; toonFout("De verbinding met de tool is weg; het scherm rekent "
+      +"nu zelf. Het Word-bestand maken werkt pas weer na een herstart.");
+    return ververs(alleenBrief);
+  }
   if(resultaat){
     tekenBrief(resultaat,true);
     if(resultaat.waarschuwingen&&resultaat.waarschuwingen.length)
@@ -1187,7 +1206,7 @@ document.getElementById("knop-word").onclick=async e=>{
   const knop=e.currentTarget, oud=knop.textContent;
   knop.disabled=true; knop.textContent="Bezig\u2026";
   try{
-    const antwoord=await fetch("/docx",{method:"POST",
+    const antwoord=await fetch("docx",{method:"POST",
       headers:{"Content-Type":"application/json"},body:JSON.stringify(A)});
     const soort=antwoord.headers.get("Content-Type")||"";
     if(soort.includes("json")){ const uit=await antwoord.json(); toonFout(uit.fout); return }
@@ -1202,5 +1221,9 @@ document.getElementById("knop-word").onclick=async e=>{
   }catch(fout){ toonFout("Het Word-bestand kon niet gemaakt worden: "+fout.message) }
   finally{ knop.disabled=false; knop.textContent=oud }
 };
-(async () => { BRIEFPAPIER = await haalBriefpapier(); ververs(); })();
+(async () => {
+  VIA_APP = await isErEenMotor();
+  BRIEFPAPIER = await haalBriefpapier();
+  ververs();
+})();
 </script>

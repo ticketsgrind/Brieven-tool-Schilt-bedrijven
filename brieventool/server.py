@@ -48,6 +48,11 @@ class Bediening(BaseHTTPRequestHandler):
             self._scherm()
         elif pad == "/keuzes":
             self._antwoord(200, self._keuzes())
+        elif pad == "/app":
+            # Waaraan het scherm herkent dat de motor erachter zit. Niet aan het
+            # protocol: het ontwerpbestand wordt ook wel over https bediend, en
+            # dan is er geen Python.
+            self._antwoord(200, {"app": True, "blokken": len(self.server.bibliotheek.blokken)})
         elif pad == "/briefpapier":
             self._briefpapier()
         elif pad.startswith("/beeld/"):

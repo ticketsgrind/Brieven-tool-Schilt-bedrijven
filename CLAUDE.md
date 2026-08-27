@@ -151,11 +151,21 @@ De afhankelijkheden zijn PyYAML en Jinja2, allebei pure Python. Er is met opzet
 geen Word-bibliotheek nodig: die bestaan vooral om tags te repareren die Word
 verspreidt bij handmatig typen, en ons sjabloon wordt gegenereerd.
 
-**`ontwerp/prototype.html` is één bestand met twee standen.** Bediend door de
-app (`http://`) stuurt het scherm de antwoorden naar `server.py` en toont het
-wat `samenstellen.py` teruggeeft; dat is de werkende tool. Los geopend
-(`file://`) rekent het de brief zelf uit met een JavaScript-spiegel van de
-motor — dat is de ontwerpversie voor als er geen Python draait.
+**`ontwerp/prototype.html` is één bestand met twee standen.** Draait er een
+motor achter, dan stuurt het scherm de antwoorden naar `server.py` en toont het
+wat `samenstellen.py` teruggeeft; dat is de werkende tool. Zonder motor rekent
+het de brief zelf uit met een JavaScript-spiegel van de motor — dat is de
+ontwerpversie.
+
+**Het scherm herkent de motor aan `/app`, niet aan het protocol.** Bij het
+starten vraagt het één keer om `app`; komt daar `{"app": true}` uit, dan is er
+Python. Kijken naar `location.protocol` gaat mis zodra het bestand los over
+`https` wordt bediend (als artefact bijvoorbeeld): het scherm denkt dan dat er
+een motor is, krijgt HTML terug op zijn vraag om JSON en blijft leeg. Alle
+adressen in het scherm zijn om dezelfde reden betrekkelijk (`fetch("brief")`,
+niet `fetch("/brief")`), en valt de verbinding halverwege weg, dan zet
+`verversViaApp` de stand terug op zelf rekenen. Er staan twee tests op in
+`tests/test_server.py`.
 
 Alleen die tweede stand kan uit de pas lopen met de motor. Wijzig je de
 selectielogica in Python, werk dan ook de spiegel bij. Draai

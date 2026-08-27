@@ -1,6 +1,7 @@
 """Toetst de lokale app: de antwoorden die het scherm van de motor krijgt."""
 
 import json
+import re
 import threading
 import unittest
 import urllib.error
@@ -51,6 +52,25 @@ class TestApp(unittest.TestCase):
             return antwoord.status, antwoord.read(), dict(antwoord.headers)
 
     # --- het scherm --------------------------------------------------------
+
+    def test_app_meldt_zich(self):
+        # Het scherm herkent de motor hieraan, niet aan het protocol: los
+        # bediend over https is er geen Python en moet het zelf rekenen.
+        code, inhoud, koppen = self.haal("/app")
+        self.assertEqual(code, 200)
+        self.assertIn("application/json", koppen["Content-Type"])
+        uit = json.loads(inhoud)
+        self.assertIs(uit["app"], True)
+        self.assertGreater(uit["blokken"], 0)
+
+    def test_scherm_vraagt_zonder_schuine_streep(self):
+        # Alle adressen in het scherm zijn betrekkelijk, zodat het ook werkt
+        # wanneer het bestand onder een submap wordt bediend.
+        scherm = (WORTEL / "ontwerp" / "prototype.html").read_text(encoding="utf-8")
+        for adres in re.findall(r'fetch\("([^"]*)"', scherm):
+            self.assertFalse(adres.startswith("/"),
+                             f"adres {adres!r} is absoluut")
+        self.assertNotIn("location.protocol", scherm)
 
     def test_scherm_wordt_bediend(self):
         code, inhoud, koppen = self.haal("/")
