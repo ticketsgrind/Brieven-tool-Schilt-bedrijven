@@ -5,6 +5,14 @@ losse Word-bestanden per variant. Via een formulier worden een paar keuzes
 gemaakt (klanttype, model, aantal binnenunits, montagewijze, extra's), waarna er
 een Word-bestand en een PDF uitrollen.
 
+## Aan de slag
+
+    python3 -m brieventool.server
+
+Dat opent de tool in je browser: links de vragen, rechts de brief, en de knop
+**Word-bestand maken** levert een `.docx` op je eigen briefpapier. De app draait
+alleen op je eigen machine en is niet van buitenaf bereikbaar.
+
 ## Waar staat het nu
 
 **De keten werkt.** Een ingevuld offertebestand gaat erin, er rolt een Word-brief
@@ -58,12 +66,14 @@ de bibliotheek, waaronder de opstelling van de buitenunit per installatie
       samenstellen.py    kiest de blokken en vult de plaatshouders in
       sjabloon.py        vult het Word-sjabloon in
       cli.py             opdrachtregel
+      server.py          de lokale app die het formulier bedient
+      bijlage.py         leest een aangeleverd datablad uit
     ontwerp/
       prototype.html     werkend prototype van de bediening, opent zonder server
       ververs_prototype.py  zet de actuele tekstblokken in het prototype
     sjablonen/
       brief.docx         het Word-sjabloon; gegenereerd, niet met de hand bewerken
-    tests/               77 tests
+    tests/               159 tests
     voorbeelden/         twee ingevulde offertes om mee te proberen
 
 ## Aan de slag

@@ -23,6 +23,7 @@ from .opmaak import FUNCTIES, bedrag, briefdatum, postcode, telwoord
 # Welke lijst uit de offerte hoort bij welke herhalende sectie.
 LOOPSECTIES = {
     "specificatie": "installaties",
+    "buitenunit": "installaties",
     "prijs": "prijsregels",
 }
 
@@ -358,6 +359,13 @@ def _bouw_context(offerte: Mapping[str, Any], bib: Bibliotheek) -> dict[str, Any
     ctx["aantal_binnenunits"] = int(binnen)
     ctx["aantal_buitenunits"] = int(buiten)
     ctx["aantal_installaties"] = len(installaties) or 1
+    # Staat er bij een installatieregel een eigen opstelling, dan krijgt elke
+    # regel zijn eigen zin met de ruimte erbij en vervalt de keuze voor de hele
+    # brief. Zo staat het in uitgewerkt-3: de keuken tegen de gevel, de
+    # slaapkamer op de grond.
+    ctx["opstelling_per_installatie"] = any(
+        i.get("opstelling_buitenunit") for i in installaties
+    )
 
     ctx["is_meervoud_binnen"] = ctx["aantal_binnenunits"] > 1
     ctx["is_meervoud_buiten"] = ctx["aantal_buitenunits"] > 1

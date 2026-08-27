@@ -249,6 +249,62 @@ class TestVettePrijs(unittest.TestCase):
         self.assertEqual(_splits_bedrag("Geen bedrag hier."), ("Geen bedrag hier.", ""))
 
 
+class TestOpstellingBuitenunit(unittest.TestCase):
+    """De opstelling kan per brief of per installatie; zie vragen.md vraag 24."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.bib = laad(WORTEL)
+        cls.basis = voorbeeld("particulier-wand-enkelvoud.yaml")
+
+    def regels(self, installaties=None):
+        offerte = dict(self.basis)
+        if installaties is not None:
+            offerte["installaties"] = installaties
+        return stel_samen(offerte, self.bib).regels("buitenunit")
+
+    def twee_installaties(self, **extra_tweede):
+        eerste = dict(self.basis["installaties"][0], ruimte="de keuken", **extra_tweede)
+        tweede = dict(self.basis["installaties"][0],
+                      ruimte="de slaapkamer op de begane grond", **extra_tweede)
+        return [eerste, tweede]
+
+    def test_zonder_opstelling_per_installatie_verandert_er_niets(self):
+        regels = self.regels()
+        self.assertTrue(any("De buitenunit wordt geplaatst op steunen" in r for r in regels))
+        self.assertFalse(any(" voor " in r for r in regels))
+
+    def test_opstelling_per_installatie_noemt_de_ruimte(self):
+        regels = self.regels([
+            dict(self.basis["installaties"][0], ruimte="de keuken",
+                 opstelling_buitenunit="muursteun"),
+            dict(self.basis["installaties"][0], ruimte="de slaapkamer op de begane grond",
+                 opstelling_buitenunit="grond"),
+        ])
+        self.assertIn("De buitenunit voor de keuken wordt geplaatst op steunen met "
+                      "trillingsdempers tegen de buitengevel.", regels)
+        self.assertIn("De buitenunit voor de slaapkamer op de begane grond wordt geplaatst "
+                      "op geluiddempende rubberen opstelbalken op de grond.", regels)
+
+    def test_de_briefbrede_regel_vervalt_dan(self):
+        regels = self.regels([
+            dict(self.basis["installaties"][0], ruimte="de keuken",
+                 opstelling_buitenunit="muursteun"),
+        ])
+        zonder_ruimte = [r for r in regels if r.startswith("De buitenunit wordt geplaatst")]
+        self.assertEqual(zonder_ruimte, [], "de keuze voor de hele brief staat er nog bij")
+
+    def test_de_vaste_alineas_blijven_eenmalig(self):
+        regels = self.regels([
+            dict(self.basis["installaties"][0], ruimte="de keuken",
+                 opstelling_buitenunit="muursteun"),
+            dict(self.basis["installaties"][0], ruimte="de slaapkamer",
+                 opstelling_buitenunit="grond"),
+        ])
+        geruisarm = [r for r in regels if "geruisarm" in r]
+        self.assertEqual(len(geruisarm), 1, geruisarm)
+
+
 class TestKeuzegroepen(unittest.TestCase):
     """Binnen een keuzegroep hoort precies één blok in de brief te komen."""
 

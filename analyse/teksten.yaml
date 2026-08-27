@@ -426,38 +426,78 @@ blokken:
 # 12. BUITENUNIT
 # ===========================================================================
 
+# Per installatie een eigen opstelling. Gaat alleen mee als er bij een
+# installatieregel een opstelling is ingevuld; anders geldt de keuze voor de
+# hele brief, hieronder. Bron: uitgewerkt-3, waar de keuken tegen de gevel zit
+# en de slaapkamer op de grond.
+- id: buitenunit_per_installatie_muursteun
+  sectie: buitenunit
+  omschrijving: "Deze installatie: steunen tegen de gevel"
+  voorwaarde: "regel.opstelling_buitenunit == 'muursteun'"
+  bron: uitgewerkt-3.docx
+  tekst: >
+    De buitenunit voor {{ regel.ruimte }} wordt geplaatst op steunen met
+    trillingsdempers tegen de buitengevel.
+
+- id: buitenunit_per_installatie_platdak
+  sectie: buitenunit
+  omschrijving: "Deze installatie: opstelbalken op het platte dak"
+  voorwaarde: "regel.opstelling_buitenunit == 'plat_dak'"
+  bron: uitgewerkt-3.docx
+  tekst: >
+    De buitenunit voor {{ regel.ruimte }} wordt geplaatst op geluiddempende
+    rubberen opstelbalken op het platte dak.
+
+- id: buitenunit_per_installatie_grond
+  sectie: buitenunit
+  omschrijving: "Deze installatie: opstelbalken op de grond"
+  voorwaarde: "regel.opstelling_buitenunit == 'grond'"
+  bron: uitgewerkt-3.docx
+  tekst: >
+    De buitenunit voor {{ regel.ruimte }} wordt geplaatst op geluiddempende
+    rubberen opstelbalken op de grond.
+
+- id: buitenunit_per_installatie_bigfoot
+  sectie: buitenunit
+  omschrijving: "Deze installatie: BigFoot-frame op het platte dak"
+  voorwaarde: "regel.opstelling_buitenunit == 'bigfoot'"
+  bron: uitgewerkt-3.docx, VRF.dotx
+  tekst: >
+    De buitenunit voor {{ regel.ruimte }} wordt geplaatst met een metalen
+    ondersteuningsframe (BigFoot) op het platte dak.
+
 - id: buitenunit_muursteun_enkel
   sectie: buitenunit
   omschrijving: "Aan de gevel op steunen met trillingsdempers"
-  voorwaarde: "opstelling_buitenunit == 'muursteun' and aantal_buitenunits == 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'muursteun' and aantal_buitenunits == 1"
   bron: wand enkelvoud.dotx, uitgewerkt-4.docx
   tekst: "De buitenunit wordt geplaatst op steunen met trillingsdempers tegen de buitengevel."
 
 - id: buitenunit_muursteun_meervoud
   sectie: buitenunit
   omschrijving: "Aan de gevel op steunen met trillingsdempers"
-  voorwaarde: "opstelling_buitenunit == 'muursteun' and aantal_buitenunits > 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'muursteun' and aantal_buitenunits > 1"
   bron: wand meervoud.dotx
   tekst: "De buitenunits worden geplaatst op steunen met trillingsdempers tegen de buitengevel."
 
 - id: buitenunit_platdak_enkel
   sectie: buitenunit
   omschrijving: "Op het platte dak op rubberen opstelbalken"
-  voorwaarde: "opstelling_buitenunit == 'plat_dak' and aantal_buitenunits == 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'plat_dak' and aantal_buitenunits == 1"
   bron: wand enkelvoud.dotx, uitgewerkt-2.docx
   tekst: "De buitenunit wordt geplaatst op geluiddempende rubberen opstelbalken op het platte dak."
 
 - id: buitenunit_platdak_meervoud
   sectie: buitenunit
   omschrijving: "Op het platte dak op rubberen opstelbalken"
-  voorwaarde: "opstelling_buitenunit == 'plat_dak' and aantal_buitenunits > 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'plat_dak' and aantal_buitenunits > 1"
   bron: wand meervoud.dotx
   tekst: "De buitenunits worden geplaatst op geluiddempende rubberen opstelbalken op het platte dak."
 
 - id: buitenunit_grond
   sectie: buitenunit
   omschrijving: "Op de grond op rubberen opstelbalken"
-  voorwaarde: "opstelling_buitenunit == 'grond'"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'grond'"
   bron: uitgewerkt-3.docx
   tekst: >
     De buitenunit voor {{ ruimte }} wordt geplaatst op geluiddempende rubberen
@@ -466,14 +506,14 @@ blokken:
 - id: buitenunit_bigfoot_enkel
   sectie: buitenunit
   omschrijving: "Op een metalen ondersteuningsframe (BigFoot) op het platte dak"
-  voorwaarde: "opstelling_buitenunit == 'bigfoot' and aantal_buitenunits == 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'bigfoot' and aantal_buitenunits == 1"
   bron: VRF.dotx
   tekst: "De buitenunit wordt geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."
 
 - id: buitenunit_bigfoot_meervoud
   sectie: buitenunit
   omschrijving: "Op een metalen ondersteuningsframe (BigFoot) op het platte dak"
-  voorwaarde: "opstelling_buitenunit == 'bigfoot' and aantal_buitenunits > 1"
+  voorwaarde: "not opstelling_per_installatie and opstelling_buitenunit == 'bigfoot' and aantal_buitenunits > 1"
   bron: uitgewerkt-1.docx
   tekst: "De buitenunits worden geplaatst met een metalen ondersteuningsframe (BigFoot) op het platte dak."
 

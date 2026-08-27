@@ -19,6 +19,10 @@ passende blokken en levert een Word-bestand op.
 ## Commando's
 
 ```bash
+# De app starten (opent een browser op 127.0.0.1)
+python3 -m brieventool.server
+python3 -m brieventool.server --poort 8000 --geen-browser
+
 # Het Word-sjabloon (opnieuw) maken uit een bronbrief
 python3 tools/maak_sjabloon.py
 
@@ -147,12 +151,22 @@ De afhankelijkheden zijn PyYAML en Jinja2, allebei pure Python. Er is met opzet
 geen Word-bibliotheek nodig: die bestaan vooral om tags te repareren die Word
 verspreidt bij handmatig typen, en ons sjabloon wordt gegenereerd.
 
-**`ontwerp/prototype.html`** heeft de bibliotheek ingebakken tussen de
-markeringen `/*<blokken>*/` en `/*</blokken>*/`, en spiegelt `samenstellen.py`
-in JavaScript. Wijzig je de selectielogica in Python, werk dan ook het prototype
-bij, anders lopen ze uiteen. Draai `ontwerp/ververs_prototype.py` na elke
-wijziging in `teksten.yaml`; controleer daarna met `node --check` dat het script
-nog geldig is, want een fout in de ingebakken gegevens breekt de hele pagina.
+**`ontwerp/prototype.html` is één bestand met twee standen.** Bediend door de
+app (`http://`) stuurt het scherm de antwoorden naar `server.py` en toont het
+wat `samenstellen.py` teruggeeft; dat is de werkende tool. Los geopend
+(`file://`) rekent het de brief zelf uit met een JavaScript-spiegel van de
+motor — dat is de ontwerpversie voor als er geen Python draait.
+
+Alleen die tweede stand kan uit de pas lopen met de motor. Wijzig je de
+selectielogica in Python, werk dan ook de spiegel bij. Draai
+`ontwerp/ververs_prototype.py` na elke wijziging in `teksten.yaml`; controleer
+daarna met `node --check` dat het script nog geldig is, want een fout in de
+ingebakken gegevens breekt de hele pagina.
+
+**De motor levert `tekst` en `nadruk` apart** waar een alinea uit twee
+tekstdelen bestaat: bij `stijl: prijs` het bedrag, bij `stijl: label` de inhoud
+achter de tab. In Word worden dat twee runs met eigen opmaak; het scherm plakt
+ze weer aan elkaar.
 
 ## Werken met de teksten
 
