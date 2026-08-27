@@ -426,6 +426,34 @@ ontwerp zit.
 
 ---
 
+## B3. Dekking van de bibliotheek
+
+`python3 tools/dekkingstoets.py` legt elke alinea uit alle 20 brieven naast de
+bibliotheek en kijkt of er een blok bestaat dat hem kan voortbrengen. Zonder
+ingevuld offertebestand, dus het meet de bibliotheek zelf en niet een enkele
+brief.
+
+**Stand: 98% van 1786 alinea's.** De airconditioningbrieven zitten op 98 tot
+100%; vier ervan volledig, waaronder twee werkelijk verstuurde. Wat overblijft
+zit vrijwel helemaal in drie andere productsoorten:
+
+| Brief | Dekking | Wat ontbreekt |
+|---|---|---|
+| KE-Fibertec luchtslangsysteem | 92% | productbeschrijvingen (Dire-Jet, KE-Hybrid, Cradle to Cradle) |
+| koelmachine | 92% | technische beschrijving van de Carrier-koelmachine |
+| mechanische ventilatie | 98% | de Stork dakventilator-regel |
+
+> **Vraag 29.** Moeten koelmachines, mechanische ventilatie en luchtslangen ook
+> uit deze tool komen, of blijven dat losse brieven? Als ze meemoeten is het
+> werk overzichtelijk -- de teksten staan in de sjablonen en hoeven alleen
+> overgenomen te worden -- maar het heeft geen zin als jullie die brieven
+> nauwelijks sturen.
+
+De rest van het verschil zijn varianten op de condensafvoer- en
+leidinglengteregel die net anders geformuleerd zijn dan de opgenomen versie.
+
+---
+
 ## C. Openstaande beslissingen voor fase 2
 
 ### Beslissing 1 — wat doen we met de technische specificaties?

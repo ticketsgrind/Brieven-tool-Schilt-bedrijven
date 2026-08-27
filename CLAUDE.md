@@ -32,6 +32,9 @@ python3 -m unittest discover -s tests -t .
 python3 -m unittest tests.test_samenstellen -v
 python3 -m unittest tests.test_samenstellen.TestZakelijkeBrief.test_meervoud
 
+# Meten hoeveel van de bestaande brieven de bibliotheek dekt
+python3 tools/dekkingstoets.py
+
 # De tool toetsen tegen een werkelijk verstuurde brief
 python3 tools/toets_tegen_echte_brief.py <offerte>.yaml bronbrieven/uitgewerkt/<brief>.docx
 
