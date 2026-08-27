@@ -16,6 +16,7 @@ from dataclasses import dataclass, field, replace
 from typing import Any, Mapping
 
 from .bibliotheek import Bibliotheek, Tekstblok
+from .bijlage import BijlageFout, tekst_uit_bestand
 from .expressies import ExpressieFout, evalueer, is_waar
 from .opmaak import FUNCTIES, bedrag, briefdatum, postcode, telwoord
 
@@ -46,6 +47,7 @@ class Alinea:
     nadruk: str = ""          # bij "prijs" het bedrag, bij "label" de inhoud
     blok_id: str = ""
     uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
+    letterlijk: bool = False   # regel uit aangeleverde tekst; niets aan wijzigen
     witregel_erna: bool = True
 
     @property
@@ -144,6 +146,7 @@ def _zet_witregels(alineas: list[Alinea]) -> list[Alinea]:
         aaneengesloten = volgende is not None and (
             (alinea.stijl == "opsomming" and volgende.stijl == "opsomming")
             or volgende.uitgelijnd
+            or alinea.letterlijk          # de aangeleverde tekst bepaalt zelf zijn witregels
         )
         uit.append(replace(alinea, witregel_erna=not aaneengesloten))
     return uit
@@ -229,6 +232,13 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
     ingevuld = _vul_in(blok, context)
     if not ingevuld:
         return []
+
+    # Aangeleverde tekst -- de technische specificaties -- wordt regel voor
+    # regel overgenomen, inclusief de lege regels die er de units mee scheiden.
+    if blok.stijl == "letterlijk":
+        return [Alinea(tekst=regel.rstrip(), stijl="tekst", blok_id=blok.id,
+                       letterlijk=True)
+                for regel in ingevuld.split("\n")]
 
     uit: list[Alinea] = []
     for regel in ingevuld.split("\n"):
@@ -372,6 +382,8 @@ def _bouw_context(offerte: Mapping[str, Any], bib: Bibliotheek) -> dict[str, Any
 
     ctx["btw_weergave"] = "inclusief" if offerte.get("klanttype") == "particulier" else "exclusief"
 
+    ctx["technische_specificaties_tekst"] = _specificatietekst(offerte)
+
     ctx["briefdatum"] = briefdatum(offerte.get("briefdatum"))
     if offerte.get("postcode"):
         ctx["postcode"] = postcode(str(offerte["postcode"]))
@@ -400,6 +412,33 @@ def _bouw_context(offerte: Mapping[str, Any], bib: Bibliotheek) -> dict[str, Any
 
     ctx["telwoord"] = telwoord
     return ctx
+
+
+def _specificatietekst(offerte: Mapping[str, Any]) -> str:
+    """De technische specificaties: zelf ingetypt, of uit een aangeleverd bestand.
+
+    Welke van de twee het is maakt voor de brief niet uit; het gaat om de tekst
+    die erin komt. Is er allebei, dan wint de ingetypte tekst -- die heeft de
+    opsteller bewust neergezet.
+    """
+    ingetypt = str(offerte.get("technische_specificaties_tekst") or "").strip()
+    if ingetypt:
+        return ingetypt
+
+    bestand = offerte.get("technische_specificaties_bestand")
+    if not bestand:
+        if offerte.get("technische_specificaties") == "uitgeschreven":
+            raise SamenstelFout(
+                "technische_specificaties staat op 'uitgeschreven', maar er is geen tekst. "
+                "Vul technische_specificaties_tekst in of wijs met "
+                "technische_specificaties_bestand een bestand aan."
+            )
+        return ""
+
+    try:
+        return tekst_uit_bestand(bestand)
+    except BijlageFout as fout:
+        raise SamenstelFout(f"technische specificaties: {fout}") from fout
 
 
 def _verrijk_prijsregel(regel: Mapping[str, Any]) -> dict[str, Any]:

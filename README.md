@@ -25,16 +25,14 @@ de labels in de briefkop.
 gezet; het prototype laat zien hoe dat scherm eruit gaat zien maar is er nog
 niet aan gekoppeld.
 
-**Wat er eerst moet:** `analyse/vragen.md` heeft 27 openstaande vragen. Drie
-daarvan houden de tool tegen:
+De technische specificaties kunnen op drie manieren: verwijzen naar een
+bijlage, de tekst plakken, of een datablad aanleveren (Word, PDF of platte
+tekst) waar de tool de tekst uit haalt.
 
-- **Beslissing 1** — hoe de technische specificaties worden opgebouwd. Zolang
-  die openstaat kan de tool alleen "Zie bijlage" produceren.
-- **Vraag 7** — de meerprijs voor de condenswaterpomp staat op twee bedragen
-  (€ 220 en € 260) die niet met btw te verklaren zijn.
-- **Vraag 27** — in een verstuurde particuliere brief staat de
-  kredietwaardigheidsclausule wel en het ontbindingsrecht niet, andersom dan de
-  sjablonen suggereren. Dit raakt twee juridische alinea's.
+**Wat er eerst moet:** `analyse/vragen.md` is de lopende lijst. De drie vragen
+die de tool tegenhielden zijn beantwoord; wat er nog ligt zijn kleinere gaten in
+de bibliotheek, waaronder de opstelling van de buitenunit per installatie
+(vraag 24) en een paar ontbrekende meervoudsvormen.
 
 ## Indeling
 

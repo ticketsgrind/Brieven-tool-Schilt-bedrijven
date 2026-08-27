@@ -139,7 +139,7 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
 
     def regels(self):
         uit = []
-        for alinea in re.findall(r"<w:p\b.*?</w:p>|<w:p\b[^>]*/>", self.xml, re.S):
+        for alinea in re.findall(r"<w:p\b[^>]*/>|<w:p\b.*?</w:p>", self.xml, re.S):
             delen = re.findall(r"<w:t[^>]*>([^<]*)</w:t>|(<w:tab/>)", alinea)
             uit.append("".join(t or "\t" for t, _ in
                                [(a, b) for a, b in delen]))
@@ -202,7 +202,7 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
 
     def _opeenvolgende_gevulde_alineas(self):
         alineas = []
-        for xml in re.findall(r"<w:p\b.*?</w:p>|<w:p\b[^>]*/>", self.xml, re.S):
+        for xml in re.findall(r"<w:p\b[^>]*/>|<w:p\b.*?</w:p>", self.xml, re.S):
             delen = re.findall(r"<w:t[^>]*>([^<]*)</w:t>|(<w:tab/>)", xml)
             alineas.append({"tekst": "".join(t or "\t" for t, _ in delen),
                             "opsomming": "<w:numPr>" in xml})

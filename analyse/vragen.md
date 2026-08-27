@@ -167,14 +167,16 @@ Deze moet je intern uitzoeken. Ik heb overal het origineel laten staan.
 - **€ 260,- per stuk** in de 3 particuliere sjablonen (multi split particulier,
   wand enkelvoud particulier, wand meervoud particulier).
 
-> **Vraag 7.** Is dit hetzelfde bedrag exclusief en inclusief btw? Dan zou het
-> € 220 × 1,21 = **€ 266,20** moeten zijn, niet € 260. En omgekeerd is
-> € 260 / 1,21 = € 214,88, niet € 220. Het klopt dus geen van beide kanten op.
-> Is € 260 een verhoogd tarief dat alleen in de particuliere sjablonen is
-> doorgevoerd, of is één van de twee blijven staan bij een prijswijziging?
->
-> Dit is de belangrijkste van de inconsistenties: hier gaat geld in om, en het
-> staat nu in twaalf bestanden op twee manieren.
+**Beantwoord — dit is geen fout maar een bewuste afronding.** € 220 is het
+tarief exclusief btw. Inclusief zou dat € 266,20 zijn, en dat staat niet netjes
+in een brief aan een particulier; daarom is het naar beneden afgerond op
+€ 260 inclusief btw. Beide bedragen blijven dus staan, elk aan hun eigen kant
+van de btw-grens.
+
+Zo staat het ook in de tool: `meerprijs_condenspomp_zakelijk` geeft € 220,- en
+`meerprijs_condenspomp_particulier` € 260,-, gekozen op `klanttype`. Er staat
+een test op in `tests/test_juridische_teksten.py`, dus een van de twee per
+ongeluk aanpassen valt op.
 
 ### Inconsistentie 2 — btw-regel: mét of zonder percentage?
 
@@ -398,9 +400,18 @@ Maar in deze verstuurde particuliere brief **staat hij wel**. Omgekeerd
 ontbreekt in dezelfde brief het ontbindingsrecht bij late levering, dat de tool
 er juist bij zet.
 
-> **Vraag 27.** Welke van de twee klopt? Hoort de kredietwaardigheidsclausule
-> ook bij particulieren, en hoort het ontbindingsrecht daar juist wel of niet?
-> Dit raakt twee juridische alinea's, dus dit is er een om intern uit te zoeken.
+**Beantwoord: de standaardbrieven zijn leidend.** De sjablonen in
+`bronbrieven/` bepalen wat er in een brief hoort, niet een losse verstuurde
+brief. Daarmee blijft het zoals het nu is:
+
+- de kredietwaardigheidsclausule alleen bij zakelijke klanten;
+- het ontbindingsrecht bij overschrijding van de leverdatum alleen bij
+  particulieren.
+
+De verstuurde brief waarin het andersom stond is dus een afwijking van de
+standaard geweest, geen aanwijzing dat de standaard verkeerd is. Bij een
+volgende werkzaamheidstest komen die twee regels daarom als verschil terug; dat
+is verwacht en geen fout.
 
 ### Maatwerk — geen gat, wel het bewijs dat de eigen alinea nodig is
 
@@ -439,10 +450,25 @@ blok. Er zijn drie routes:
 - **c.** Een vrij tekstveld waar je het blok in plakt. Werkt altijd, maar lost het
   kopieerprobleem niet op.
 
-> **Vraag 15.** Welke route? Mijn advies: begin met **c**, en bouw **a** later
-> voor de tien à vijftien types die je het vaakst offreert. Dan werkt de tool
-> meteen voor alles, en wordt het geleidelijk beter voor de courante types.
-> Maar dit is een beslissing over hoeveel onderhoud je wilt, en die is aan jou.
+**Route c is gekozen en gebouwd.** Naast `Zie bijlage` kun je de
+specificaties nu in de brief zelf zetten, op twee manieren:
+
+- **een datablad aanleveren** — Word, PDF of platte tekst. De tool leest de
+  tekst eruit en zet die in de brief. In het scherm is dat een vak waar je een
+  bestand naartoe sleept of op klikt.
+- **de tekst plakken** in het veld eronder.
+
+De regels worden letterlijk overgenomen, inclusief de tabs die de uitlijning
+maken en de lege regels die de binnen- van de buitenunit scheiden. Is er
+allebei ingevuld, dan wint de getypte tekst.
+
+Route **a**, een productdatabase per merk en type, blijft open als latere
+verbetering voor de types die je het vaakst offreert. Zolang die er niet is
+levert de leverancier het datablad en plak of sleep je het erin.
+
+> **Vraag 28.** Uit een gescande PDF komt geen tekst; daar is tekstherkenning
+> voor nodig die de tool niet heeft. De tool meldt dat dan met de suggestie het
+> als Word-bestand aan te leveren of de tekst te plakken. Komt dat vaak voor?
 
 ### Beslissing 2 — offerte of opdrachtbevestiging?
 

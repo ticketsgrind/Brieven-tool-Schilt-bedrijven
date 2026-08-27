@@ -52,7 +52,7 @@ def regels(pad: Path) -> list[str]:
         xml = zipbestand.read("word/document.xml").decode("utf-8")
     body = xml[xml.index("<w:body"):]
     uit = []
-    for alinea in re.findall(r"<w:p\b.*?</w:p>|<w:p\b[^>]*/>", body, re.S):
+    for alinea in re.findall(r"<w:p\b[^>]*/>|<w:p\b.*?</w:p>", body, re.S):
         delen = re.findall(r"<w:t[^>]*>([^<]*)</w:t>|(<w:tab/>)", alinea)
         tekst = "".join(t or "\t" for t, _ in delen)
         tekst = re.sub(r"[\s  ]+", " ", tekst).strip()

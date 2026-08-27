@@ -645,6 +645,7 @@ blokken:
 
 - id: techspec_bijlage
   sectie: technische_specificaties
+  keuzegroep: technische_specificaties
   stijl: kopvet
   omschrijving: "Verwijzing naar een bijlage"
   voorwaarde: "technische_specificaties == 'zie_bijlage'"
@@ -653,15 +654,25 @@ blokken:
     TECHNISCHE SPECIFICATIES
     Zie bijlage.
 
+- id: techspec_kop
+  sectie: technische_specificaties
+  keuzegroep: technische_specificaties
+  omschrijving: "Specificaties in de brief zelf"
+  voorwaarde: "technische_specificaties == 'uitgeschreven'"
+  stijl: kopvet
+  bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-6.pdf
+  tekst: "TECHNISCHE SPECIFICATIES"
+
 - id: techspec_uitgeschreven
   sectie: technische_specificaties
-  omschrijving: "Volledig uitgeschreven specificatieblok per unit"
   voorwaarde: "technische_specificaties == 'uitgeschreven'"
+  stijl: letterlijk
   bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-6.pdf
-  tekst: |
-    TECHNISCHE SPECIFICATIES
-    {{ technische_specificaties_tekst }}
-  notitie: 'Vrij tekstblok per unit. Zie vragen.md beslissing 1 - nog te bepalen of dit uit een productdatabase komt.'
+  tekst: "{{ technische_specificaties_tekst }}"
+  notitie: >
+    De inhoud komt uit het formulier: ingetypt of uit een aangeleverd datablad.
+    Stijl "letterlijk" betekent dat de regels precies zo overgenomen worden,
+    inclusief de lege regels die er de units mee scheiden.
 
 # ===========================================================================
 # 18-19. INBEGREPEN / NIET-INBEGREPEN WERKZAAMHEDEN

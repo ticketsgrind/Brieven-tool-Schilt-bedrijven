@@ -186,9 +186,12 @@ uit de brieven zelf. Zie `analyse/vragen.md` vraag 13, die nog openstaat.
 beslissingen die de opdrachtgever nog moet nemen. Werk die bij in plaats van een
 aanname te doen; verwijs in code en YAML naar het vraagnummer.
 
-De zwaarste openstaande beslissing is beslissing 1: hoe de technische
-specificaties worden opgebouwd. Zolang die openstaat kan de tool alleen
-"Zie bijlage" produceren.
+**Technische specificaties.** Naast `Zie bijlage` kan de inhoud in de brief
+zelf: uit `technische_specificaties_tekst` (ingetypt) of uit
+`technische_specificaties_bestand` (Word, PDF of platte tekst, uitgelezen door
+`brieventool/bijlage.py`). Dat blok heeft `stijl: letterlijk`: de regels worden
+precies overgenomen, inclusief de lege regels ertussen, en er komen geen
+witregels bij. Een productdatabase per merk en type blijft een latere optie.
 
 ## Persoonsgegevens
 
