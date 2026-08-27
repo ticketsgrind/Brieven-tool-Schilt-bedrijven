@@ -116,10 +116,17 @@ gebruikt. Alle afbeeldingen zitten in de kop- en voetteksten, niet in de body.
 of de brief er verzorgd uitziet:
 
 - *Witregels.* De bronbrieven zetten een lege alinea na elke gewone alinea.
-  Uitzonderingen: opsommingsregels staan tegen elkaar aan (alleen na de laatste
-  een witregel), en een met tabs uitgelijnde vervolgregel staat direct onder de
-  regel waar hij bij hoort. `_zet_witregels` in `samenstellen.py` bepaalt dat;
-  het sjabloon volgt alleen `a.witregel_erna`.
+  Drie uitzonderingen: opsommingsregels staan tegen elkaar aan (alleen na de
+  laatste een witregel), een met tabs uitgelijnde vervolgregel staat direct
+  onder de regel waar hij bij hoort, en een blok met `stijl: letterlijk` bepaalt
+  zijn eigen witruimte — de witregels staan dan in de tekst zelf.
+  `_zet_witregels` in `samenstellen.py` bepaalt dat; het sjabloon volgt alleen
+  `a.witregel_erna`.
+- *De ondertekening.* Bedrijfsnaam en `MEERKERK` staan tegen elkaar aan, en de
+  naam en de functie van de ondertekenaar ook; daartussen twee lege regels als
+  ruimte voor de handtekening. Nagemeten in alle veertien sjablonen met een
+  ondertekening en in de verstuurde brieven. Het blok heeft daarom
+  `stijl: letterlijk`; `tests/test_samenstellen.py` legt de vorm vast.
 - *Opsommingstekens.* De stijl `Lijstalinea` zorgt alleen voor inspringing. Het
   streepje komt uit een `numPr`-verwijzing naar een lijstdefinitie in
   `numbering.xml`. Zonder die verwijzing staat de regel ingesprongen maar zonder
@@ -182,6 +189,13 @@ gecomprimeerd hoeft te worden. `tests/test_spiegel.py` draait de spiegel in node
 en legt beide brieven naast elkaar: dezelfde alinea's, dezelfde blokken en een
 Word-bestand dat op de regeleinden in de XML-kop na byte voor byte gelijk is.
 Wijk je in de een af, dan valt die toets om.
+
+**De bestandsnaam is aan te passen voor het downloaden.** De knop opent eerst
+een veldje met de voorgestelde naam (`achternaam-plaats-sa-nummer`, dezelfde als
+`_bestandsnaam` in `server.py`); enter maakt het bestand, escape sluit het.
+Wat de gebruiker typt blijft in `A.bestandsnaam` staan, met een knopje om het
+voorstel terug te halen. In de app haalt het scherm daarna wel het bestand van
+Python, maar niet meer de naam uit `Content-Disposition`.
 
 **Geen `alert()`, `confirm()` of `prompt()` in het scherm.** Een ingelijste
 pagina — het scherm als artefact — mag geen venster openen; de aanroep doet dan
@@ -250,9 +264,9 @@ aanname te doen; verwijs in code en YAML naar het vraagnummer.
 **Technische specificaties.** Naast `Zie bijlage` kan de inhoud in de brief
 zelf: uit `technische_specificaties_tekst` (ingetypt) of uit
 `technische_specificaties_bestand` (Word, PDF of platte tekst, uitgelezen door
-`brieventool/bijlage.py`). Dat blok heeft `stijl: letterlijk`: de regels worden
-precies overgenomen, inclusief de lege regels ertussen, en er komen geen
-witregels bij. Een productdatabase per merk en type blijft een latere optie.
+`brieventool/bijlage.py`). Dat blok heeft `stijl: letterlijk`, net als de
+ondertekening: de regels worden precies overgenomen, inclusief de lege regels
+ertussen, en er komen geen witregels bij. Een productdatabase per merk en type blijft een latere optie.
 
 ## Persoonsgegevens
 

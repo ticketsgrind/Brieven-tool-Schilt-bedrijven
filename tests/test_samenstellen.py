@@ -328,6 +328,38 @@ class TestKeuzegroepen(unittest.TestCase):
                 self.assertEqual(len(stel_samen(voorbeeld(naam), bib).regels("aanleiding")), 1)
 
 
+class TestOndertekening(unittest.TestCase):
+    """De ondertekening staat zoals in alle sjablonen: naam en functie tegen
+    elkaar aan, bedrijfsnaam en MEERKERK tegen elkaar aan, en twee lege regels
+    ertussen als ruimte voor de handtekening."""
+
+    def afsluiting(self, ondertekenaar):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["ondertekenaar"] = ondertekenaar
+        alineas = stel_samen(offerte, laad(WORTEL)).secties["afsluiting"]
+        eerste = next(n for n, a in enumerate(alineas)
+                      if a.tekst.startswith("Vertrouwende"))
+        return alineas[eerste:]
+
+    def test_witruimte_staat_waar_de_sjablonen_hem_zetten(self):
+        for ondertekenaar, naam, functie in [
+            ("nick_vervoorn", "Nick Vervoorn", "Technisch Commercieel Adviseur"),
+            ("robert_hartman", "Robert Hartman", "Business Unit General Manager"),
+        ]:
+            with self.subTest(ondertekenaar):
+                regels = [a.tekst for a in self.afsluiting(ondertekenaar)]
+                self.assertEqual(regels[1:], [
+                    "", "Business Unit Schilt Airconditioning", "MEERKERK",
+                    "", "", naam, functie])
+
+    def test_geen_extra_witregel_tussen_die_regels(self):
+        # De witregels zitten in de tekst zelf; de motor mag er geen bij zetten.
+        alineas = self.afsluiting("nick_vervoorn")
+        for alinea in alineas[:-1]:
+            self.assertFalse(alinea.witregel_erna, alinea.tekst)
+        self.assertTrue(alineas[-1].witregel_erna)
+
+
 class TestWaarschuwingen(unittest.TestCase):
     def test_verkeerde_keuze_geeft_waarschuwing(self):
         offerte = voorbeeld("zakelijk-cassette-meervoud.yaml")

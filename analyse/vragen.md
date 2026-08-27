@@ -474,6 +474,35 @@ Twee dingen wijken bewust af, en die staan er niet in:
 
 ---
 
+## B5. De witruimte in de ondertekening
+
+Nagemeten in alle veertien sjablonen met een ondertekening en in de vier
+verstuurde brieven waar het blok in staat:
+
+    Vertrouwende u hiermee van dienst te zijn geweest, tekenen wij ...
+    (lege regel)
+    Business Unit Schilt Airconditioning
+    MEERKERK
+    (lege regel)
+    (lege regel)
+    <naam>
+    <functie>
+
+Bedrijfsnaam en `MEERKERK` staan dus tegen elkaar aan, en naam en functie ook.
+De tool zette daar tot nu toe overal een witregel tussen; dat is rechtgezet op
+verzoek van Lars (27 augustus 2026) en vastgelegd in
+`tests/test_samenstellen.py`.
+
+Twee bestanden wijken af met één lege regel in plaats van twee tussen `MEERKERK`
+en de naam: `bronbrieven/multi split.dotx` en een van de verstuurde brieven. De
+overige dertien sjablonen en drie brieven hebben er twee, dus die zijn
+aangehouden.
+
+> **Vraag 31.** Klopt het dat twee lege regels de bedoeling zijn -- ruimte voor
+> een handtekening? Zo niet, dan zet ik er één.
+
+---
+
 ## C. Openstaande beslissingen voor fase 2
 
 ### Beslissing 1 — wat doen we met de technische specificaties?

@@ -125,11 +125,13 @@ class TestSjabloon(BriefpapierMixin, unittest.TestCase):
 class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
     """Schrijft echt een .docx en leest hem terug."""
 
+    voorbeeld = "zakelijk-cassette-meervoud.yaml"
+
     @classmethod
     def setUpClass(cls):
         import tempfile
         cls.map = tempfile.TemporaryDirectory()
-        cls.pad = schrijf_docx(brief("zakelijk-cassette-meervoud.yaml"),
+        cls.pad = schrijf_docx(brief(cls.voorbeeld),
                                SJABLOON, Path(cls.map.name) / "brief.docx")
         cls.xml, cls.namen = document_van(cls.pad)
 
@@ -185,18 +187,22 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
     def test_witregel_tussen_de_alineas(self):
         """Na elke gewone alinea hoort een lege alinea.
 
-        Twee uitzonderingen, allebei uit de bronbrieven: opsommingsregels staan
-        tegen elkaar aan, en een met tabs uitgelijnde vervolgregel staat direct
-        onder de regel waar hij bij hoort. De briefkop telt niet mee -- het
-        adresblok en de regels met project no. en Ref. horen aaneengesloten.
+        Drie uitzonderingen, alle drie uit de bronbrieven: opsommingsregels
+        staan tegen elkaar aan, een met tabs uitgelijnde vervolgregel staat
+        direct onder de regel waar hij bij hoort, en tekst met stijl
+        "letterlijk" -- de ondertekening en de technische specificaties --
+        bepaalt zijn eigen witruimte. De briefkop telt niet mee: het adresblok
+        en de regels met project no. en Ref. horen aaneengesloten.
         """
+        letterlijk = {a.tekst for a in brief(self.voorbeeld).alle_alineas if a.letterlijk}
         paren = self._opeenvolgende_gevulde_alineas()
         self.assertGreater(len(paren), 3, "geen aaneengesloten alinea's gevonden")
         for huidige, volgende in paren:
             vervolgregel = volgende["tekst"].startswith("\t")
             beide_opsomming = huidige["opsomming"] and volgende["opsomming"]
+            eigen_witruimte = huidige["tekst"] in letterlijk
             self.assertTrue(
-                vervolgregel or beide_opsomming,
+                vervolgregel or beide_opsomming or eigen_witruimte,
                 f"geen witregel tussen {huidige['tekst'][:44]!r} en {volgende['tekst'][:44]!r}",
             )
 

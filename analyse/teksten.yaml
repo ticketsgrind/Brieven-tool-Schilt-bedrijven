@@ -1298,10 +1298,22 @@ blokken:
 - id: ondertekening
   sectie: afsluiting
   voorwaarde: ""
+  stijl: letterlijk
   bron: alle 15 sjablonen
   tekst: |
     Vertrouwende u hiermee van dienst te zijn geweest, tekenen wij met vriendelijke groeten,
+
     Business Unit Schilt Airconditioning
     MEERKERK
+
+
     {{ ondertekenaar.naam }}
     {{ ondertekenaar.functie }}
+  notitie: >
+    De witruimte staat hier met opzet in de tekst en niet in de code: stijl
+    "letterlijk" neemt de regels over zoals ze hier staan. Nagemeten in alle
+    14 sjablonen met een ondertekening en in de verstuurde brieven: bedrijfsnaam
+    en MEERKERK staan tegen elkaar aan, daarna twee lege regels als ruimte voor
+    de handtekening, en naam en functie staan ook tegen elkaar aan. Alleen
+    "multi split.dotx" en een van de verstuurde brieven hebben daar een lege
+    regel; de andere dertien niet.
