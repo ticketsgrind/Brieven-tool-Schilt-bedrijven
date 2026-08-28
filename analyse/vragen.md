@@ -498,8 +498,9 @@ en de naam: `bronbrieven/multi split.dotx` en een van de verstuurde brieven. De
 overige dertien sjablonen en drie brieven hebben er twee, dus die zijn
 aangehouden.
 
-> **Vraag 31.** Klopt het dat twee lege regels de bedoeling zijn -- ruimte voor
-> een handtekening? Zo niet, dan zet ik er één.
+> **Vraag 31 -- beantwoord (Lars, 28 augustus 2026).** Twee lege regels is goed;
+> zo blijft het. De twee afwijkende bestanden zijn dus uitzonderingen en geen
+> reden om de tool aan te passen.
 
 ---
 
