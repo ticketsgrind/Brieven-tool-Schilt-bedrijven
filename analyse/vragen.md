@@ -515,10 +515,9 @@ Doorgevoerd, met de bron erbij:
    er iets anders boven wil ("Vervanging airconditioning t.b.v. …") typt dat in
    het veld ernaast. De dubbele punt komt er zelf bij. Het veld *Ruimte of
    verdieping* blijft nodig, want de buitenunitregels verwijzen ernaar.
-3. **Voorletters in de aanhef**: `Geachte heer E. Van Weerdenburg,`. Bij `Fam.`
-   blijven ze weg, en zonder voorletters blijft er geen dubbele spatie staan.
-   Let op: in de bronbrieven staat de aanhef **zonder** voorletters — dit is dus
-   een bewuste wijziging en geen brontekst.
+3. ~~Voorletters in de aanhef.~~ **Teruggedraaid** op 28 augustus 2026: de
+   aanhef blijft `Geachte heer Van Weerdenburg,`, zonder voorletters, zoals in
+   alle bronbrieven.
 4. **Voorgeselecteerde werkzaamheden per systeemsoort**, letterlijk de
    opsommingen uit `wand enkelvoud.dotx` (split, multi-split, cassette, kanaal)
    en `VRF.dotx`. Zes regels uit de VRF-brief stonden nog niet in de bibliotheek
@@ -527,8 +526,17 @@ Doorgevoerd, met de bron erbij:
    LG.
 6. **Facturering en betaling** zijn twee losse keuzes geworden.
 
-> **Vraag 32.** Punt 3 wijkt af van de bronbrieven, die de voorletters in de
-> aanhef niet noemen. Bevestig je dat alle brieven ze voortaan krijgen?
+7. **Opdrachtbevestiging.** Kies je die brief, dan springt de aanleiding
+   vanzelf op "Bevestiging van een opdracht" en verschijnt het veld
+   *Opdrachtnummer*; bij een offerte blijft dat veld weg. Ga je terug naar een
+   offerte, dan valt de aanleiding terug op "Na een aanvraag".
+
+   Die bevestigingszin stond al in de bibliotheek maar kwam nooit in een brief:
+   hij hing aan `documentsoort`, en binnen de keuzegroep won altijd de
+   aanleiding erboven. Hij hangt nu aan de aanleiding zelf.
+
+> **Vraag 32 — beantwoord (Lars, 28 augustus 2026).** Geen voorletters in de
+> aanhef; de bronbrieven hebben gelijk. Teruggedraaid.
 >
 > **Vraag 33.** Staat er nog een merk buiten die vijf in jullie offertes? Dan zet
 > ik het in de lijst; het veld is nu niet meer vrij te typen.

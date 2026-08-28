@@ -77,9 +77,17 @@ class TestOntbrekendeGegevens(unittest.TestCase):
         self.assertNotIn("de naam van de adviseur",
                          ontbrekende_gegevens(offerte(aanleiding="aanvraag", adviseur="")))
 
-    def test_opdrachtbevestiging_kent_geen_aanleidingsdatum(self):
-        bevestiging = offerte(documentsoort="opdrachtbevestiging", datum_aanleiding="")
+    def test_opdrachtbevestiging_vraagt_om_een_opdrachtnummer(self):
+        # "Onder dankzegging bevestigen wij hiermede uw schriftelijke opdrachtnr.
+        # <nummer> d.d. <datum> jl." -- allebei nodig, anders staat er een gat.
+        bevestiging = offerte(documentsoort="opdrachtbevestiging",
+                              aanleiding="opdrachtbevestiging", opdrachtnummer="")
+        self.assertEqual(ontbrekende_gegevens(bevestiging), ["het opdrachtnummer"])
+        bevestiging["opdrachtnummer"] = "12345"
         self.assertEqual(ontbrekende_gegevens(bevestiging), [])
+
+    def test_een_offerte_vraagt_niet_om_een_opdrachtnummer(self):
+        self.assertEqual(ontbrekende_gegevens(offerte(opdrachtnummer="")), [])
 
     def test_de_melding_noemt_alles(self):
         tekst = melding(["het bedrag", "de plaats"])

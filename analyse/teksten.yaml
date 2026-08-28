@@ -92,7 +92,7 @@ blokken:
   sectie: aanhef
   voorwaarde: ""
   bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-7.pdf
-  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ voorletters if aanspreekvorm != 'Fam.' }} {{ achternaam_aanhef }},"
+  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ achternaam_aanhef }},"
 
 # ===========================================================================
 # 7. AANLEIDING
@@ -147,12 +147,18 @@ blokken:
   sectie: aanleiding
   keuzegroep: aanleiding
   omschrijving: "Bevestiging van een ontvangen opdracht"
-  voorwaarde: "documentsoort == 'opdrachtbevestiging'"
+  voorwaarde: "aanleiding == 'opdrachtbevestiging'"
   bron: uitgewerkt-2.docx
   tekst: >
     Onder dankzegging bevestigen wij hiermede uw schriftelijke opdrachtnr.
-    {{ opdrachtnummer }} d.d. {{ datum_opdracht }} jl. voor het leveren en
+    {{ opdrachtnummer }} d.d. {{ datum_aanleiding }} jl. voor het leveren en
     monteren van {{ installatie_omschrijving }} t.b.v. bovengenoemde vestiging.
+  notitie: >
+    Hing eerst aan documentsoort, maar binnen een keuzegroep wint het eerste
+    blok dat past en dat was altijd een van de aanleidingen erboven -- deze zin
+    kwam dus nooit in de brief. Nu is het een gewone keuze bij de aanleiding;
+    het scherm zet hem voor zodra je een opdrachtbevestiging kiest. De datum
+    komt uit hetzelfde veld als bij de andere aanleidingen.
 
 # installatie_omschrijving is afgeleid van installatietype en het aantal
 # installaties. Dit is de kern van het enkelvoud/meervoud-probleem:

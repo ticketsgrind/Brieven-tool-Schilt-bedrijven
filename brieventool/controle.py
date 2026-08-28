@@ -47,14 +47,16 @@ def ontbrekende_gegevens(offerte: Mapping[str, Any]) -> list[str]:
         if not _gevuld(offerte.get(veld)):
             ontbreekt.append(omschrijving)
 
-    # De aanleidingszin noemt een datum ("d.d. 20 maart jl."), en bij een
-    # gesprek met een adviseur ook diens naam. Een opdrachtbevestiging heeft
-    # een eigen aanleidingszin zonder allebei.
-    if offerte.get("documentsoort") != "opdrachtbevestiging":
-        if not _gevuld(offerte.get("datum_aanleiding")):
-            ontbreekt.append("de datum van de aanleiding")
-        if offerte.get("aanleiding") == "onderhoud" and not _gevuld(offerte.get("adviseur")):
-            ontbreekt.append("de naam van de adviseur")
+    # Elke aanleidingszin noemt een datum ("d.d. 20 maart jl."), bij een gesprek
+    # met een adviseur ook diens naam, en bij een opdrachtbevestiging het
+    # opdrachtnummer ("uw schriftelijke opdrachtnr. ...").
+    if not _gevuld(offerte.get("datum_aanleiding")):
+        ontbreekt.append("de datum van de aanleiding")
+    if offerte.get("aanleiding") == "onderhoud" and not _gevuld(offerte.get("adviseur")):
+        ontbreekt.append("de naam van de adviseur")
+    if offerte.get("aanleiding") == "opdrachtbevestiging" \
+            and not _gevuld(offerte.get("opdrachtnummer")):
+        ontbreekt.append("het opdrachtnummer")
 
     # Zonder bedrag blijft er "bedraagt netto." staan.
     prijsregels = offerte.get("prijsregels") or []

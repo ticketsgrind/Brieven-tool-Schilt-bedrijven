@@ -188,26 +188,19 @@ class TestAdresblok(unittest.TestCase):
                 self.assertEqual(sum(1 for r in regels if "heer" in r), 1, regels)
 
     def test_tussenvoegsel_krijgt_hoofdletter_in_de_aanhef(self):
-        # "De heer J. ten Broek" in het adres, "Geachte heer J. Ten Broek," in
-        # de aanhef: de voorletters staan er sinds 28 augustus 2026 ook in.
+        # "De heer J. ten Broek" in het adres, "Geachte heer Ten Broek," in de
+        # aanhef. Zonder voorletters: zo staat het in alle bronbrieven.
         offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
         offerte["achternaam"] = "ten Broek"
         brief = stel_samen(offerte, laad(WORTEL))
         self.assertEqual(brief.regels("geadresseerde")[0], "De heer J. ten Broek")
-        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer J. Ten Broek,")
+        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer Ten Broek,")
 
-    def test_aanhef_zonder_voorletters_houdt_een_spatie_over(self):
-        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
-        offerte["voorletters"] = ""
-        brief = stel_samen(offerte, laad(WORTEL))
+    def test_geen_voorletters_in_de_aanhef(self):
+        # Bevestigd door Lars op 28 augustus 2026: de aanhef noemt alleen de
+        # achternaam, zoals in de bronbrieven.
+        brief = stel_samen(voorbeeld("particulier-wand-enkelvoud.yaml"), laad(WORTEL))
         self.assertEqual(brief.regels("aanhef")[0], "Geachte heer Jansen,")
-
-    def test_familie_krijgt_geen_voorletters(self):
-        # "Geachte heer en mevrouw Jansen," -- initialen horen daar niet.
-        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
-        offerte["aanspreekvorm"] = "Fam."
-        brief = stel_samen(offerte, laad(WORTEL))
-        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer en mevrouw Jansen,")
 
     def test_emailadres_onderaan_indien_bekend(self):
         offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
@@ -368,6 +361,29 @@ class TestBriefkop(unittest.TestCase):
         for sectie in ("betreft", "aanhef"):
             with self.subTest(sectie):
                 self.assertTrue(all(not a.witregel_erna for a in self.brief.secties[sectie]))
+
+
+class TestOpdrachtbevestiging(unittest.TestCase):
+    """Een opdrachtbevestiging begint met de bevestiging van de opdracht."""
+
+    def aanleiding(self, **wijziging):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte.update(wijziging)
+        return stel_samen(offerte, laad(WORTEL)).regels("aanleiding")
+
+    def test_de_bevestigingszin_komt_in_de_brief(self):
+        regels = self.aanleiding(documentsoort="opdrachtbevestiging",
+                                 aanleiding="opdrachtbevestiging",
+                                 opdrachtnummer="123456", datum_aanleiding="3 maart")
+        self.assertEqual(len(regels), 1)
+        self.assertIn("uw schriftelijke opdrachtnr. 123456 d.d. 3 maart jl.", regels[0])
+
+    def test_een_andere_aanleiding_wint_niet_meer(self):
+        # De zin hing eerder aan documentsoort en verloor het binnen de
+        # keuzegroep altijd van de aanleiding erboven.
+        regels = self.aanleiding(documentsoort="opdrachtbevestiging",
+                                 aanleiding="opdrachtbevestiging", opdrachtnummer="123456")
+        self.assertTrue(regels[0].startswith("Onder dankzegging"), regels)
 
 
 class TestFactureringEnBetaling(unittest.TestCase):
