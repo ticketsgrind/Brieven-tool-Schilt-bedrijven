@@ -41,8 +41,8 @@ prijssoort: totaalprijs
 prijsregels:
   - bedrag: 3900
 
-facturering: particulier_50_50
-betaling: particulier_50_50
+facturering: vijftig_vijftig
+betaling: termijnen_particulier
 condenspomp_meerprijs: true
 onderhoud_alinea: true
 documentatie_bijgevoegd: true

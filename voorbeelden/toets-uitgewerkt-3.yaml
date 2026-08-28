@@ -56,8 +56,8 @@ installaties:
 prijssoort: totaalprijs
 prijsregels:
   - bedrag: 10950
-facturering: particulier_50_50
-betaling: particulier_50_50
+facturering: vijftig_vijftig
+betaling: termijnen_particulier
 onderhoud_alinea: false
 documentatie_bijgevoegd: true
 werk_inclusief: [montage, bekabeling, transport, inbedrijfstelling]

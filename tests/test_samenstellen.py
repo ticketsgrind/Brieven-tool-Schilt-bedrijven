@@ -188,12 +188,26 @@ class TestAdresblok(unittest.TestCase):
                 self.assertEqual(sum(1 for r in regels if "heer" in r), 1, regels)
 
     def test_tussenvoegsel_krijgt_hoofdletter_in_de_aanhef(self):
-        # "De heer K. ten Broek" in het adres, "Geachte heer Ten Broek," in de aanhef.
+        # "De heer J. ten Broek" in het adres, "Geachte heer J. Ten Broek," in
+        # de aanhef: de voorletters staan er sinds 28 augustus 2026 ook in.
         offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
         offerte["achternaam"] = "ten Broek"
         brief = stel_samen(offerte, laad(WORTEL))
         self.assertEqual(brief.regels("geadresseerde")[0], "De heer J. ten Broek")
-        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer Ten Broek,")
+        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer J. Ten Broek,")
+
+    def test_aanhef_zonder_voorletters_houdt_een_spatie_over(self):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["voorletters"] = ""
+        brief = stel_samen(offerte, laad(WORTEL))
+        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer Jansen,")
+
+    def test_familie_krijgt_geen_voorletters(self):
+        # "Geachte heer en mevrouw Jansen," -- initialen horen daar niet.
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["aanspreekvorm"] = "Fam."
+        brief = stel_samen(offerte, laad(WORTEL))
+        self.assertEqual(brief.regels("aanhef")[0], "Geachte heer en mevrouw Jansen,")
 
     def test_emailadres_onderaan_indien_bekend(self):
         offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
@@ -356,6 +370,39 @@ class TestBriefkop(unittest.TestCase):
                 self.assertTrue(all(not a.witregel_erna for a in self.brief.secties[sectie]))
 
 
+class TestFactureringEnBetaling(unittest.TestCase):
+    """Precies een factureringsafspraak en precies een betalingsafspraak.
+
+    Het particuliere blok ging eerder op klanttype af in plaats van op de
+    gekozen termijn; koos je daarnaast een factureringstermijn, dan stond
+    "Facturering:" twee keer in de brief.
+    """
+
+    def regels(self, **wijziging):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte.update(wijziging)
+        brief = stel_samen(offerte, laad(WORTEL))
+        return [a.tekst for sectie in ("facturering", "betaling")
+                for a in brief.secties[sectie] if a.tekst.strip()]
+
+    def test_een_facturering_en_een_betaling(self):
+        for facturering, betaling in [("vijftig_vijftig", "termijnen_particulier"),
+                                      ("dertig_zeventig", "dertig_dagen"),
+                                      ("overleg", "aflevering"),
+                                      ("vijf_termijnen", "dertig_dagen")]:
+            with self.subTest(facturering=facturering, betaling=betaling):
+                regels = self.regels(facturering=facturering, betaling=betaling)
+                self.assertEqual(sum(1 for r in regels if r.startswith("Facturering:")), 1, regels)
+                self.assertEqual(sum(1 for r in regels if r.startswith("Betaling:")), 1, regels)
+
+    def test_de_particuliere_termijnen_zijn_gewone_keuzes(self):
+        # Ook een zakelijke klant kan ze kiezen; het hangt niet meer aan klanttype.
+        regels = self.regels(klanttype="zakelijk", organisatie="Voorbeeld B.V.",
+                             facturering="vijftig_vijftig", betaling="termijnen_particulier")
+        self.assertTrue(any("50% voorafgaande uitvoering" in r for r in regels))
+        self.assertEqual(sum(1 for r in regels if r.startswith("Facturering:")), 1)
+
+
 class TestOndertekening(unittest.TestCase):
     """De ondertekening staat zoals in alle sjablonen: naam en functie tegen
     elkaar aan, bedrijfsnaam en MEERKERK tegen elkaar aan, en twee lege regels
@@ -392,9 +439,9 @@ class TestWaarschuwingen(unittest.TestCase):
     def test_verkeerde_keuze_geeft_waarschuwing(self):
         offerte = voorbeeld("zakelijk-cassette-meervoud.yaml")
         # Particuliere factureringsregel op een zakelijke offerte.
-        offerte["gekozen_blokken"] = ["facturering_betaling_particulier"]
+        offerte["gekozen_blokken"] = ["facturering_vijftig_vijftig"]
         brief = stel_samen(offerte, laad(WORTEL))
-        self.assertTrue(any("facturering_betaling_particulier" in w for w in brief.waarschuwingen))
+        self.assertTrue(any("facturering_vijftig_vijftig" in w for w in brief.waarschuwingen))
 
     def test_onbekende_ondertekenaar_geeft_duidelijke_fout(self):
         from brieventool.samenstellen import SamenstelFout

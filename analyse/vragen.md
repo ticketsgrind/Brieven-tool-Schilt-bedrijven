@@ -504,6 +504,37 @@ aangehouden.
 
 ---
 
+## B6. Wijzigingen op verzoek van Lars (28 augustus 2026)
+
+Doorgevoerd, met de bron erbij:
+
+1. **Aantal binnendelen bij een multi-split** is een keuzelijst van 2 tot en met
+   8 geworden. De tekst noemt het aantal als cijfer (`bestaande uit 5
+   binnendelen`), zoals in uitgewerkt-3.
+2. **Eigen kopregel per installatie.** Standaard blijft `T.b.v. <ruimte>:`; wie
+   er iets anders boven wil ("Vervanging airconditioning t.b.v. …") typt dat in
+   het veld ernaast. De dubbele punt komt er zelf bij. Het veld *Ruimte of
+   verdieping* blijft nodig, want de buitenunitregels verwijzen ernaar.
+3. **Voorletters in de aanhef**: `Geachte heer E. Van Weerdenburg,`. Bij `Fam.`
+   blijven ze weg, en zonder voorletters blijft er geen dubbele spatie staan.
+   Let op: in de bronbrieven staat de aanhef **zonder** voorletters — dit is dus
+   een bewuste wijziging en geen brontekst.
+4. **Voorgeselecteerde werkzaamheden per systeemsoort**, letterlijk de
+   opsommingen uit `wand enkelvoud.dotx` (split, multi-split, cassette, kanaal)
+   en `VRF.dotx`. Zes regels uit de VRF-brief stonden nog niet in de bibliotheek
+   en zijn toegevoegd; de dekking van VRF.dotx blijft 99%.
+5. **Merk** is een keuzelijst: Panasonic, Mitsubishi Electric, Toshiba, Daikin,
+   LG.
+6. **Facturering en betaling** zijn twee losse keuzes geworden.
+
+> **Vraag 32.** Punt 3 wijkt af van de bronbrieven, die de voorletters in de
+> aanhef niet noemen. Bevestig je dat alle brieven ze voortaan krijgen?
+>
+> **Vraag 33.** Staat er nog een merk buiten die vijf in jullie offertes? Dan zet
+> ik het in de lijst; het veld is nu niet meer vrij te typen.
+
+---
+
 ## C. Openstaande beslissingen voor fase 2
 
 ### Beslissing 1 — wat doen we met de technische specificaties?

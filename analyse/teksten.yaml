@@ -92,7 +92,7 @@ blokken:
   sectie: aanhef
   voorwaarde: ""
   bron: uitgewerkt-2.docx, uitgewerkt-3.docx, uitgewerkt-7.pdf
-  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ achternaam_aanhef }},"
+  tekst: "Geachte {{ aanspreekvorm_aanhef }} {{ voorletters if aanspreekvorm != 'Fam.' }} {{ achternaam_aanhef }},"
 
 # ===========================================================================
 # 7. AANLEIDING
@@ -182,10 +182,24 @@ blokken:
 # 10. AANBIEDINGSSPECIFICATIE  (loop over prijsregels)
 # ===========================================================================
 
+- id: spec_ruimte_kop_eigen
+  sectie: specificatie
+  stijl: kopvet
+  omschrijving: "Eigen kopregel boven de installatie"
+  voorwaarde: "regel.eigen_kop"
+  bron: eigen invoer
+  tekst: "{{ regel.eigen_kop }}:"
+  notitie: >
+    Voor een kop die niet met "T.b.v." begint, bijvoorbeeld "Vervanging
+    airconditioning t.b.v. de serverruimte". De dubbele punt komt er zelf bij.
+    Een keuzegroep werkt hier niet: de specificatie is een herhalende sectie en
+    keuzegroepen gelden alleen buiten een lus, dus sluiten de twee voorwaarden
+    elkaar uit.
+
 - id: spec_ruimte_kop
   sectie: specificatie
   stijl: kopvet
-  voorwaarde: "regel.ruimte"
+  voorwaarde: "regel.ruimte and not regel.eigen_kop"
   bron: uitgewerkt-3.docx, uitgewerkt-7.pdf
   tekst: "T.b.v. {{ regel.ruimte }}:"
 
@@ -811,6 +825,14 @@ blokken:
   bron: 15 sjablonen
   tekst: "Niet tot onze werkzaamheden behoren:"
 
+- id: excl_koellast
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Koellastberekeningen"
+  voorwaarde: "'koellast' in werk_exclusief"
+  bron: uitgewerkt-1.docx
+  tekst: "verzorgen koellastberekeningen;"
+
 - id: excl_bouwkundig
   sectie: werkzaamheden_exclusief
   stijl: opsomming
@@ -891,38 +913,6 @@ blokken:
   bron: VRF.dotx
   tekst: "de benodigde regeltechnische werkzaamheden (bedraden en koppelingen GBS, etc.);"
 
-- id: excl_condensafvoerleiding
-  sectie: werkzaamheden_exclusief
-  stijl: opsomming
-  omschrijving: "Condensafvoerleiding bij de binnenunit"
-  voorwaarde: "'condensafvoerleiding' in werk_exclusief"
-  bron: wand enkelvoud.dotx
-  tekst: "condensafvoerleiding t.p.v. de binnenunit ø 32 mm PVC;"
-
-- id: excl_plakplaat
-  sectie: werkzaamheden_exclusief
-  stijl: opsomming
-  omschrijving: "Inplakken plakplaat i.v.m. dakgarantie"
-  voorwaarde: "'plakplaat' in werk_exclusief"
-  bron: wand enkelvoud.dotx
-  tekst: "inplakken van de door Schilt toegeleverde plakplaat ø 120 mm i.v.m. dakgarantie;"
-
-- id: excl_beplating
-  sectie: werkzaamheden_exclusief
-  stijl: opsomming
-  omschrijving: "Leidingen afwerken met aluminium beplating"
-  voorwaarde: "'beplating' in werk_exclusief"
-  bron: wand enkelvoud.dotx
-  tekst: "leidingen afwerken met aluminium beplating."
-
-- id: excl_koellast
-  sectie: werkzaamheden_exclusief
-  stijl: opsomming
-  omschrijving: "Koellastberekeningen"
-  voorwaarde: "'koellast' in werk_exclusief"
-  bron: uitgewerkt-1.docx
-  tekst: "verzorgen koellastberekeningen;"
-
 - id: excl_kabelgoot
   sectie: werkzaamheden_exclusief
   stijl: opsomming
@@ -938,6 +928,78 @@ blokken:
   voorwaarde: "'waterzijdig' in werk_exclusief"
   bron: uitgewerkt-1.docx
   tekst: "waterzijdige werkzaamheden (leveren en monteren CV- en GKW-installatie);"
+
+- id: excl_luchttechniek
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Luchttechnische componenten (aparte offerte)"
+  voorwaarde: "'luchttechniek' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "leveren en monteren luchttechnische componenten, plenums, roosters, kanalen en hulpstukken (zie hiervoor onze offerte nr. …………………. van Schilt Luchtkanalen) (tegen meerprijs mogelijk);"
+
+- id: excl_inregelen
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Luchttechnisch en waterzijdig inregelen"
+  voorwaarde: "'inregelen' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "luchttechnisch en waterzijdig inregelen;"
+
+- id: excl_condensafvoerleiding
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Condensafvoerleiding bij de binnenunit"
+  voorwaarde: "'condensafvoerleiding' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "condensafvoerleiding t.p.v. de binnenunit ø 32 mm PVC;"
+
+- id: excl_condensafvoerleiding_meervoud
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Condensafvoerleiding bij meerdere binnenunits"
+  voorwaarde: "'condensafvoerleiding_meervoud' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "condensafvoerleiding t.p.v. de binnenunits \u00f8 32 mm PVC;"
+
+- id: excl_plakplaat
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Inplakken plakplaat i.v.m. dakgarantie"
+  voorwaarde: "'plakplaat' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "inplakken van de door Schilt toegeleverde plakplaat ø 120 mm i.v.m. dakgarantie;"
+
+- id: excl_plakplaten
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Inplakken plakplaten (meervoud, zonder maat)"
+  voorwaarde: "'plakplaten' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "inplakken van de door Schilt toegeleverde plakplaten i.v.m. dakgarantie;"
+
+- id: excl_beplating
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Leidingen afwerken met aluminium beplating"
+  voorwaarde: "'beplating' in werk_exclusief"
+  bron: wand enkelvoud.dotx
+  tekst: "leidingen afwerken met aluminium beplating."
+
+- id: excl_beplating_stucco
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Leidingen afwerken met aluminium (stucco) beplating"
+  voorwaarde: "'beplating_stucco' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "leidingen afwerken met aluminium (stucco) beplating;"
+
+- id: excl_transport_vergunningen
+  sectie: werkzaamheden_exclusief
+  stijl: opsomming
+  omschrijving: "Intern- en verticaal transport (vergunningen)"
+  voorwaarde: "'transport_vergunningen' in werk_exclusief"
+  bron: VRF.dotx
+  tekst: "intern- en verticaal transport (aanvraag eventuele vergunningen);"
 
 - id: excl_hoogwerker
   sectie: werkzaamheden_exclusief
@@ -1115,6 +1177,7 @@ blokken:
 
 - id: facturering_100_gereed
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "100% wanneer de werkzaamheden gereed zijn"
   voorwaarde: "facturering == 'volledig_gereed'"
   bron: 11 sjablonen
@@ -1122,6 +1185,7 @@ blokken:
 
 - id: facturering_100_levering
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "100% na levering"
   voorwaarde: "facturering == 'volledig_levering'"
   bron: 11 sjablonen
@@ -1129,6 +1193,7 @@ blokken:
 
 - id: facturering_25_evenredig
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "In termijnen van 25%, naar evenredigheid"
   voorwaarde: "facturering == 'termijnen_25'"
   bron: 11 sjablonen
@@ -1136,6 +1201,7 @@ blokken:
 
 - id: facturering_30_20_20_20_10
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "30% opdracht, 20% aanvang, 20% bij 50%, 20% bij 90%, 10% oplevering"
   voorwaarde: "facturering == 'vijf_termijnen'"
   bron: 11 sjablonen
@@ -1148,6 +1214,7 @@ blokken:
 
 - id: facturering_30_70
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "30% bij opdracht, 70% bij aanvang werkzaamheden"
   voorwaarde: "facturering == 'dertig_zeventig'"
   bron: 11 sjablonen, uitgewerkt-2.docx, uitgewerkt-6.pdf
@@ -1157,6 +1224,7 @@ blokken:
 
 - id: facturering_30_60_10
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "30% bij opdracht, 60% bij aanvang, 10% bij oplevering"
   voorwaarde: "facturering == 'dertig_zestig_tien'"
   bron: 11 sjablonen, uitgewerkt-5.pdf
@@ -1167,24 +1235,40 @@ blokken:
 
 - id: facturering_overleg
   sectie: facturering
+  keuzegroep: facturering
   omschrijving: "In onderling overleg"
   voorwaarde: "facturering == 'overleg'"
   bron: 12 sjablonen, uitgewerkt-1.docx
   tekst: "Facturering: in onderling overleg."
 
-- id: facturering_betaling_particulier
+- id: facturering_vijftig_vijftig
   sectie: facturering
-  omschrijving: "Particulier: 50% vooraf, 50% na oplevering"
-  voorwaarde: "klanttype == 'particulier'"
+  keuzegroep: facturering
+  omschrijving: "50% voorafgaand, 50% na oplevering"
+  voorwaarde: "facturering == 'vijftig_vijftig'"
   bron: wand enkelvoud particulier.dotx, uitgewerkt-4.docx, uitgewerkt-7.pdf
   tekst: |
     Facturering:	- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.
     		- laatste termijn, 50% na oplevering.
+  notitie: >
+    Stond eerst samen met de betalingsafspraak in een blok dat op klanttype
+    afging. Koos je daarnaast een factureringstermijn, dan stond "Facturering:"
+    twee keer in de brief. Facturering en betaling zijn nu twee losse keuzes,
+    met elk precies een blok in de brief.
+
+- id: betaling_termijnen_particulier
+  sectie: betaling
+  keuzegroep: betaling
+  omschrijving: "1e termijn 2 werkdagen vooraf, rest binnen 30 dagen"
+  voorwaarde: "betaling == 'termijnen_particulier'"
+  bron: wand enkelvoud particulier.dotx, uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: |
     Betaling:	- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.
     		- laatste termijn binnen 30 dagen na factuurdatum.
 
 - id: betaling_30_dagen
   sectie: betaling
+  keuzegroep: betaling
   omschrijving: "Binnen 30 dagen na factuurdatum"
   voorwaarde: "betaling == 'dertig_dagen'"
   bron: 12 sjablonen
@@ -1192,6 +1276,7 @@ blokken:
 
 - id: betaling_aflevering
   sectie: betaling
+  keuzegroep: betaling
   omschrijving: "Bij aflevering"
   voorwaarde: "betaling == 'aflevering'"
   bron: 10 sjablonen

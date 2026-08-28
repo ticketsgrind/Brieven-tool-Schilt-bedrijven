@@ -98,7 +98,25 @@ komen eerst alle ruimtekopjes en daarna pas alle installatieregels.
 
 **Keuzegroepen.** Blokken met dezelfde `keuzegroep` sluiten elkaar uit; de eerste
 die past wint. De volgorde in `teksten.yaml` is dus de voorrangsvolgorde, met de
-meest algemene variant onderaan als terugval.
+meest algemene variant onderaan als terugval. Let op: keuzegroepen werken
+**alleen buiten een lus** — in een herhalende sectie (`specificatie`, `prijs`)
+moeten de voorwaarden elkaar zelf uitsluiten, zoals bij de kopregel boven een
+installatie (`regel.eigen_kop` tegenover `regel.ruimte and not regel.eigen_kop`).
+
+**Facturering en betaling zijn twee losse keuzes.** Elk blok hangt aan zijn eigen
+antwoord (`facturering == '...'`, `betaling == '...'`) en zit in een keuzegroep,
+zodat er altijd precies één factureringsafspraak en één betalingsafspraak in de
+brief staat. Dat ging eerder mis: de particuliere variant hing aan `klanttype` en
+kwam er dus bovenop als je ook een termijn koos, waarna `Facturering:` twee keer
+in de brief stond.
+
+**De werkzaamhedenlijsten horen bij de systeemsoort.** Split, multi-split,
+cassette en kanaal delen één lijst; VRF heeft een eigen lijst met andere regels
+én een andere volgorde. `WERK_STANDAARD` en `WERK_VRF` in `prototype.html` zetten
+de vinkjes; de volgorde in de brief is die van `teksten.yaml`, en die is zo
+gekozen dat beide lijsten in de volgorde van hun bronbrief uitkomen.
+`tests/test_werkzaamheden.py` leest die opsommingen uit `bronbrieven/*.dotx` en
+vergelijkt ze regel voor regel — verander je de volgorde, dan valt die toets om.
 
 **Het Word-sjabloon wordt gegenereerd, niet met de hand gemaakt.**
 `tools/maak_sjabloon.py` neemt een bronbrief uit `bronbrieven/`, gooit de body

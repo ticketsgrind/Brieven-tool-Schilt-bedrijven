@@ -36,8 +36,12 @@ VASTGELEGD = {
         "Deze aanbieding wordt 30 dagen na heden gestand gedaan, daarna komt deze te vervallen.",
     'privacy':
         "Wij maken u erop attent dat wij de persoonsgegevens die u ons heeft verstrekt en eventueel nog zult verstrekken, zullen verwerken op de manier zoals wij die in onze privacyverklaring hebben omschreven. Wij verwijzen u graag naar www.schiltbedrijven.nl/privacyverklaring voor meer informatie over de verwerking van uw persoonsgegevens en de rechten die u heeft.",
-    'facturering_betaling_particulier':
-        "Facturering:\t- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.\n\t\t- laatste termijn, 50% na oplevering.\nBetaling:\t- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.\n\t\t- laatste termijn binnen 30 dagen na factuurdatum.",
+    # Facturering en betaling zijn twee losse keuzes; de tekst is dezelfde als
+    # toen ze nog in een blok stonden, alleen op de regelovergang gesplitst.
+    'facturering_vijftig_vijftig':
+        "Facturering:\t- 1e termijn, 50% voorafgaande uitvoering werkzaamheden.\n\t\t- laatste termijn, 50% na oplevering.",
+    'betaling_termijnen_particulier':
+        "Betaling:\t- 1e termijn 2 werkdagen voorafgaande uitvoering werkzaamheden.\n\t\t- laatste termijn binnen 30 dagen na factuurdatum.",
     'betaling_30_dagen':
         "Betaling: binnen 30 dagen na de factuurdatum.",
     'meerprijs_condenspomp_zakelijk':
