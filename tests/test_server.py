@@ -96,7 +96,7 @@ class TestApp(unittest.TestCase):
         code, inhoud, koppen = self.haal("/")
         self.assertEqual(code, 200)
         self.assertIn("text/html", koppen["Content-Type"])
-        self.assertIn(b"Brieventool", inhoud)
+        self.assertIn(b"Offertebrieven", inhoud)
 
     def test_favicon_geeft_geen_fout(self):
         # Zonder dit staat er bij elke start een 404 in de foutmelding van de browser.

@@ -231,6 +231,23 @@ selectielogica in Python, werk dan ook de spiegel bij. Draai
 daarna met `node --check` dat het script nog geldig is, want een fout in de
 ingebakken gegevens breekt de hele pagina.
 
+**De huisstijl komt van Schilt, niet uit mijn duim.** Het blauw `#3A5EC4` is dat
+van schiltbedrijven.nl (koppen, knoppen), het leisteengrijs `#414B4D` is dat van
+het woordmerk, en `#D9121E` is de rode zwiep eronder. De grijzen hebben een
+blauwzweem zodat ze bij dat blauw horen. Knoppen zijn pillen, net als op de
+site. Het amber van `--signal` staat daar los van: dat betekent "hier ontbreekt
+nog iets" en is met opzet geen huisstijlkleur.
+
+Het beeldmerk in de kop is **het echte bestand uit het briefpapier**
+(`word/media/image1.jpeg`, de strook *professionals in air*), door
+`ververs_prototype.py` als CSS-regel tussen `/*<logo>*/` gezet — vandaar dat het
+een achtergrond is en geen `<img>`: in een HTML-attribuut zijn `/* */` gewone
+tekens en geen commentaar. Zo toont het scherm hetzelfde merk als de brief; een
+test vergelijkt beide bytes. Op een donkere achtergrond krijgt het merk een wit
+plaatje (`--logoveld`), want de strook heeft zelf een witte rand. Het geschreven
+woordmerk *Schilt* zit niet in het briefpapier en dus ook niet in de app; lever
+dat bestand aan als het erin moet.
+
 **De voorvertoning gebruikt het echte briefpapier.** `briefpapier.py` leest uit
 `sjablonen/brief.docx` het paginaformaat, de marges, de gegevens rechtsboven, de
 voettekst en de afbeeldingen; de app bedient die via `/briefpapier` en

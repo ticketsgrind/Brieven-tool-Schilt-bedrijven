@@ -21,6 +21,10 @@ BLOKKEN = re.compile(r"/\*<blokken>\*/.*?/\*</blokken>\*/", re.S)
 # Het Word-sjabloon zit ook in het prototype, zodat het scherm zonder Python een
 # brief op het echte briefpapier kan opleveren.
 SJABLOON = re.compile(r"/\*<sjabloon>\*/.*?/\*</sjabloon>\*/", re.S)
+# Het beeldmerk in de kop van het scherm komt uit het briefpapier zelf, zodat de
+# app hetzelfde merk toont als de brief en er geen los logobestand rondslingert.
+LOGO = re.compile(r"/\*<logo>\*/.*?/\*</logo>\*/", re.S)
+LOGOBEELD = "word/media/image1.jpeg"
 
 
 def main() -> int:
@@ -59,6 +63,19 @@ def main() -> int:
     else:
         print(f"Let op: {sjabloon} bestaat niet; het scherm kan dan geen Word-bestand "
               f"maken. Maak het eerst met: python3 tools/maak_sjabloon.py")
+
+    if sjabloon.is_file():
+        import zipfile
+        with zipfile.ZipFile(sjabloon) as zip_in:
+            beeldmerk = base64.b64encode(zip_in.read(LOGOBEELD)).decode("ascii")
+        regel = ('.merk .beeldmerk{background-image:url("data:image/jpeg;base64,'
+                 + beeldmerk + '")}')
+        vervangen, gevonden = LOGO.subn(
+            lambda _: f"/*<logo>*/{regel}/*</logo>*/", vervangen, count=1
+        )
+        if not gevonden:
+            print(f"Kon de markering /*<logo>*/ niet vinden in {PROTOTYPE.name}.")
+            return 1
 
     PROTOTYPE.write_text(vervangen, encoding="utf-8")
     print(f"{len(blokken)} tekstblokken bijgewerkt in {PROTOTYPE.relative_to(WORTEL)}")

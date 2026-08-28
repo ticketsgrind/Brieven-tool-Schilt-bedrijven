@@ -94,14 +94,27 @@ class TestSpiegel(unittest.TestCase):
 
 
 class TestIngebakkenSjabloon(unittest.TestCase):
-    """Het sjabloon zit in het prototype; dat mag niet achterlopen."""
+    """Het sjabloon en het beeldmerk zitten in het prototype; die mogen niet
+    achterlopen op sjablonen/brief.docx."""
+
+    def stuk(self, naam):
+        html = PROTOTYPE.read_text(encoding="utf-8")
+        begin = html.index(f"/*<{naam}>*/") + len(f"/*<{naam}>*/")
+        return html[begin:html.index(f"/*</{naam}>*/")]
 
     def test_sjabloon_is_bijgewerkt(self):
-        html = PROTOTYPE.read_text(encoding="utf-8")
-        begin = html.index("/*<sjabloon>*/") + len("/*<sjabloon>*/")
-        ingebakken = html[begin:html.index("/*</sjabloon>*/")].strip('"')
-        self.assertEqual(base64.b64decode(ingebakken), SJABLOON.read_bytes(),
+        self.assertEqual(base64.b64decode(self.stuk("sjabloon").strip('"')),
+                         SJABLOON.read_bytes(),
                          "draai ontwerp/ververs_prototype.py opnieuw")
+
+    def test_beeldmerk_komt_uit_het_briefpapier(self):
+        # Het merk in de kop van het scherm is hetzelfde bestand als het merk
+        # op de brief; zo kan het er niet naast gaan zitten.
+        css = self.stuk("logo")
+        merk = css[css.index("base64,") + len("base64,"):css.index('")}')]
+        with zipfile.ZipFile(SJABLOON) as sjabloon:
+            self.assertEqual(base64.b64decode(merk), sjabloon.read("word/media/image1.jpeg"),
+                             "draai ontwerp/ververs_prototype.py opnieuw")
 
 
 if __name__ == "__main__":
