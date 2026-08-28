@@ -133,6 +133,13 @@ of de brief er verzorgd uitziet:
   zijn eigen witruimte — de witregels staan dan in de tekst zelf.
   `_zet_witregels` in `samenstellen.py` bepaalt dat; het sjabloon volgt alleen
   `a.witregel_erna`.
+- *De briefkop is de uitzondering:* daar zit de witruimte tussen de secties en
+  staat ze vast in het sjabloon — vier lege regels boven het adres, zes eronder,
+  één na de betreft-regel, één na `Meerkerk <datum>` en drie na `Ref.`. Het
+  adresblok en de regels met project no. en Ref. staan dus aaneengesloten.
+  `_zet_witregels` geeft die secties daarom `witregel_erna=False`, zodat de
+  voorvertoning hetzelfde tekent als Word in plaats van overal een witregel te
+  zetten. `tests/test_sjabloon.py` telt die lege regels na.
 - *De ondertekening.* Bedrijfsnaam en `MEERKERK` staan tegen elkaar aan, en de
   naam en de functie van de ondertekenaar ook; daartussen twee lege regels als
   ruimte voor de handtekening. Nagemeten in alle veertien sjablonen met een
@@ -257,6 +264,12 @@ Verzin hier nooit een kop of voet: dan wekt het scherm de indruk dat de brief er
 zo uitziet terwijl het Word-bestand iets anders doet. Een EMF-afbeelding kan een
 browser niet tonen; die komt als `onbekende_beelden` terug in plaats van
 stilzwijgend te verdwijnen.
+
+**De voorvertoning tekent de witregels van de motor.** Een lege regel op het vel
+is precies één regelhoogte (`.alinea.witregel`), net als een lege alinea in Word;
+de vaste lege regels van de briefkop tekent `regelgat()`. Het scherm zet dus geen
+eigen marges meer tussen alinea's — anders staat er op het scherm ruimte waar
+Word er geen zet, en dat is precies waar het eerder misging.
 
 **De motor levert `tekst` en `nadruk` apart** waar een alinea uit twee
 tekstdelen bestaat: bij `stijl: prijs` het bedrag, bij `stijl: label` de inhoud

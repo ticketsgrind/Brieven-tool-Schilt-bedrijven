@@ -328,6 +328,34 @@ class TestKeuzegroepen(unittest.TestCase):
                 self.assertEqual(len(stel_samen(voorbeeld(naam), bib).regels("aanleiding")), 1)
 
 
+class TestBriefkop(unittest.TestCase):
+    """In de briefkop zit de witruimte tussen de secties, niet tussen de regels.
+
+    Nagemeten in het Word-bestand dat de tool zelf maakt: het adresblok staat
+    aaneengesloten, na "Meerkerk <datum>" komt een lege regel, en project no. en
+    Ref. staan daar weer tegen elkaar aan. De voorvertoning tekent die
+    witregels, dus als dit verschuift loopt het scherm uit de pas met Word.
+    """
+
+    def setUp(self):
+        self.brief = stel_samen(voorbeeld("particulier-wand-enkelvoud.yaml"), laad(WORTEL))
+
+    def test_adresblok_staat_aaneengesloten(self):
+        adres = self.brief.secties["geadresseerde"]
+        self.assertGreater(len(adres), 2)
+        self.assertTrue(all(not a.witregel_erna for a in adres))
+
+    def test_kenmerken_alleen_na_de_eerste_regel_een_witregel(self):
+        kenmerken = self.brief.secties["kenmerken"]
+        self.assertEqual([a.witregel_erna for a in kenmerken],
+                         [True] + [False] * (len(kenmerken) - 1))
+
+    def test_betreft_en_aanhef_laten_de_witruimte_aan_het_sjabloon(self):
+        for sectie in ("betreft", "aanhef"):
+            with self.subTest(sectie):
+                self.assertTrue(all(not a.witregel_erna for a in self.brief.secties[sectie]))
+
+
 class TestOndertekening(unittest.TestCase):
     """De ondertekening staat zoals in alle sjablonen: naam en functie tegen
     elkaar aan, bedrijfsnaam en MEERKERK tegen elkaar aan, en twee lege regels

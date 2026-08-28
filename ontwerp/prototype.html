@@ -218,21 +218,21 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 
 
 
-.sectie{margin:0 0 13px;position:relative}
-.sectie:last-child{margin-bottom:0}
-.alinea{margin:0 0 7px;white-space:pre-wrap;position:relative;border-radius:2px;
+/* De witruimte op het vel is dezelfde als in het Word-bestand: een lege regel
+   is een lege alinea, dus precies één regelhoogte. Welke alinea er een krijgt
+   zegt de motor met witregel_erna; het scherm verzint hier niets bij. */
+.sectie{margin:0;position:relative}
+.alinea{margin:0;white-space:pre-wrap;position:relative;border-radius:2px;
   transition:background .5s}
-.alinea:last-child{margin-bottom:0}
+.alinea.witregel{margin-bottom:1.55em}
+.regelgat{height:calc(1.55em * var(--regels,1))}
 .alinea.vers{background:color-mix(in srgb,var(--signal) 20%,transparent);transition:background 0s}
-.alinea.kopregel{margin-top:16px}
 .alinea.kopregel.onderstreept{text-decoration:underline;text-underline-offset:2px}
 .alinea.kopregel.vet{font-weight:700}
-.sectie:first-child .alinea.kopregel{margin-top:0}
 .alinea.eigen{border-left:2px solid var(--accent);padding-left:9px;margin-left:-11px}
 /* Aangeleverde specificaties staan in de brief strak onder elkaar. */
-.alinea.letterlijk{margin-bottom:0}
-.alinea.leeg{min-height:.9em;margin-bottom:0}
-.alinea.opsomming{padding-left:16px;margin-bottom:1px}
+.alinea.leeg{min-height:1.55em}
+.alinea.opsomming{padding-left:16px}
 .alinea.opsomming::before{content:"-";position:absolute;left:2px}
 .alinea b{font-weight:700}
 
@@ -621,10 +621,19 @@ function naarAlineas(ingevuld,blok,reden){
   }
   return uit;
 }
-function zetWitregels(alineas){
+// In de briefkop staat de witruimte vast in het sjabloon: het adresblok staat
+// aaneengesloten, en onder "Meerkerk <datum>" komt een lege regel waarna project
+// no. en Ref. weer tegen elkaar aan staan. Zie sjabloonbody in maak_sjabloon.py.
+const KOPSECTIES_AANEEN=["geadresseerde","betreft","aanhef"];
+
+function zetWitregels(alineas,sectie){
   // Spiegelt _zet_witregels: na elke alinea een lege regel, behalve tussen twee
   // opsommingsregels, voor een uitgelijnde vervolgregel en binnen letterlijke
   // tekst -- die bepaalt zijn eigen witruimte.
+  if(KOPSECTIES_AANEEN.includes(sectie))
+    return alineas.map(a=>Object.assign({},a,{witregel_erna:false}));
+  if(sectie==="kenmerken")
+    return alineas.map((a,n)=>Object.assign({},a,{witregel_erna:n===0}));
   return alineas.map((a,n)=>{
     const volgende=alineas[n+1];
     const aaneengesloten=!!volgende&&(
@@ -724,7 +733,7 @@ function stelSamen(){
     for(const eigen of (A.eigenAlineas[sectie]||[]))
       alineas.push({tekst:eigen,stijl:"tekst",nadruk:"",uitgelijnd:false,
                     letterlijk:false,eigen:true});
-    uit[sectie]=zetWitregels(alineas);
+    uit[sectie]=zetWitregels(alineas,sectie);
   }
   return {secties:uit,gebruikt,ctx};
 }
@@ -1355,12 +1364,25 @@ const LABELS={klanttype:"soort klant",aantal_binnenunits:"aantal binnenunits",
   facturering:"facturering",betaling:"betaling",prijssoort:"soort prijs",
   technische_specificaties:"technische specificaties",coating_optioneel:"coating als optie"};
 
+// De lege regels die vast in het sjabloon staan: vier boven het adresblok, en
+// daarna de ruimte tussen de secties van de briefkop. Nagemeten in het
+// Word-bestand dat de tool zelf maakt.
+const BOVEN_HET_ADRES=4;
+const KOPGAT={geadresseerde:6, betreft:1, kenmerken:3, aanhef:1};
+
+function regelgat(regels){
+  const gat=el("div","regelgat");
+  gat.style.setProperty("--regels",regels);
+  return gat;
+}
+
 function tekenBrief(resultaat,alleenNieuw){
   const vel=document.getElementById("vel");
   vel.innerHTML="";
   const c=resultaat.ctx;
 
   vel.appendChild(tekenBriefpapier());
+  vel.appendChild(regelgat(BOVEN_HET_ADRES));
 
   const nieuweTekst=new Map();
   for(const sectie of SECTIES){
@@ -1375,6 +1397,7 @@ function tekenBrief(resultaat,alleenNieuw){
       else if(a.stijl==="opsomming"){p.classList.add("opsomming")}
       if(a.letterlijk){p.classList.add("letterlijk");
         if(!a.tekst.trim())p.classList.add("leeg")}
+      if(a.witregel_erna)p.classList.add("witregel");
       // De motor levert tekst en nadruk apart: bij een prijsregel staat het
       // bedrag vet en de aanloopzin niet, bij een label staat de inhoud achter
       // een tab. In Word zijn dat twee tekstdelen; hier plakken we ze aaneen.
@@ -1416,6 +1439,7 @@ function tekenBrief(resultaat,alleenNieuw){
     };
     s.appendChild(plus);
     vel.appendChild(s);
+    if(KOPGAT[sectie])vel.appendChild(regelgat(KOPGAT[sectie]));
   }
   vorigeTekst=nieuweTekst;
 
@@ -1508,7 +1532,8 @@ async function vraagAanApp(){
     // het tekenen hoeft geen onderscheid te maken.
     secties[sectie.naam]=zetWitregels(sectie.alineas.map(a=>({
       tekst:a.tekst, stijl:a.stijl, nadruk:a.nadruk, uitgelijnd:a.uitgelijnd,
-      letterlijk:a.letterlijk, blok:{id:a.blok,stijl:a.stijl}, reden:null})));
+      letterlijk:a.letterlijk, blok:{id:a.blok,stijl:a.stijl}, reden:null})),
+      sectie.naam);
   }
   return {secties,gebruikt:uit.blokken,ctx:uit.kenmerken,
           waarschuwingen:uit.waarschuwingen,ontbreekt:uit.ontbreekt};

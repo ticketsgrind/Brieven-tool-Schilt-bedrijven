@@ -184,6 +184,44 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         self.assertEqual(self.xml.count("<w:numPr>"), verwacht)
         self.assertGreater(verwacht, 5)
 
+    def _blokken(self, hoeveel):
+        """De eerste gevulde regels met het aantal lege regels erachter."""
+        regels = self.regels()
+        uit, nummer = [], 0
+        while nummer < len(regels) and len(uit) < hoeveel:
+            if regels[nummer].strip():
+                volgende = nummer + 1
+                while volgende < len(regels) and not regels[volgende].strip():
+                    volgende += 1
+                uit.append((regels[nummer].split("\t")[0].strip(), volgende - nummer - 1))
+                nummer = volgende
+            else:
+                nummer += 1
+        return uit
+
+    def test_de_briefkop_heeft_de_nagemeten_witruimte(self):
+        """Het adresblok aaneengesloten, zes lege regels, dan de betreft-regel.
+
+        Daarna een lege regel, "Meerkerk <datum>", een lege regel, en project
+        no. en Ref. weer tegen elkaar aan. Deze telling staat in het sjabloon en
+        wordt door de voorvertoning nagetekend; ze is nagemeten aan de
+        bronbrieven.
+        """
+        blokken = self._blokken(8)
+        betreft = next(n for n, (tekst, _) in enumerate(blokken) if tekst == "Betreft")
+        adres = blokken[:betreft]
+        self.assertGreater(len(adres), 2, "geen adresblok gevonden")
+        self.assertEqual([leeg for _, leeg in adres], [0] * (len(adres) - 1) + [6])
+        self.assertEqual([leeg for _, leeg in blokken[betreft:betreft + 4]], [1, 1, 0, 3])
+        self.assertEqual(blokken[betreft + 1][0], "Meerkerk")
+        self.assertTrue(blokken[betreft + 2][0].startswith("Ons project no."))
+        self.assertTrue(blokken[betreft + 3][0].startswith("Ref."))
+
+    def test_vier_lege_regels_boven_het_adres(self):
+        regels = self.regels()
+        eerste = next(n for n, r in enumerate(regels) if r.strip())
+        self.assertEqual(eerste, 4, "het adresblok staat niet op de nagemeten hoogte")
+
     def test_witregel_tussen_de_alineas(self):
         """Na elke gewone alinea hoort een lege alinea.
 

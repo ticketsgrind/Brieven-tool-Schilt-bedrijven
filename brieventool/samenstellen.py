@@ -127,12 +127,19 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
                         if blok.keuzegroep:
                             vergeven_groepen.add(blok.keuzegroep)
 
-        brief.secties[sectie] = _zet_witregels(alineas)
+        brief.secties[sectie] = _zet_witregels(alineas, sectie)
 
     return brief
 
 
-def _zet_witregels(alineas: list[Alinea]) -> list[Alinea]:
+# In de briefkop staat de witruimte vast in het sjabloon (zie sjabloonbody in
+# tools/maak_sjabloon.py), nagemeten aan de bronbrieven: het adresblok staat
+# aaneengesloten, en onder "Meerkerk <datum>" komt een lege regel waarna project
+# no. en Ref. weer tegen elkaar aan staan.
+KOPSECTIES_AANEEN = ("geadresseerde", "betreft", "aanhef")
+
+
+def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
     """Bepaalt na welke alinea's een lege regel hoort.
 
     De bronbrieven zetten een lege alinea na elke gewone alinea, maar niet
@@ -140,7 +147,16 @@ def _zet_witregels(alineas: list[Alinea]) -> list[Alinea]:
     een lege regel na de laatste. Zonder dat onderscheid staat de hele brief op
     elkaar gepropt. Hetzelfde geldt voor een uitgelijnde vervolgregel: die hoort
     direct onder de regel waar hij bij hoort.
+
+    De secties van de briefkop volgen het sjabloon: daar zit de witruimte tussen
+    de secties en niet tussen de regels.
     """
+    if sectie in KOPSECTIES_AANEEN:
+        return [replace(alinea, witregel_erna=False) for alinea in alineas]
+    if sectie == "kenmerken":
+        return [replace(alinea, witregel_erna=(nummer == 0))
+                for nummer, alinea in enumerate(alineas)]
+
     uit: list[Alinea] = []
     for nummer, alinea in enumerate(alineas):
         volgende = alineas[nummer + 1] if nummer + 1 < len(alineas) else None
