@@ -363,6 +363,52 @@ class TestBriefkop(unittest.TestCase):
                 self.assertTrue(all(not a.witregel_erna for a in self.brief.secties[sectie]))
 
 
+class TestAantalUnits(unittest.TestCase):
+    """Het enkelvoud/meervoud in de brief volgt het werkelijke aantal units.
+
+    Een splitsysteem is een binnendeel op een buitendeel; een multi-split of VRF
+    heeft er meer. Een blijven staan `aantal_binnendelen` van een eerder gekozen
+    multi-split mag bij een splitsysteem niet meetellen -- dat gaf "De
+    binnenunits zijn" bij een enkele unit.
+    """
+
+    def tel(self, *installaties):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        kaal = dict(offerte["installaties"][0])
+        offerte["installaties"] = [dict(kaal, **regel) for regel in installaties]
+        brief = stel_samen(offerte, laad(WORTEL))
+        return brief.context["aantal_binnenunits"], brief.context["aantal_buitenunits"]
+
+    def test_een_splitsysteem(self):
+        self.assertEqual(self.tel({"systeemsoort": "splitsystem"}), (1, 1))
+
+    def test_blijven_staan_aantal_bij_een_splitsysteem_telt_niet_mee(self):
+        self.assertEqual(self.tel({"systeemsoort": "splitsystem", "aantal_binnendelen": 5}), (1, 1))
+
+    def test_twee_splitsystemen(self):
+        self.assertEqual(self.tel({"systeemsoort": "splitsystem"},
+                                  {"systeemsoort": "splitsystem"}), (2, 2))
+
+    def test_multisplit_telt_de_binnendelen(self):
+        self.assertEqual(self.tel({"systeemsoort": "multi-splitsystem",
+                                   "aantal_binnendelen": 5, "aantal_buitendelen": 1}), (5, 1))
+
+    def test_vrf_met_twee_buitendelen(self):
+        self.assertEqual(self.tel({"systeemsoort": "vrf",
+                                   "aantal_binnendelen": 8, "aantal_buitendelen": 2}), (8, 2))
+
+    def test_meerdere_systemen_op_een_regel(self):
+        self.assertEqual(self.tel({"systeemsoort": "splitsystem", "aantal_systemen": 3}), (3, 3))
+
+    def test_de_zinnen_volgen_de_telling(self):
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["installaties"] = [dict(offerte["installaties"][0],
+                                        systeemsoort="vrf", aantal_binnendelen=8,
+                                        aantal_buitendelen=2, type_buitendeel="PUMY")]
+        regels = stel_samen(offerte, laad(WORTEL)).regels("buitenunit")
+        self.assertTrue(any(r.startswith("De buitenunits worden geplaatst") for r in regels), regels)
+
+
 class TestOpdrachtbevestiging(unittest.TestCase):
     """Een opdrachtbevestiging begint met de bevestiging van de opdracht."""
 

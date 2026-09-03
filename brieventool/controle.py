@@ -31,9 +31,9 @@ VASTE_VELDEN: list[tuple[str, str]] = [
     ("sa_nummer", "het SA-nummer"),                     # "Ref. NV/LH/SA..."
 ]
 
-# veld -> (omschrijving, wanneer het nodig is)
+# veld -> hoe het in de melding heet. De ruimte staat er niet bij; die heeft
+# een eigen regel, want met een eigen kopregel is hij niet nodig.
 INSTALLATIEVELDEN: list[tuple[str, str]] = [
-    ("ruimte", "de ruimte"),
     ("merk", "het merk"),
     ("type_binnendeel", "het type binnendeel"),
 ]
@@ -70,6 +70,14 @@ def ontbrekende_gegevens(offerte: Mapping[str, Any]) -> list[str]:
         if not isinstance(installatie, Mapping):
             continue
         erbij = f" van regel {nummer}" if len(installaties) > 1 else ""
+        # De kopregel boven de installatie is "T.b.v. <ruimte>:", tenzij er een
+        # eigen kopregel staat -- dan is de ruimte niet nodig. Behalve wanneer
+        # deze regel een eigen opstelling heeft: die zin noemt de ruimte wel
+        # ("De buitenunit voor <ruimte> wordt geplaatst ...").
+        if not _gevuld(installatie.get("ruimte")) and (
+                not _gevuld(installatie.get("eigen_kop"))
+                or _gevuld(installatie.get("opstelling_buitenunit"))):
+            ontbreekt.append("de ruimte" + erbij)
         for veld, omschrijving in INSTALLATIEVELDEN:
             if not _gevuld(installatie.get(veld)):
                 ontbreekt.append(omschrijving + erbij)

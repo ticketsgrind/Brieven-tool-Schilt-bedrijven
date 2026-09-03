@@ -75,6 +75,18 @@ het scherm weigert de knop. De **voorvertoning blijft wel werken** — je moet
 kunnen meelezen terwijl je invult. Elke controle daar staat omdat het gat is
 nagemeten in de samengestelde brief; voeg er geen toe op gevoel.
 
+**Het enkelvoud/meervoud hangt aan `_aantallen`.** Die functie zegt per
+installatieregel hoeveel binnen- en buitendelen er worden aangeboden: een
+splitsysteem is één binnendeel op één buitendeel (maal `aantal_systemen`), een
+multi-split of VRF heeft `aantal_binnendelen` en `aantal_buitendelen`. De optelsom
+bepaalt `aantal_binnenunits` en `aantal_buitenunits`, en dus of de brief "De
+binnenunit is" of "De binnenunits zijn" schrijft. Een blijven staan
+`aantal_binnendelen` van een eerder gekozen multi-split telt bij een splitsysteem
+níet mee — dat gaf meervoud bij één unit. De spiegel in `prototype.html` heeft
+dezelfde functie; `tests/test_samenstellen.py` legt de zes gevallen vast. Het
+scherm toont de uitkomst onder de installaties, zodat te zien is waar het
+enkelvoud/meervoud vandaan komt.
+
 **Blokselectie werkt op gewone antwoorden, niet op blok-id's.** Wie
 `condensafvoer: natuurlijk_verloop` en `aantal_binnenunits: 3` invult krijgt
 vanzelf het blok dat "de units zijn" zegt in plaats van "de unit is". Verschillen

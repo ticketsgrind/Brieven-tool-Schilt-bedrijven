@@ -535,6 +535,23 @@ Doorgevoerd, met de bron erbij:
    hij hing aan `documentsoort`, en binnen de keuzegroep won altijd de
    aanleiding erboven. Hij hangt nu aan de aanleiding zelf.
 
+8. **Enkelvoud/meervoud klopt nu met het aantal units.** Er zaten drie fouten
+   in de telling: een `aantal_binnendelen` dat bleef staan nadat een regel van
+   multi-split naar split ging telde mee (meervoud bij één unit), het aantal
+   buitendelen werd genegeerd en gelijkgesteld aan het aantal regels (enkelvoud
+   bij meerdere buitenunits), en de motor en de spiegel telden verschillend.
+   Eén telregel nu, in allebei. Bij VRF is *Aantal buitendelen* een veld
+   geworden, en onder de installaties staat wat de tool geteld heeft.
+9. **Een eigen kopregel maakt *Ruimte of verdieping* optioneel.** Alleen als een
+   regel een eigen opstelling voor de buitenunit heeft blijft de ruimte nodig;
+   die zin noemt hem bij naam.
+
+> **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
+> je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
+> kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren
+> van één luchtgekoelde splitsystem inverterunit" en het formulier vraagt er niet
+> naar.
+
 > **Vraag 32 — beantwoord (Lars, 28 augustus 2026).** Geen voorletters in de
 > aanhef; de bronbrieven hebben gelijk. Teruggedraaid.
 >

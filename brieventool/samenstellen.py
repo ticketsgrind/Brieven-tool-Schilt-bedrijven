@@ -367,10 +367,10 @@ def _bouw_context(offerte: Mapping[str, Any], bib: Bibliotheek) -> dict[str, Any
 
     binnen = offerte.get("aantal_binnenunits")
     if binnen is None:
-        binnen = sum(int(i.get("aantal_binnendelen") or 1) for i in installaties) or 1
+        binnen = sum(_aantallen(i)[0] for i in installaties) or 1
     buiten = offerte.get("aantal_buitenunits")
     if buiten is None:
-        buiten = len(installaties) or 1
+        buiten = sum(_aantallen(i)[1] for i in installaties) or 1
 
     ctx["aantal_binnenunits"] = int(binnen)
     ctx["aantal_buitenunits"] = int(buiten)
@@ -463,6 +463,34 @@ def _specificatietekst(offerte: Mapping[str, Any]) -> str:
         return tekst_uit_bestand(bestand)
     except BijlageFout as fout:
         raise SamenstelFout(f"technische specificaties: {fout}") from fout
+
+
+def _aantallen(regel: Mapping[str, Any]) -> tuple[int, int]:
+    """Hoeveel binnen- en buitendelen een installatieregel aanbiedt.
+
+    Hier hangt het enkelvoud/meervoud van de hele brief aan: "De binnenunit is"
+    tegenover "De binnenunits zijn", en hetzelfde voor de buitenunit.
+
+    Een splitsysteem is per definitie een binnendeel op een buitendeel, dus
+    telt daar het aantal systemen. Een multi-split of VRF heeft meerdere
+    binnendelen op meestal een buitendeel; staat er een eigen aantal, dan geldt
+    dat. Een blijven staan `aantal_binnendelen` van een eerder gekozen
+    multi-split telt bij een splitsysteem dus niet mee -- dat gaf eerder "De
+    binnenunits zijn" bij een enkele unit.
+    """
+    systemen = _geheel(regel.get("aantal_systemen"), 1)
+    if regel.get("systeemsoort") == "splitsystem":
+        return systemen, systemen
+    return (_geheel(regel.get("aantal_binnendelen"), systemen),
+            _geheel(regel.get("aantal_buitendelen"), systemen))
+
+
+def _geheel(waarde: Any, terugval: int) -> int:
+    try:
+        getal = int(str(waarde).strip())
+    except (TypeError, ValueError):
+        return terugval
+    return getal if getal > 0 else terugval
 
 
 def _verrijk_prijsregel(regel: Mapping[str, Any]) -> dict[str, Any]:

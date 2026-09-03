@@ -581,10 +581,26 @@ const ONDERWERP={airconditioning:"Airconditioning",koelmachine:"Koelmachine",
   "mechanische ventilatie":"Mechanische ventilatie",warmtepomp:"Warmtepomp"};
 const AANHEF={"de heer":"heer",mevrouw:"mevrouw","de heer en mevrouw":"heer en mevrouw","Fam.":"heer en mevrouw"};
 
+/* Hoeveel binnen- en buitendelen een installatieregel aanbiedt -- spiegelt
+   _aantallen in samenstellen.py. Hier hangt het enkelvoud/meervoud van de hele
+   brief aan. Een splitsysteem is een binnendeel op een buitendeel; een blijven
+   staan aantal_binnendelen van een eerder gekozen multi-split telt daar dus
+   niet mee. */
+function geheel(waarde,terugval){
+  const getal=parseInt(String(waarde??"").trim(),10);
+  return Number.isFinite(getal)&&getal>0 ? getal : terugval;
+}
+function aantallen(regel){
+  const systemen=geheel(regel.aantal_systemen,1);
+  if(regel.systeemsoort==="splitsystem")return [systemen,systemen];
+  return [geheel(regel.aantal_binnendelen,systemen),
+          geheel(regel.aantal_buitendelen,systemen)];
+}
+
 function bouwContext(){
   const c=Object.assign({},A);
-  const binnen=A.installaties.reduce((s,i)=>s+(parseInt(i.aantal_binnendelen)||parseInt(i.aantal_systemen)||1),0)||1;
-  const buiten=A.installaties.reduce((s,i)=>s+(parseInt(i.aantal_buitendelen)||parseInt(i.aantal_systemen)||1),0)||1;
+  const binnen=A.installaties.reduce((s,i)=>s+aantallen(i)[0],0)||1;
+  const buiten=A.installaties.reduce((s,i)=>s+aantallen(i)[1],0)||1;
   c.aantal_binnenunits=binnen; c.aantal_buitenunits=buiten;
   c.aantal_installaties=A.installaties.length||1;
   c.is_meervoud_binnen=binnen>1; c.is_meervoud_buiten=buiten>1;
@@ -705,8 +721,7 @@ const VASTE_VELDEN=[["achternaam","de achternaam"],["straat_huisnummer","straat 
   ["postcode","de postcode"],["plaats","de plaats"],
   ["locatieaanduiding","de betreft-regel"],["projectnummer","het projectnummer"],
   ["sa_nummer","het SA-nummer"]];
-const INSTALLATIEVELDEN=[["ruimte","de ruimte"],["merk","het merk"],
-  ["type_binnendeel","het type binnendeel"]];
+const INSTALLATIEVELDEN=[["merk","het merk"],["type_binnendeel","het type binnendeel"]];
 const gevuld=w=>w!==null&&w!==undefined&&String(w).trim()!=="";
 
 function ontbrekendeGegevens(){
@@ -721,6 +736,10 @@ function ontbrekendeGegevens(){
   if(!installaties.length)uit.push("een installatie");
   installaties.forEach((inst,n)=>{
     const erbij=installaties.length>1?" van regel "+(n+1):"";
+    // Met een eigen kopregel is de ruimte niet nodig; alleen een eigen
+    // opstelling per regel noemt hem alsnog bij naam.
+    if(!gevuld(inst.ruimte)&&(!gevuld(inst.eigen_kop)||gevuld(inst.opstelling_buitenunit)))
+      uit.push("de ruimte"+erbij);
     for(const [veld,omschrijving] of INSTALLATIEVELDEN)
       if(!gevuld(inst[veld]))uit.push(omschrijving+erbij);
     if((inst.systeemsoort==="multi-splitsystem"||inst.systeemsoort==="vrf")
@@ -1057,7 +1076,17 @@ const GROEPEN=[
   ]},
 
  {naam:"Installaties", samen:()=>`${A.installaties.length} regel${A.installaties.length===1?"":"s"}`,
-  velden:[{t:"installaties"}]},
+  velden:[
+   {t:"installaties"},
+   // Waar het enkelvoud/meervoud in de brief op gebaseerd is: dat is anders
+   // niet te zien, en juist daar ging het mis.
+   {t:"afgeleid",tekst:c=>{
+     const b=c.aantal_binnenunits, u=c.aantal_buitenunits;
+     return `Samen <b>${b} binnenunit${b===1?"":"s"}</b> en <b>${u} buitenunit${u===1?"":"s"}</b>. `+
+       `De brief schrijft daarom \u201c${b===1?"De binnenunit is":"De binnenunits zijn"}\u2026\u201d `+
+       `en \u201c${u===1?"De buitenunit wordt":"De buitenunits worden"} geplaatst\u2026\u201d.`;
+   }},
+  ]},
 
  {naam:"Uitvoering", samen:()=>[({wand:"Wandmodel",cassette:"Cassette",kanaal:"Kanaal",vloer:"Vloermodel",plafondonderbouw:"Plafondonderbouw",vrf:"VRF"})[A.model_binnenunit],
     ({muursteun:"gevel",plat_dak:"plat dak",bigfoot:"BigFoot",grond:"grond"})[A.opstelling_buitenunit]].join(" · "),
@@ -1385,9 +1414,15 @@ function bouwInstallaties(){
       // Een multi-split draagt meer dan twee binnendelen; als lijst is dat
       // duidelijker dan een klein cijferveld.
       r2.append(keuzeveld("aantal_binnendelen","Aantal binnendelen",
-        [2,3,4,5,6,7,8].map(n=>[n,String(n)]),null,true));
+        [2,3,4,5,6,7,8,9,10,12].map(n=>[n,String(n)]),null,true));
       r2.append(tekstveld("type_buitendeel","Type buitendeel","code"));
       k.appendChild(r2);
+      // Een multi-split heeft per definitie een buitendeel; een VRF kan er
+      // meer hebben, en daar hangt "De buitenunits worden geplaatst" aan.
+      if(inst.systeemsoort==="vrf"){
+        k.appendChild(keuzeveld("aantal_buitendelen","Aantal buitendelen",
+          [1,2,3,4].map(n=>[n,String(n)]),null,true));
+      }
     }
     houder.appendChild(k);
   });
