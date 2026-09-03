@@ -55,9 +55,15 @@ class TestOntbrekendeGegevens(unittest.TestCase):
     def test_installatie_zonder_gegevens(self):
         kaal = offerte(installaties=[{"systeemsoort": "splitsystem"}])
         self.assertEqual(ontbrekende_gegevens(kaal),
-                         ["de ruimte", "het merk", "het type binnendeel"])
+                         ["het merk", "het type binnendeel"])
 
-    def test_eigen_kopregel_maakt_de_ruimte_overbodig(self):
+    def test_de_ruimte_mag_leeg_blijven(self):
+        # Zonder ruimte komt er gewoon geen kopregel boven de installatie; dat
+        # is geen gat in de brief.
+        leeg = offerte(installaties=[dict(offerte()["installaties"][0], ruimte="")])
+        self.assertEqual(ontbrekende_gegevens(leeg), [])
+
+    def test_eigen_kopregel_zonder_ruimte(self):
         eigen = offerte(installaties=[dict(offerte()["installaties"][0], ruimte="",
                                            eigen_kop="Vervanging airconditioning t.b.v. de hal")])
         self.assertEqual(ontbrekende_gegevens(eigen), [])
@@ -65,7 +71,7 @@ class TestOntbrekendeGegevens(unittest.TestCase):
     def test_een_eigen_opstelling_noemt_de_ruimte_wel(self):
         # "De buitenunit voor <ruimte> wordt geplaatst ..." -- dan is hij nodig.
         regel = dict(offerte()["installaties"][0], ruimte="",
-                     eigen_kop="Vervanging airconditioning", opstelling_buitenunit="muursteun")
+                     opstelling_buitenunit="muursteun")
         self.assertEqual(ontbrekende_gegevens(offerte(installaties=[regel])), ["de ruimte"])
 
     def test_meerdere_installaties_noemen_het_regelnummer(self):

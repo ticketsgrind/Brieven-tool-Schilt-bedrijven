@@ -554,6 +554,23 @@ Doorgevoerd, met de bron erbij:
     (3 september 2026) staat hij nu altijd schuin. De kop `Garantietermijn:`
     blijft onderstreept.
 
+11. **Volgorde en witruimte rechtgezet** (3 september 2026). De
+    aansprakelijkheid stond boven de garantietermijn; in alle sjablonen is dat
+    andersom. Tussen de twee punten van de aansprakelijkheid hoort een lege
+    regel, anders dan bij alle andere opsommingen. En de werkzaamhedenlijst
+    staat in de bronbrieven als één blok tegen elkaar aan — kop, opsomming,
+    volgende kop, opsomming — waar de tool er witregels tussen zette. Ook
+    *Ruimte of verdieping* mag nu leeg blijven; dan komt er geen kopregel boven
+    de installatie.
+
+    Na het rechtzetten wijken van de 49 regels die onze brief met
+    `wand enkelvoud.dotx` deelt er nog twee af, allebei een dubbele lege regel
+    in het sjabloon: vóór `Levering:` en vóór `Aansprakelijkheid:`. Overal
+    elders staat er één.
+
+> **Vraag 35.** Zijn die twee dubbele lege regels bedoeld, of een typefout in het
+> sjabloon? De tool zet er nu overal één. Zeg je "bedoeld", dan neem ik ze over.
+
 > **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
 > je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
 > kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren

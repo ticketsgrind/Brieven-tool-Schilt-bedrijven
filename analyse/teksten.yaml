@@ -1341,13 +1341,20 @@ blokken:
     10 jaar garantie op de gehele slang inclusief ritsen en accessoires.
 
 - id: aansprakelijkheid
-  sectie: voorwaarden
+  sectie: aansprakelijkheid
+  witregel_tussen: true
   voorwaarde: ""
   bron: 13 sjablonen
   tekst: |
     Aansprakelijkheid:
     - Indien wij bij u betonboringen uitvoeren, zullen deze met de uiterste zorgvuldigheid worden uitgevoerd. Business Unit Schilt Airconditioning is echter niet aansprakelijk voor het eventueel – onverhoopt – beschadigen van (leidingen in) vloeren of wanden.
     - Wij willen u erop attenderen geen apparatuur onder de binnenunits te plaatsen. Indien er wel apparatuur onder de binnenunits wordt geplaatst, is Business Unit Schilt Airconditioning niet aansprakelijk voor eventuele schade als gevolg van - onverhoopte - condenslekkages.
+  notitie: >
+    Staat in alle sjablonen en verstuurde brieven ná de garantietermijn, niet
+    ervoor; daarom een eigen sectie onder de garantie in plaats van bij de
+    andere voorwaarden. De twee punten hebben in de bronbrieven een lege regel
+    ertussen -- vandaar witregel_tussen -- terwijl opsommingsregels elders juist
+    tegen elkaar aan staan.
   # cassette meervoud.dotx schrijft "Schilt Airconditioning B.V." in plaats van
   # "Business Unit Schilt Airconditioning". Zie vragen.md #11.
 

@@ -225,22 +225,28 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
     def test_witregel_tussen_de_alineas(self):
         """Na elke gewone alinea hoort een lege alinea.
 
-        Drie uitzonderingen, alle drie uit de bronbrieven: opsommingsregels
+        Vier uitzonderingen, alle vier uit de bronbrieven: opsommingsregels
         staan tegen elkaar aan, een met tabs uitgelijnde vervolgregel staat
-        direct onder de regel waar hij bij hoort, en tekst met stijl
-        "letterlijk" -- de ondertekening en de technische specificaties --
-        bepaalt zijn eigen witruimte. De briefkop telt niet mee: het adresblok
-        en de regels met project no. en Ref. horen aaneengesloten.
+        direct onder de regel waar hij bij hoort, tekst met stijl "letterlijk"
+        -- de ondertekening en de technische specificaties -- bepaalt zijn eigen
+        witruimte, en de werkzaamhedenlijst staat als een blok tegen elkaar aan.
+        De briefkop telt niet mee: het adresblok en de regels met project no. en
+        Ref. horen aaneengesloten.
         """
-        letterlijk = {a.tekst for a in brief(self.voorbeeld).alle_alineas if a.letterlijk}
+        alineas = brief(self.voorbeeld).alle_alineas
+        letterlijk = {a.tekst for a in alineas if a.letterlijk}
+        werkzaamheden = {a.tekst for naam in ("werkzaamheden_inclusief",
+                                              "werkzaamheden_exclusief")
+                         for a in brief(self.voorbeeld).secties[naam]}
         paren = self._opeenvolgende_gevulde_alineas()
         self.assertGreater(len(paren), 3, "geen aaneengesloten alinea's gevonden")
         for huidige, volgende in paren:
             vervolgregel = volgende["tekst"].startswith("\t")
             beide_opsomming = huidige["opsomming"] and volgende["opsomming"]
             eigen_witruimte = huidige["tekst"] in letterlijk
+            in_de_lijst = huidige["tekst"] in werkzaamheden
             self.assertTrue(
-                vervolgregel or beide_opsomming or eigen_witruimte,
+                vervolgregel or beide_opsomming or eigen_witruimte or in_de_lijst,
                 f"geen witregel tussen {huidige['tekst'][:44]!r} en {volgende['tekst'][:44]!r}",
             )
 

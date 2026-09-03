@@ -108,6 +108,13 @@ een lijst uit de offerte (`specificatie` → `installaties`, `prijs` →
 als geheel per regel herhaald — niet blok voor blok over alle regels, anders
 komen eerst alle ruimtekopjes en daarna pas alle installatieregels.
 
+**De volgorde van de secties is die van `teksten.yaml`.** Een sectie staat waar
+haar eerste blok staat. Daarom heeft de aansprakelijkheid een eigen sectie onder
+de garantie: in alle sjablonen staat `Garantietermijn:` boven
+`Aansprakelijkheid:`, en met beide blokken in de sectie `voorwaarden` kwam de
+aansprakelijkheid mee naar boven. `tests/test_werkzaamheden.py` legt de hele
+witruimte van de brief naast `bronbrieven/wand enkelvoud.dotx`, regel voor regel.
+
 **Keuzegroepen.** Blokken met dezelfde `keuzegroep` sluiten elkaar uit; de eerste
 die past wint. De volgorde in `teksten.yaml` is dus de voorrangsvolgorde, met de
 meest algemene variant onderaan als terugval. Let op: keuzegroepen werken
@@ -163,6 +170,12 @@ of de brief er verzorgd uitziet:
   zijn eigen witruimte — de witregels staan dan in de tekst zelf.
   `_zet_witregels` in `samenstellen.py` bepaalt dat; het sjabloon volgt alleen
   `a.witregel_erna`.
+- *De werkzaamhedenlijst is één blok:* kop, opsomming, volgende kop en zijn
+  opsomming staan tegen elkaar aan, met pas na de laatste regel een witregel.
+  `AANEENGESLOTEN_SECTIES` in `samenstellen.py` regelt dat. Andersom kan ook: een
+  blok met `witregel_tussen: true` — de aansprakelijkheid — krijgt juist wél een
+  lege regel tussen zijn opsommingsregels. Allebei nagemeten in de sjablonen en
+  de verstuurde brieven.
 - *De briefkop is de uitzondering:* daar zit de witruimte tussen de secties en
   staat ze vast in het sjabloon — vier lege regels boven het adres, zes eronder,
   één na de betreft-regel, één na `Meerkerk <datum>` en drie na `Ref.`. Het

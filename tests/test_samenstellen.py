@@ -122,12 +122,40 @@ class TestOpmaakVanAlineas(unittest.TestCase):
     def test_opsommingsregels_staan_tegen_elkaar_aan(self):
         # In de bronbrieven staat er geen witregel tussen twee opsommingsregels,
         # wel na de laatste. Zonder dat onderscheid staat de brief opgepropt.
-        regels = self.brief.secties["werkzaamheden_inclusief"]
+        regels = self.brief.secties["prijs"]
         opsommingen = [a for a in regels if a.stijl == "opsomming"]
         self.assertGreater(len(opsommingen), 2)
         for alinea in opsommingen[:-1]:
             self.assertFalse(alinea.witregel_erna, alinea.tekst)
         self.assertTrue(opsommingen[-1].witregel_erna)
+
+    def test_de_werkzaamhedenlijst_staat_als_een_blok(self):
+        """Kop, opsomming, volgende kop en opsomming zonder lege regels ertussen.
+
+        Nagemeten in alle sjablonen en in de vier verstuurde brieven; pas na de
+        laatste regel komt er een witregel.
+        """
+        inclusief = self.brief.secties["werkzaamheden_inclusief"]
+        exclusief = self.brief.secties["werkzaamheden_exclusief"]
+        self.assertTrue(all(not a.witregel_erna for a in inclusief),
+                        [a.tekst for a in inclusief if a.witregel_erna])
+        self.assertTrue(all(not a.witregel_erna for a in exclusief[:-1]))
+        self.assertTrue(exclusief[-1].witregel_erna)
+
+    def test_de_twee_punten_van_de_aansprakelijkheid_staan_los(self):
+        # Anders dan de andere opsommingen: in de bronbrieven staat hier wel
+        # een lege regel tussen.
+        regels = self.brief.secties["aansprakelijkheid"]
+        opsommingen = [a for a in regels if a.stijl == "opsomming"]
+        self.assertEqual(len(opsommingen), 2)
+        self.assertTrue(all(a.witregel_erna for a in opsommingen))
+
+    def test_de_garantie_staat_boven_de_aansprakelijkheid(self):
+        # Zoals in alle sjablonen: Algemene voorwaarden, Garantietermijn,
+        # Aansprakelijkheid.
+        secties = list(self.brief.secties)
+        self.assertLess(secties.index("garantie"), secties.index("aansprakelijkheid"))
+        self.assertLess(secties.index("voorwaarden"), secties.index("garantie"))
 
     def test_witregel_na_elke_gewone_alinea(self):
         prijs = [a for a in self.brief.secties["prijs"] if a.stijl == "tekst"]
@@ -135,7 +163,11 @@ class TestOpmaakVanAlineas(unittest.TestCase):
             self.assertTrue(alinea.witregel_erna, alinea.tekst)
 
     def test_kop_gevolgd_door_witregel(self):
-        koppen = [a for a in self.brief.alle_alineas if a.stijl == "kop"]
+        # Behalve de koppen van de werkzaamhedenlijst: die staan in de
+        # bronbrieven direct boven hun opsomming.
+        koppen = [a for a in self.brief.alle_alineas
+                  if a.stijl == "kop" and not a.tekst.startswith(
+                      ("De installatie is aangeboden", "Niet tot onze"))]
         self.assertGreater(len(koppen), 3)
         for kop in koppen:
             self.assertTrue(kop.witregel_erna, kop.tekst)

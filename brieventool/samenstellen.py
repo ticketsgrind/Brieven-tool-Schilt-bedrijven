@@ -49,6 +49,7 @@ class Alinea:
     blok_id: str = ""
     uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
     cursief: bool = False      # schuingedrukt, zoals de uitgangspunten en de garantie
+    los: bool = False          # ook als opsommingsregel een lege regel erna
     letterlijk: bool = False   # regel uit aangeleverde tekst; niets aan wijzigen
     witregel_erna: bool = True
 
@@ -139,6 +140,13 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
 # no. en Ref. weer tegen elkaar aan staan.
 KOPSECTIES_AANEEN = ("geadresseerde", "betreft", "aanhef")
 
+# De werkzaamhedenlijst staat in de bronbrieven als één blok tegen elkaar aan:
+# de kop, de opsomming, de volgende kop en zijn opsomming, zonder lege regels
+# ertussen. Pas na de laatste regel komt er één. Nagemeten in alle sjablonen en
+# in de vier verstuurde brieven.
+AANEENGESLOTEN_SECTIES = ("werkzaamheden_inclusief", "werkzaamheden_exclusief")
+LAATSTE_AANEENGESLOTEN = "werkzaamheden_exclusief"
+
 
 def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
     """Bepaalt na welke alinea's een lege regel hoort.
@@ -157,12 +165,20 @@ def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
     if sectie == "kenmerken":
         return [replace(alinea, witregel_erna=(nummer == 0))
                 for nummer, alinea in enumerate(alineas)]
+    if sectie in AANEENGESLOTEN_SECTIES:
+        laatste = len(alineas) - 1
+        return [replace(alinea, witregel_erna=(nummer == laatste
+                                               and sectie == LAATSTE_AANEENGESLOTEN))
+                for nummer, alinea in enumerate(alineas)]
 
     uit: list[Alinea] = []
     for nummer, alinea in enumerate(alineas):
         volgende = alineas[nummer + 1] if nummer + 1 < len(alineas) else None
         aaneengesloten = volgende is not None and (
-            (alinea.stijl == "opsomming" and volgende.stijl == "opsomming")
+            # Opsommingsregels staan tegen elkaar aan, behalve in een blok dat
+            # er zelf een lege regel tussen wil -- zoals de aansprakelijkheid.
+            (alinea.stijl == "opsomming" and volgende.stijl == "opsomming"
+             and not alinea.los)
             or volgende.uitgelijnd
             or alinea.letterlijk          # de aangeleverde tekst bepaalt zelf zijn witregels
         )
@@ -292,7 +308,8 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
         # cursief -- die zijn onderstreept of vet.
         uit.append(Alinea(tekst=tekst, stijl=stijl, nadruk=nadruk,
                           blok_id=blok.id, uitgelijnd=uitgelijnd,
-                          cursief=blok.cursief and stijl not in ("kop", "kopvet")))
+                          cursief=blok.cursief and stijl not in ("kop", "kopvet"),
+                          los=blok.witregel_tussen))
     return uit
 
 

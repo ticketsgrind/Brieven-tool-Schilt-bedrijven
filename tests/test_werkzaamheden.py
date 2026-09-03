@@ -16,6 +16,7 @@ import yaml
 
 from brieventool import laad
 from brieventool.samenstellen import stel_samen
+from brieventool.sjabloon import schrijf_docx
 
 WORTEL = Path(__file__).resolve().parent.parent
 
@@ -98,6 +99,62 @@ class TestCursiefVolgtDeBronbrief(unittest.TestCase):
         # En de functie van de gekozen ondertekenaar, die de bronbrief ook
         # schuingedrukt zet.
         self.assertIn("Technisch Commercieel Adviseur", onze)
+
+
+class TestWitruimteVolgtDeBronbrief(unittest.TestCase):
+    """Elke regel die in allebei voorkomt heeft evenveel lege regels erachter.
+
+    Zo loopt de opmaak niet stilletjes weg van de brief die Schilt al jaren
+    verstuurt. Twee plekken wijken bewust af: het sjabloon zet twee lege regels
+    voor "Levering:" en voor "Aansprakelijkheid:" waar overal elders er een
+    staat, en de functieregels van de drie ondertekenaars staan in het sjabloon
+    onder elkaar terwijl onze brief er een kiest.
+    """
+
+    UITZONDERINGEN = {
+        "de werkzaamheden tijdens normale werktijden (kantooruren) kunnen worden uitgevoerd.",
+        "De garantietermijn binnen Nederland is 12 maanden op geleverde materialen en door ons "
+        "uitgevoerde werkzaamheden na inbedrijfstellen. Op geleverde onderdelen geldt een "
+        "aanvullende fabrieksgarantie. Defecten welke te wijten zijn aan derden vallen buiten "
+        "de garantie.",
+        "Technisch Commercieel Adviseur",
+    }
+
+    def witregels(self, paragrafen):
+        uit = {}
+        for nummer, tekst in enumerate(paragrafen):
+            if not tekst:
+                continue
+            leeg, volgende = 0, nummer + 1
+            while volgende < len(paragrafen) and not paragrafen[volgende]:
+                leeg += 1
+                volgende += 1
+            uit[tekst] = leeg
+        return uit
+
+    def paragrafen(self, pad):
+        xml = zipfile.ZipFile(pad).read("word/document.xml").decode("utf-8")
+        body = xml[xml.index("<w:body"):]
+        return ["".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", p)).replace("\u00a0", " ").strip()
+                for p in re.findall(r"<w:p\b[^>]*(?:/>|>.*?</w:p>)", body, re.S)]
+
+    def test_zelfde_witruimte_als_wand_enkelvoud(self):
+        import tempfile
+        offerte = yaml.safe_load((WORTEL / "voorbeelden" / "particulier-wand-enkelvoud.yaml")
+                                 .read_text(encoding="utf-8"))
+        offerte["briefdatum"] = str(offerte["briefdatum"])
+        with tempfile.TemporaryDirectory() as tijdelijk:
+            doel = Path(tijdelijk) / "brief.docx"
+            schrijf_docx(stel_samen(offerte, laad(WORTEL)),
+                         WORTEL / "sjablonen" / "brief.docx", doel)
+            onze = self.witregels(self.paragrafen(doel))
+        bron = self.witregels(self.paragrafen(WORTEL / "bronbrieven" / "wand enkelvoud.dotx"))
+
+        gedeeld = [t for t in onze if t in bron]
+        self.assertGreater(len(gedeeld), 40, "te weinig gedeelde regels om iets te toetsen")
+        anders = [(t, bron[t], onze[t]) for t in gedeeld
+                  if bron[t] != onze[t] and t not in self.UITZONDERINGEN]
+        self.assertEqual(anders, [], "witruimte wijkt af van de bronbrief")
 
 
 class TestWerkzaamheden(unittest.TestCase):

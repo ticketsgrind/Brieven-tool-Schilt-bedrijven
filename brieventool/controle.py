@@ -70,13 +70,12 @@ def ontbrekende_gegevens(offerte: Mapping[str, Any]) -> list[str]:
         if not isinstance(installatie, Mapping):
             continue
         erbij = f" van regel {nummer}" if len(installaties) > 1 else ""
-        # De kopregel boven de installatie is "T.b.v. <ruimte>:", tenzij er een
-        # eigen kopregel staat -- dan is de ruimte niet nodig. Behalve wanneer
-        # deze regel een eigen opstelling heeft: die zin noemt de ruimte wel
-        # ("De buitenunit voor <ruimte> wordt geplaatst ...").
-        if not _gevuld(installatie.get("ruimte")) and (
-                not _gevuld(installatie.get("eigen_kop"))
-                or _gevuld(installatie.get("opstelling_buitenunit"))):
+        # De ruimte mag leeg blijven: zonder ruimte en zonder eigen kopregel
+        # komt er gewoon geen kopregel boven de installatie te staan, en dat is
+        # geen gat. Alleen een eigen opstelling per regel noemt de ruimte bij
+        # naam ("De buitenunit voor <ruimte> wordt geplaatst ..."); dan wel.
+        if _gevuld(installatie.get("opstelling_buitenunit")) \
+                and not _gevuld(installatie.get("ruimte")):
             ontbreekt.append("de ruimte" + erbij)
         for veld, omschrijving in INSTALLATIEVELDEN:
             if not _gevuld(installatie.get(veld)):
