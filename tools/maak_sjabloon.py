@@ -40,7 +40,8 @@ CT_DOCUMENT = "application/vnd.openxmlformats-officedocument.wordprocessingml.do
 
 
 def alinea(tekst: str, *, stijl: str | None = None, vet: bool = False,
-           onderstreept: bool = False, hangend: int | None = None) -> str:
+           onderstreept: bool = False, cursief: str | None = None,
+           hangend: int | None = None) -> str:
     """Bouwt één <w:p>. `tekst` mag docxtpl-tags bevatten."""
     eigenschappen = ""
     if stijl or hangend is not None:
@@ -56,6 +57,12 @@ def alinea(tekst: str, *, stijl: str | None = None, vet: bool = False,
         return f'<w:p>{eigenschappen}<w:r><w:t xml:space="preserve"></w:t></w:r></w:p>'
     kenmerken = ("<w:b/>" if vet else "") + ('<w:u w:val="single"/>' if onderstreept else "")
     opmaak = f"<w:rPr>{kenmerken}</w:rPr>" if kenmerken else ""
+    if cursief:
+        # De cursieve blokken -- de uitgangspunten, de garantie en de functie
+        # onder de ondertekening -- staan zo in de bronbrieven. Het hele rPr
+        # staat in de voorwaarde, zodat een gewone alinea er geen leeg
+        # tekstopmaakelement aan overhoudt.
+        opmaak += "{% if " + cursief + " %}<w:rPr><w:i/></w:rPr>{% endif %}"
     return (f"<w:p>{eigenschappen}<w:r>{opmaak}"
             f'<w:t xml:space="preserve">{escape(tekst)}</w:t></w:r></w:p>')
 
@@ -74,7 +81,8 @@ def opsommingsregel() -> str:
     """
     return (f'<w:p><w:pPr><w:pStyle w:val="{STIJL_OPSOMMING}"/>'
             f'<w:numPr><w:ilvl w:val="0"/><w:numId w:val="{LIJST_ID}"/></w:numPr>'
-            '</w:pPr><w:r><w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
+            '</w:pPr><w:r>{% if a.cursief %}<w:rPr><w:i/></w:rPr>{% endif %}'
+            '<w:t xml:space="preserve">{{ a.tekst }}</w:t></w:r></w:p>')
 
 
 def prijsregel() -> str:
@@ -154,7 +162,7 @@ def sjabloonbody() -> str:
         "{%p elif a.stijl == 'prijs' %}",
         prijsregel(),
         "{%p else %}",
-        alinea("{{ a.tekst }}", stijl=STIJL_TEKST),
+        alinea("{{ a.tekst }}", stijl=STIJL_TEKST, cursief="a.cursief"),
         "{%p endif %}",
         "{%p if a.witregel_erna %}", leeg(1), "{%p endif %}",
         "{%p endfor %}",

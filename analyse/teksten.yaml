@@ -1140,6 +1140,7 @@ blokken:
 - id: uitgangspunten_prijsvorming
   sectie: prijs
   voorwaarde: ""
+  cursief: true
   bron: 13 sjablonen
   tekst: |
     Voor de prijsvorming zijn wij er van uitgegaan dat:
@@ -1310,6 +1311,7 @@ blokken:
 
 - id: garantie_standaard
   sectie: garantie
+  cursief: true
   omschrijving: "12 maanden op materiaal en werk, plus fabrieksgarantie"
   voorwaarde: "installatietype != 'koelmachine'"
   bron: 14 sjablonen
@@ -1319,6 +1321,7 @@ blokken:
 
 - id: garantie_koelmachine
   sectie: garantie
+  cursief: true
   omschrijving: "Koelmachine: 12 maanden, max. 18 maanden na aflevering"
   voorwaarde: "installatietype == 'koelmachine'"
   bron: koelmachine.dotx
@@ -1399,7 +1402,6 @@ blokken:
 
 
     {{ ondertekenaar.naam }}
-    {{ ondertekenaar.functie }}
   notitie: >
     De witruimte staat hier met opzet in de tekst en niet in de code: stijl
     "letterlijk" neemt de regels over zoals ze hier staan. Nagemeten in alle
@@ -1407,4 +1409,15 @@ blokken:
     en MEERKERK staan tegen elkaar aan, daarna twee lege regels als ruimte voor
     de handtekening, en naam en functie staan ook tegen elkaar aan. Alleen
     "multi split.dotx" en een van de verstuurde brieven hebben daar een lege
-    regel; de andere dertien niet.
+    regel; de andere dertien niet. De functie staat in een eigen blok hieronder,
+    omdat die als enige regel schuingedrukt is.
+
+- id: ondertekening_functie
+  sectie: afsluiting
+  voorwaarde: ""
+  cursief: true
+  bron: alle 15 sjablonen, alle verstuurde brieven
+  tekst: "{{ ondertekenaar.functie }}"
+  notitie: >
+    Een eigen blok omdat de functie als enige regel van de ondertekening
+    schuingedrukt staat en de vlag cursief voor een heel blok geldt.

@@ -33,6 +33,7 @@ class Tekstblok:
     omschrijving: str = ""
     keuzegroep: str = ""   # binnen één groep gaat hoogstens één blok mee
     stijl: str = ""        # "opsomming" of "kop"; leeg = gewone alinea
+    cursief: bool = False  # schuingedrukt in de brief; koppen blijven recht
     bron: str = ""
     notitie: str = ""      # interne aantekening; komt nooit in de brief
 
@@ -127,6 +128,7 @@ def _naar_blok(item: dict, herkomst: Path) -> Tekstblok:
         omschrijving=item.get("omschrijving") or "",
         keuzegroep=item.get("keuzegroep") or "",
         stijl=item.get("stijl") or "",
+        cursief=bool(item.get("cursief")),
         bron=item.get("bron") or "",
         notitie=item.get("notitie") or "",
     )

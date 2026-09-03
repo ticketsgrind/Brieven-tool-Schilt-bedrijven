@@ -61,6 +61,45 @@ def brief_met(werk, systeemsoort):
             for a in brief.secties[sectie] if a.tekst.strip()]
 
 
+def cursief_uit_bronbrief(bestand):
+    """De schuingedrukte regels uit een sjabloon."""
+    xml = zipfile.ZipFile(WORTEL / "bronbrieven" / bestand).read("word/document.xml").decode("utf-8")
+    body = xml[xml.index("<w:body"):]
+    uit = []
+    for alinea in re.findall(r"<w:p\b[^>]*(?:/>|>.*?</w:p>)", body, re.S):
+        for run in re.findall(r"<w:r\b.*?</w:r>", alinea, re.S):
+            if re.search(r"<w:i/>|<w:i ", run):
+                tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", run)).replace("\u00a0", " ").strip()
+                if tekst:
+                    uit.append(tekst)
+    return uit
+
+
+class TestCursiefVolgtDeBronbrief(unittest.TestCase):
+    """Wat in de bronbrief schuingedrukt staat, staat dat in onze brief ook."""
+
+    def test_dezelfde_regels_zijn_cursief(self):
+        offerte = yaml.safe_load((WORTEL / "voorbeelden" / "particulier-wand-enkelvoud.yaml")
+                                 .read_text(encoding="utf-8"))
+        offerte["briefdatum"] = str(offerte["briefdatum"])
+        brief = stel_samen(offerte, laad(WORTEL))
+        onze = {a.tekst for alineas in brief.secties.values() for a in alineas if a.cursief}
+        alle = {a.tekst for alineas in brief.secties.values() for a in alineas if a.tekst.strip()}
+
+        bron = cursief_uit_bronbrief("wand enkelvoud.dotx")
+        # Wat de bronbrief cursief zet en in onze brief voorkomt, hoort bij ons
+        # ook cursief te zijn. De functieregels vallen af omdat het sjabloon er
+        # drie toont en onze brief er een kiest.
+        gedeeld = [r for r in bron if r in alle]
+        self.assertEqual(len(gedeeld), 4, gedeeld)
+        self.assertTrue(gedeeld[0].startswith("Voor de prijsvorming"), gedeeld)
+        for regel in gedeeld:
+            self.assertIn(regel, onze, f"in de bronbrief cursief, bij ons niet: {regel!r}")
+        # En de functie van de gekozen ondertekenaar, die de bronbrief ook
+        # schuingedrukt zet.
+        self.assertIn("Technisch Commercieel Adviseur", onze)
+
+
 class TestWerkzaamheden(unittest.TestCase):
     def test_standaardlijst_is_die_van_de_bronbrief(self):
         self.assertEqual(brief_met(STANDAARD, "splitsystem"),

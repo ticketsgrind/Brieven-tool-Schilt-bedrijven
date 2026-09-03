@@ -546,6 +546,14 @@ Doorgevoerd, met de bron erbij:
    regel een eigen opstelling voor de buitenunit heeft blijft de ruimte nodig;
    die zin noemt hem bij naam.
 
+10. **Schuingedrukte tekst.** De tool kende geen cursief, terwijl de
+    bronbrieven het op drie plaatsen gebruiken: de uitgangspunten voor de
+    prijsvorming (alle 13 sjablonen), de functie onder de ondertekening (alle
+    verstuurde brieven) en de garantietekst. Die laatste staat in één van de
+    vier verstuurde brieven cursief en in de sjablonen niet; op verzoek van Lars
+    (3 september 2026) staat hij nu altijd schuin. De kop `Garantietermijn:`
+    blijft onderstreept.
+
 > **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
 > je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
 > kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren

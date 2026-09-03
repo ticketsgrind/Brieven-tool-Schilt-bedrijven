@@ -95,7 +95,7 @@ class Bediening(BaseHTTPRequestHandler):
                 {"naam": naam, "alineas": [
                     {"tekst": a.tekst, "nadruk": a.nadruk, "stijl": a.stijl,
                      "blok": a.blok_id, "letterlijk": a.letterlijk,
-                     "uitgelijnd": a.uitgelijnd}
+                     "uitgelijnd": a.uitgelijnd, "cursief": a.cursief}
                     for a in alineas]}
                 for naam, alineas in brief.secties.items() if alineas
             ],

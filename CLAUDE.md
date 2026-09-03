@@ -180,6 +180,14 @@ of de brief er verzorgd uitziet:
   `numbering.xml`. Zonder die verwijzing staat de regel ingesprongen maar zonder
   teken ervoor.
 
+- *Cursief.* Een blok met `cursief: true` wordt schuingedrukt: de
+  uitgangspunten voor de prijsvorming (cursief in alle 13 sjablonen), de
+  garantietekst en de functie onder de ondertekening (cursief in alle verstuurde
+  brieven). De vlag geldt voor het hele blok **behalve de kopregel** — in de
+  bronbrieven is geen enkele kop cursief, die zijn onderstreept of vet. Daarom
+  staat `Garantietermijn:` recht en de tekst eronder schuin, zonder dat het blok
+  gesplitst hoeft te worden. De functie is wél een eigen blok, want daar is de
+  kopregelregel geen hulp.
 - *Kopjes.* Kopjes met een dubbele punt zijn **onderstreept**, niet vet.
   `Aanbieding`, `Opdracht`, `Tot slot`, `TECHNISCHE SPECIFICATIES`, `Zie
   bijlage` en de ruimtekopjes zijn **vet** (stijl `kopvet`). Een regel die op

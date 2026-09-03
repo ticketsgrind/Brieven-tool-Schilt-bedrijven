@@ -34,6 +34,7 @@ def main() -> int:
             "id": b["id"], "sectie": b["sectie"],
             "v": b.get("voorwaarde") or "", "g": b.get("keuzegroep") or "",
             "o": b.get("omschrijving") or "", "stijl": b.get("stijl") or "",
+            "c": bool(b.get("cursief")),
             "t": b["tekst"].rstrip(),
         }
         for b in teksten["blokken"]

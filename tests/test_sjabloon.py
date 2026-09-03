@@ -255,6 +255,36 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         return [(a, b) for a, b in zip(alineas, alineas[1:])
                 if a["tekst"].strip() and b["tekst"].strip()]
 
+    def test_cursief_staat_waar_de_bronbrief_hem_zet(self):
+        """De schuingedrukte regels zijn die van de bronbrief.
+
+        Nagemeten in alle sjablonen en de verstuurde brieven: de uitgangspunten
+        voor de prijsvorming, de garantietekst en de functie onder de
+        ondertekening. Koppen zijn nergens cursief -- die zijn onderstreept of
+        vet -- en de rest van de brief staat recht.
+        """
+        cursief, recht = [], []
+        for alinea in re.findall(r"<w:p\b[^>]*(?:/>|>.*?</w:p>)", self.xml, re.S):
+            tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).strip()
+            if not tekst:
+                continue
+            (cursief if "<w:i/>" in alinea else recht).append(tekst)
+
+        self.assertTrue(any(t.startswith("Voor de prijsvorming") for t in cursief), cursief)
+        self.assertTrue(any(t.startswith("de (werk)locatie") for t in cursief), cursief)
+        self.assertTrue(any(t.startswith("De garantietermijn") for t in cursief), cursief)
+        self.assertTrue(any(t == "Technisch Commercieel Manager" for t in cursief), cursief)
+        # De kop erboven blijft onderstreept, niet cursief.
+        self.assertIn("Garantietermijn:", recht)
+        self.assertTrue(any(t.startswith("De totaalprijs") for t in recht), recht)
+
+    def test_geen_enkele_kop_is_cursief(self):
+        for alinea in re.findall(r"<w:p\b[^>]*(?:/>|>.*?</w:p>)", self.xml, re.S):
+            tekst = "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", alinea)).strip()
+            if "<w:i/>" in alinea:
+                self.assertNotIn('<w:u w:val="single"/>', alinea, tekst)
+                self.assertNotIn("<w:b/>", alinea, tekst)
+
     def test_het_bedrag_staat_vet_en_de_zin_niet(self):
         for alinea in re.findall(r"<w:p\b.*?</w:p>", self.xml, re.S):
             if "De totaalprijs compleet" not in alinea:

@@ -48,6 +48,7 @@ class Alinea:
     nadruk: str = ""          # bij "prijs" het bedrag, bij "label" de inhoud
     blok_id: str = ""
     uitgelijnd: bool = False   # vervolgregel die met tabs is uitgelijnd
+    cursief: bool = False      # schuingedrukt, zoals de uitgangspunten en de garantie
     letterlijk: bool = False   # regel uit aangeleverde tekst; niets aan wijzigen
     witregel_erna: bool = True
 
@@ -286,8 +287,12 @@ def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
             # "Betreft\tAirconditioning ..." wordt een klein label plus de
             # inhoud erachter; die twee hebben in de brieven eigen opmaak.
             tekst, _, nadruk = tekst.partition("\t")
+        # Een blok dat schuingedrukt hoort te staan geeft dat door aan zijn
+        # regels, behalve aan de kopregel: in de bronbrieven is geen enkele kop
+        # cursief -- die zijn onderstreept of vet.
         uit.append(Alinea(tekst=tekst, stijl=stijl, nadruk=nadruk,
-                          blok_id=blok.id, uitgelijnd=uitgelijnd))
+                          blok_id=blok.id, uitgelijnd=uitgelijnd,
+                          cursief=blok.cursief and stijl not in ("kop", "kopvet")))
     return uit
 
 
