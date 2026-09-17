@@ -571,6 +571,37 @@ Doorgevoerd, met de bron erbij:
 > **Vraag 35.** Zijn die twee dubbele lege regels bedoeld, of een typefout in het
 > sjabloon? De tool zet er nu overal één. Zeg je "bedoeld", dan neem ik ze over.
 
+12. **Zes wijzigingen op verzoek van Lars (17 september 2026):**
+    1. **Het ontbindingsrecht bij overschrijding van de leverdatum** (`Als de
+       oorspronkelijke (al dan niet geschatte) leverdatum...`) is verouderde
+       tekst en is uit de bibliotheek gehaald. Stond alleen bij een
+       particuliere klant, in `wand enkelvoud particulier.dotx` en
+       `wand meervoud particulier.docx`.
+    2. **Spelfout rechtgezet:** "er van uitgegaan" → "ervan uitgegaan" in de
+       aanloopzin bij de uitgangspunten voor de prijsvorming. De bronbrieven
+       hebben zelf ook de spatiefout; dit is dus een bewuste correctie, geen
+       teruggedraaide brontekst.
+    3. **`Zie bijlage.` staat cursief, niet meer vet.** Stond samen met de kop
+       `TECHNISCHE SPECIFICATIES` in één vet blok; is nu een eigen blok met
+       `cursief: true`. De kop zelf blijft vet.
+    4. **Witregel onder de koppen van de werkzaamhedenlijst.** Na `De
+       installatie is aangeboden inclusief:` en na `Niet tot onze
+       werkzaamheden behoren:` komt weer een lege regel, zoals bij elke andere
+       kop in de brief; tussen de twee koppen zelf (na de laatste
+       "inclusief"-regel) blijft het aaneengesloten, en pas na de allerlaatste
+       regel van "exclusief" komt er nog een. Dit wijkt willens en wetens af
+       van de bronbrieven, die hier nergens een lege regel zetten (zie punt 11
+       hierboven) — Lars heeft het zo aangegeven.
+    5. **Geen kaal `SA` meer voor het projectnummer.** Liet de gebruiker het
+       SA-nummer leeg, dan zette de tool toch "SA" neer in `Ref.` (bijv.
+       `NV/RdJ/SA`). Dat onderdeel valt nu helemaal weg zonder ingevuld nummer;
+       `Ref.` toont voortaan precies en alleen wat er is ingevuld.
+    6. **`T.a.v.` alleen nog voor bedrijven.** Bleek een echte bug: switchte je
+       een offerte van zakelijk naar particulier, dan bleef het
+       organisatieveld op de achtergrond gevuld (het verdwijnt alleen uit
+       beeld) en kon er alsnog een `T.a.v.`-regel bij een particuliere klant
+       verschijnen. De voorwaarde vereist nu ook `klanttype == 'zakelijk'`.
+
 > **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
 > je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
 > kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren

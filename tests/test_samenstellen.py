@@ -59,6 +59,15 @@ class TestParticuliereBrief(unittest.TestCase):
     def test_referentie_wordt_voorgesteld(self):
         self.assertEqual(self.brief.context["referentie"], "NV/LH/SA35923")
 
+    def test_referentie_zonder_sa_nummer_zet_geen_sa_alvast(self):
+        # Tot 17 september 2026 kwam er ongeacht het veld altijd een "SA" te
+        # staan, ook zonder ingevuld nummer -- op verzoek van Lars weg.
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["sa_nummer"] = ""
+        brief = stel_samen(offerte, laad(WORTEL))
+        self.assertEqual(brief.context["referentie"], "NV/LH")
+        self.assertNotIn("SA", brief.context["referentie"])
+
     def test_bedrag_in_nederlandse_notatie(self):
         self.assertIn("€ 3.900,- netto", "\n".join(self.brief.regels("prijs")))
 
@@ -130,16 +139,22 @@ class TestOpmaakVanAlineas(unittest.TestCase):
         self.assertTrue(opsommingen[-1].witregel_erna)
 
     def test_de_werkzaamhedenlijst_staat_als_een_blok(self):
-        """Kop, opsomming, volgende kop en opsomming zonder lege regels ertussen.
+        """Opsommingsregels tegen elkaar aan; alleen na een kop een witregel.
 
-        Nagemeten in alle sjablonen en in de vier verstuurde brieven; pas na de
-        laatste regel komt er een witregel.
+        Zowel de kop van "inclusief" als die van "exclusief" krijgt een lege
+        regel eronder; tussen de twee koppen (het laatste "inclusief"-streepje
+        en de kop "Niet tot onze werkzaamheden behoren:") komt er geen. Pas na
+        de allerlaatste regel van "exclusief" komt er weer een. Op verzoek van
+        Lars (17 september 2026); wijkt af van de bronbrieven, die hier
+        nergens een lege regel zetten.
         """
         inclusief = self.brief.secties["werkzaamheden_inclusief"]
         exclusief = self.brief.secties["werkzaamheden_exclusief"]
-        self.assertTrue(all(not a.witregel_erna for a in inclusief),
-                        [a.tekst for a in inclusief if a.witregel_erna])
-        self.assertTrue(all(not a.witregel_erna for a in exclusief[:-1]))
+        self.assertTrue(inclusief[0].witregel_erna, inclusief[0].tekst)
+        self.assertTrue(all(not a.witregel_erna for a in inclusief[1:]),
+                        [a.tekst for a in inclusief[1:] if a.witregel_erna])
+        self.assertTrue(exclusief[0].witregel_erna, exclusief[0].tekst)
+        self.assertTrue(all(not a.witregel_erna for a in exclusief[1:-1]))
         self.assertTrue(exclusief[-1].witregel_erna)
 
     def test_de_twee_punten_van_de_aansprakelijkheid_staan_los(self):
@@ -212,6 +227,20 @@ class TestAdresblok(unittest.TestCase):
     def test_met_organisatie_wel_tav(self):
         brief = stel_samen(voorbeeld("zakelijk-cassette-meervoud.yaml"), laad(WORTEL))
         self.assertTrue(brief.regels("geadresseerde")[1].startswith("T.a.v."))
+
+    def test_particulier_met_blijven_staan_organisatie_geen_tav(self):
+        # T.a.v. is voor bedrijven. Zet iemand een offerte om van zakelijk naar
+        # particulier, dan blijft het organisatieveld in de tool op de
+        # achtergrond gevuld staan (het veld verdwijnt alleen uit beeld) --
+        # zonder de klanttype-eis in de voorwaarde lekte die oude bedrijfsnaam
+        # dan alsnog een T.a.v.-regel in de brief. Op verzoek van Lars
+        # (17 september 2026).
+        offerte = voorbeeld("particulier-wand-enkelvoud.yaml")
+        offerte["organisatie"] = "Oud Bedrijf B.V."
+        brief = stel_samen(offerte, laad(WORTEL))
+        eerste = brief.regels("geadresseerde")[0]
+        self.assertFalse(eerste.startswith("T.a.v."), eerste)
+        self.assertTrue(eerste.startswith("De heer"), eerste)
 
     def test_maar_een_van_de_twee_adresregels(self):
         for naam in ("particulier-wand-enkelvoud.yaml", "zakelijk-cassette-meervoud.yaml"):

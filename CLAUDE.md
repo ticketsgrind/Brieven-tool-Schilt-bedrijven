@@ -129,6 +129,24 @@ brief staat. Dat ging eerder mis: de particuliere variant hing aan `klanttype` e
 kwam er dus bovenop als je ook een termijn koos, waarna `Facturering:` twee keer
 in de brief stond.
 
+**Een voorwaarde mag nooit op een verzwegen aanname leunen.** `T.a.v.` (in het
+adresblok) hing aan `organisatie` alleen, niet aan `klanttype == 'zakelijk'` —
+de aanname was dat `organisatie` toch altijd leeg is bij een particulier. In het
+scherm verdwijnt dat veld bij het omschakelen naar particulier alleen uit
+beeld; `A.organisatie` zelf wordt niet geleegd. Schakelde iemand een offerte om
+van zakelijk naar particulier, dan bleef de oude bedrijfsnaam op de achtergrond
+staan en lekte er alsnog een `T.a.v.`-regel in bij een particuliere klant. De
+voorwaarde noemt `klanttype` nu expliciet, ook al "zou het toch nooit
+gebeuren" — precies zo'n verzwegen aanname was de vorige keer ook fout.
+
+**`_stel_referentie_voor` zet nooit een kaal `SA` neer.** Zonder SA-nummer
+valt dat hele onderdeel van `Ref.` weg in plaats van dat er "SA" zonder cijfers
+komt te staan. Tot 17 september 2026 deed de code dat wel
+(`f"SA{sa_nummer}" if sa_nummer else "SA"` — de `else`-tak zette de letters zelf
+neer), wat in de voorvertoning een kaal "SA" liet zien voordat er iets was
+ingetypt. De regel voor de hele tool: laat nooit tekst zien die de gebruiker
+niet zelf heeft ingevuld of die niet uit de bronbrief komt.
+
 **De werkzaamhedenlijsten horen bij de systeemsoort.** Split, multi-split,
 cassette en kanaal delen één lijst; VRF heeft een eigen lijst met andere regels
 én een andere volgorde. `WERK_STANDAARD` en `WERK_VRF` in `prototype.html` zetten
@@ -170,12 +188,15 @@ of de brief er verzorgd uitziet:
   zijn eigen witruimte — de witregels staan dan in de tekst zelf.
   `_zet_witregels` in `samenstellen.py` bepaalt dat; het sjabloon volgt alleen
   `a.witregel_erna`.
-- *De werkzaamhedenlijst is één blok:* kop, opsomming, volgende kop en zijn
-  opsomming staan tegen elkaar aan, met pas na de laatste regel een witregel.
-  `AANEENGESLOTEN_SECTIES` in `samenstellen.py` regelt dat. Andersom kan ook: een
-  blok met `witregel_tussen: true` — de aansprakelijkheid — krijgt juist wél een
-  lege regel tussen zijn opsommingsregels. Allebei nagemeten in de sjablonen en
-  de verstuurde brieven.
+- *De werkzaamhedenlijst:* de opsommingsregels staan tegen elkaar aan, maar de
+  koppen (`De installatie is aangeboden inclusief:` en `Niet tot onze
+  werkzaamheden behoren:`) krijgen elk een witregel eronder; tussen de twee
+  koppen zelf komt er geen, en pas na de allerlaatste regel weer wel. Dat
+  laatste is op verzoek van Lars (17 september 2026) — de bronbrieven zetten
+  hier nergens een lege regel. `AANEENGESLOTEN_SECTIES` in `samenstellen.py`
+  regelt dat. Los daarvan kan een blok met `witregel_tussen: true` — de
+  aansprakelijkheid — juist wél een lege regel tussen zijn opsommingsregels
+  krijgen; dat is wel nagemeten in de sjablonen en de verstuurde brieven.
 - *De briefkop is de uitzondering:* daar zit de witruimte tussen de secties en
   staat ze vast in het sjabloon — vier lege regels boven het adres, zes eronder,
   één na de betreft-regel, één na `Meerkerk <datum>` en drie na `Ref.`. Het
@@ -202,11 +223,13 @@ of de brief er verzorgd uitziet:
   gesplitst hoeft te worden. De functie is wél een eigen blok, want daar is de
   kopregelregel geen hulp.
 - *Kopjes.* Kopjes met een dubbele punt zijn **onderstreept**, niet vet.
-  `Aanbieding`, `Opdracht`, `Tot slot`, `TECHNISCHE SPECIFICATIES`, `Zie
-  bijlage` en de ruimtekopjes zijn **vet** (stijl `kopvet`). Een regel die op
-  een dubbele punt eindigt maar langer is dan 45 tekens is een aanloopzin en
-  blijft gewoon — zo scheiden de bronbrieven `Wij specificeren onze aanbieding
-  als volgt:` van `Voor de prijsvorming zijn wij er van uitgegaan dat:`.
+  `Aanbieding`, `Opdracht`, `Tot slot`, `TECHNISCHE SPECIFICATIES` en de
+  ruimtekopjes zijn **vet** (stijl `kopvet`). `Zie bijlage.` is geen kopje meer:
+  sinds 17 september 2026 staat dat blok apart met `cursief: true`, schuin en
+  niet vet — zie hierboven bij *Cursief*. Een regel die op een dubbele punt
+  eindigt maar langer is dan 45 tekens is een aanloopzin en blijft gewoon — zo
+  scheiden de bronbrieven `Wij specificeren onze aanbieding als volgt:` van
+  `Voor de prijsvorming zijn wij ervan uitgegaan dat:`.
 - *Labels in de briefkop.* Blokken met `stijl: label` (`betreft`, `kenmerken`)
   worden bij de tab gesplitst: het label staat op 7 punten (`w:sz` 14) en de
   inhoud op de gewone 9. Zonder dat verschil landt de tab anders en loopt de

@@ -90,10 +90,13 @@ class TestCursiefVolgtDeBronbrief(unittest.TestCase):
         bron = cursief_uit_bronbrief("wand enkelvoud.dotx")
         # Wat de bronbrief cursief zet en in onze brief voorkomt, hoort bij ons
         # ook cursief te zijn. De functieregels vallen af omdat het sjabloon er
-        # drie toont en onze brief er een kiest.
+        # drie toont en onze brief er een kiest; de aanloopzin "Voor de
+        # prijsvorming zijn wij er van uitgegaan dat:" valt af omdat de
+        # spelling op verzoek van Lars is rechtgezet naar "ervan" (17 september
+        # 2026) en daardoor niet meer letterlijk gelijk is aan de bronbrief.
         gedeeld = [r for r in bron if r in alle]
-        self.assertEqual(len(gedeeld), 4, gedeeld)
-        self.assertTrue(gedeeld[0].startswith("Voor de prijsvorming"), gedeeld)
+        self.assertEqual(len(gedeeld), 3, gedeeld)
+        self.assertTrue(gedeeld[0].startswith("de (werk)locatie"), gedeeld)
         for regel in gedeeld:
             self.assertIn(regel, onze, f"in de bronbrief cursief, bij ons niet: {regel!r}")
         # En de functie van de gekozen ondertekenaar, die de bronbrief ook
@@ -105,10 +108,12 @@ class TestWitruimteVolgtDeBronbrief(unittest.TestCase):
     """Elke regel die in allebei voorkomt heeft evenveel lege regels erachter.
 
     Zo loopt de opmaak niet stilletjes weg van de brief die Schilt al jaren
-    verstuurt. Twee plekken wijken bewust af: het sjabloon zet twee lege regels
-    voor "Levering:" en voor "Aansprakelijkheid:" waar overal elders er een
-    staat, en de functieregels van de drie ondertekenaars staan in het sjabloon
-    onder elkaar terwijl onze brief er een kiest.
+    verstuurt. Een paar plekken wijken bewust af: het sjabloon zet twee lege
+    regels voor "Levering:" en voor "Aansprakelijkheid:" waar overal elders er
+    een staat, de functieregels van de drie ondertekenaars staan in het
+    sjabloon onder elkaar terwijl onze brief er een kiest, en de twee koppen
+    van de werkzaamhedenlijst krijgen sinds 17 september 2026 op verzoek van
+    Lars een lege regel eronder terwijl de bronbrief daar niets zet.
     """
 
     UITZONDERINGEN = {
@@ -118,6 +123,8 @@ class TestWitruimteVolgtDeBronbrief(unittest.TestCase):
         "aanvullende fabrieksgarantie. Defecten welke te wijten zijn aan derden vallen buiten "
         "de garantie.",
         "Technisch Commercieel Adviseur",
+        "De installatie is aangeboden inclusief:",
+        "Niet tot onze werkzaamheden behoren:",
     }
 
     def witregels(self, paragrafen):

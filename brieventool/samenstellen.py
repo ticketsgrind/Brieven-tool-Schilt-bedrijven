@@ -140,10 +140,12 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
 # no. en Ref. weer tegen elkaar aan staan.
 KOPSECTIES_AANEEN = ("geadresseerde", "betreft", "aanhef")
 
-# De werkzaamhedenlijst staat in de bronbrieven als één blok tegen elkaar aan:
-# de kop, de opsomming, de volgende kop en zijn opsomming, zonder lege regels
-# ertussen. Pas na de laatste regel komt er één. Nagemeten in alle sjablonen en
-# in de vier verstuurde brieven.
+# De werkzaamhedenlijst: de opsommingsregels staan tegen elkaar aan, zonder
+# lege regel na de kop erboven -- behalve de kop zelf, die krijgt er wél een.
+# Ook tussen de twee koppen ("... inclusief:" -> "Niet tot onze ... behoren:")
+# komt geen lege regel, en pas na de allerlaatste opsommingsregel weer wel.
+# Op verzoek van Lars (17 september 2026); wijkt af van de bronbrieven, die
+# nergens in dit stuk een lege regel zetten.
 AANEENGESLOTEN_SECTIES = ("werkzaamheden_inclusief", "werkzaamheden_exclusief")
 LAATSTE_AANEENGESLOTEN = "werkzaamheden_exclusief"
 
@@ -167,8 +169,9 @@ def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
                 for nummer, alinea in enumerate(alineas)]
     if sectie in AANEENGESLOTEN_SECTIES:
         laatste = len(alineas) - 1
-        return [replace(alinea, witregel_erna=(nummer == laatste
-                                               and sectie == LAATSTE_AANEENGESLOTEN))
+        return [replace(alinea, witregel_erna=(
+                    nummer == 0                                     # na de kop
+                    or (nummer == laatste and sectie == LAATSTE_AANEENGESLOTEN)))
                 for nummer, alinea in enumerate(alineas)]
 
     uit: list[Alinea] = []
@@ -253,8 +256,7 @@ def _verwijst_naar_regel(blok: Tekstblok) -> bool:
 
 # Kopjes die in de bronbrieven vet staan in plaats van onderstreept.
 KOPPEN_VET = {"Aanbieding", "Opdracht", "Tot slot", "TECHNISCHE SPECIFICATIES",
-              "Technische specificaties", "Zie bijlage.", "Zie bijlagen.",
-              "Uitgangspunten:", "Elektra:"}
+              "Technische specificaties", "Uitgangspunten:", "Elektra:"}
 
 
 def _naar_alineas(blok: Tekstblok, context: Mapping[str, Any]) -> list[Alinea]:
@@ -526,11 +528,14 @@ def _stel_referentie_voor(initialen: str, opsteller: str | None, sa_nummer: Any)
     """Bouwt Ref. volgens het patroon uit de uitgewerkte brieven.
 
     <initialen ondertekenaar>/[<initialen opsteller>/]SA<volgnummer>
-    Zonder volgnummer blijft het staartstuk leeg, zodat het handmatig ingevuld
-    kan worden -- de teller zelf kennen we niet. Zie analyse/vragen.md vraag 1f.
+    Zonder SA-nummer valt dat hele onderdeel weg -- niet "SA" zonder cijfers.
+    De teller zelf kennen we niet, dus dat vult de opsteller met de hand in;
+    zie analyse/vragen.md vraag 1f. Tot 17 september 2026 stond hier ongeacht
+    het veld altijd een "SA" klaar, ook als er nog niets was ingevuld.
     """
     delen = [initialen]
     if opsteller:
         delen.append(str(opsteller))
-    delen.append(f"SA{sa_nummer}" if sa_nummer else "SA")
+    if sa_nummer:
+        delen.append(f"SA{sa_nummer}")
     return "/".join(delen)

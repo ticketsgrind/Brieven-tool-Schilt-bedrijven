@@ -103,7 +103,12 @@ class TestSpecificatiesInDeBrief(unittest.TestCase):
     def test_zie_bijlage_blijft_werken(self):
         regels = self.regels(technische_specificaties="zie_bijlage")
         self.assertEqual([a.tekst for a in regels], ["TECHNISCHE SPECIFICATIES", "Zie bijlage."])
-        self.assertTrue(all(a.stijl == "kopvet" for a in regels))
+        # De kop staat vet, "Zie bijlage." staat cursief en niet vet -- op
+        # verzoek van Lars (17 september 2026), zie analyse/vragen.md.
+        self.assertEqual(regels[0].stijl, "kopvet")
+        self.assertFalse(regels[0].cursief)
+        self.assertNotEqual(regels[1].stijl, "kopvet")
+        self.assertTrue(regels[1].cursief)
 
     def test_ingetypte_tekst(self):
         regels = self.regels(technische_specificaties="uitgeschreven",
@@ -161,7 +166,9 @@ class TestSpecificatiesInDeBrief(unittest.TestCase):
                 regels = self.regels(technische_specificaties=keuze,
                                      technische_specificaties_tekst="Type\t: A")
                 koppen = [a for a in regels if a.stijl == "kopvet"]
-                self.assertEqual(len(koppen), 1 if keuze == "uitgeschreven" else 2)
+                # Bij "zie_bijlage" is alleen de kop "TECHNISCHE SPECIFICATIES"
+                # nog kopvet; "Zie bijlage." staat sindsdien cursief, niet vet.
+                self.assertEqual(len(koppen), 1)
 
 
 if __name__ == "__main__":

@@ -48,8 +48,8 @@ VASTGELEGD = {
         "Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt € 220,- per stuk.",
     'meerprijs_condenspomp_particulier':
         "Indien het condenswater niet onder natuurlijk verloop weg kan, zal er gebruik gemaakt worden van een condenswaterpomp. De meerprijs hiervoor bedraagt € 260,- per stuk.",
-    'ontbindingsrecht_particulier':
-        "Als de oorspronkelijke (al dan niet geschatte) leverdatum met meer dan 6 maanden wordt overschreden, heeft u het recht de overeenkomst te ontbinden. Ontbinding van de overeenkomst geeft u echter geen recht op schadevergoeding.",
+    # ontbindingsrecht_particulier is op 17 september 2026 op verzoek van Lars
+    # uit de bibliotheek gehaald (verouderde tekst); zie analyse/vragen.md.
 }
 
 

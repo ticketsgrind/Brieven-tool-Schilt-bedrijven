@@ -31,9 +31,15 @@ blokken:
 - id: adres_contactpersoon_tav
   sectie: geadresseerde
   keuzegroep: geadresseerde
-  voorwaarde: "aanspreekvorm != 'Fam.' and organisatie"
+  voorwaarde: "klanttype == 'zakelijk' and aanspreekvorm != 'Fam.' and organisatie"
   bron: uitgewerkt-1, uitgewerkt-2, alle sjablonen
   tekst: "T.a.v. {{ aanspreekvorm }} {{ voorletters }} {{ achternaam }}"
+  notitie: >
+    De klanttype-eis staat er expliciet bij sinds 17 september 2026: zonder die
+    eis bleef een eerder ingevulde organisatie na het omschakelen naar
+    particulier in A.organisatie staan (het veld verdwijnt uit beeld maar wordt
+    niet geleegd), waardoor T.a.v. bij een particulier kon opduiken. T.a.v. is
+    voor bedrijven; bij een particulier staat alleen "de heer"/"mevrouw".
 
 - id: adres_contactpersoon
   sectie: geadresseerde
@@ -710,9 +716,21 @@ blokken:
   omschrijving: "Verwijzing naar een bijlage"
   voorwaarde: "technische_specificaties == 'zie_bijlage'"
   bron: uitgewerkt-4.docx, uitgewerkt-7.pdf
-  tekst: |
-    TECHNISCHE SPECIFICATIES
-    Zie bijlage.
+  tekst: "TECHNISCHE SPECIFICATIES"
+
+- id: techspec_bijlage_verwijzing
+  sectie: technische_specificaties
+  voorwaarde: "technische_specificaties == 'zie_bijlage'"
+  cursief: true
+  bron: uitgewerkt-4.docx, uitgewerkt-7.pdf
+  tekst: "Zie bijlage."
+  notitie: >
+    Eigen blok omdat "Zie bijlage." schuingedrukt hoort te staan en niet vet,
+    anders dan de kop erboven -- op verzoek van Lars (17 september 2026). Een
+    keuzegroep hangt alleen aan het eerste blok (de kop): staat hij op een
+    ander blok binnen dezelfde groep, dan wordt de groep als "vergeven"
+    gemarkeerd zodra de kop meegaat en komt dit blok nooit meer mee. Zie de
+    ondertekening_functie hieronder voor hetzelfde patroon.
 
 - id: techspec_kop
   sectie: technische_specificaties
@@ -1143,20 +1161,10 @@ blokken:
   cursief: true
   bron: 13 sjablonen
   tekst: |
-    Voor de prijsvorming zijn wij er van uitgegaan dat:
+    Voor de prijsvorming zijn wij ervan uitgegaan dat:
     - de (werk)locatie goed bereikbaar, veilig en vrij toegankelijk is;
     - de werkzaamheden aaneengesloten worden uitgevoerd;
     - de werkzaamheden tijdens normale werktijden (kantooruren) kunnen worden uitgevoerd.
-
-- id: ontbindingsrecht_particulier
-  sectie: levering
-  omschrijving: "Ontbindingsrecht bij overschrijding leverdatum (consument)"
-  voorwaarde: "klanttype == 'particulier'"
-  bron: wand enkelvoud particulier.dotx, wand meervoud particulier.docx
-  tekst: >
-    Als de oorspronkelijke (al dan niet geschatte) leverdatum met meer dan 6 maanden
-    wordt overschreden, heeft u het recht de overeenkomst te ontbinden. Ontbinding
-    van de overeenkomst geeft u echter geen recht op schadevergoeding.
 
 # ===========================================================================
 # 27. LEVERING

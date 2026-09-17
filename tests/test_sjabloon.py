@@ -280,8 +280,10 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         self.assertTrue(any(t.startswith("de (werk)locatie") for t in cursief), cursief)
         self.assertTrue(any(t.startswith("De garantietermijn") for t in cursief), cursief)
         self.assertTrue(any(t == "Technisch Commercieel Manager" for t in cursief), cursief)
-        # De kop erboven blijft onderstreept, niet cursief.
+        self.assertIn("Zie bijlage.", cursief)
+        # De kop erboven blijft onderstreept resp. vet, niet cursief.
         self.assertIn("Garantietermijn:", recht)
+        self.assertIn("TECHNISCHE SPECIFICATIES", recht)
         self.assertTrue(any(t.startswith("De totaalprijs") for t in recht), recht)
 
     def test_geen_enkele_kop_is_cursief(self):
@@ -328,9 +330,10 @@ class TestGemaakteBrief(BriefpapierMixin, unittest.TestCase):
         "Aanbieding": "vet",
         "Tot slot": "vet",
         "TECHNISCHE SPECIFICATIES": "vet",
-        "Zie bijlage.": "vet",
+        # "Zie bijlage." staat sindsdien cursief, niet vet; zie
+        # test_cursief_staat_waar_de_bronbrief_hem_zet hieronder.
         # Een aanloopzin, geen kopje: die blijft gewoon.
-        "Voor de prijsvorming zijn wij er van uitgegaan dat:": "gewoon",
+        "Voor de prijsvorming zijn wij ervan uitgegaan dat:": "gewoon",
     }
 
     def test_kopjes_hebben_de_opmaak_uit_de_bronbrief(self):
