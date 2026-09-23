@@ -469,6 +469,16 @@ class TestAantalUnits(unittest.TestCase):
         regels = stel_samen(offerte, laad(WORTEL)).regels("buitenunit")
         self.assertTrue(any(r.startswith("De buitenunits worden geplaatst") for r in regels), regels)
 
+    def test_het_scherm_kan_aantal_systemen_invullen(self):
+        # De motor kon meerdere splitsystemen op een regel altijd al tellen
+        # (zie test_meerdere_systemen_op_een_regel); tot 23 september 2026 was
+        # er alleen geen veld in het scherm om dat aantal ook in te typen, dus
+        # bleef de brief bij meerdere aangeboden splitsystemen op een enkele
+        # brief op enkelvoud staan. Op verzoek van Lars.
+        scherm = (WORTEL / "ontwerp" / "prototype.html").read_text(encoding="utf-8")
+        self.assertIn('inst.systeemsoort==="splitsystem"', scherm)
+        self.assertIn('keuzeveld("aantal_systemen"', scherm)
+
 
 class TestOpdrachtbevestiging(unittest.TestCase):
     """Een opdrachtbevestiging begint met de bevestiging van de opdracht."""

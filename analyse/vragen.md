@@ -602,6 +602,28 @@ Doorgevoerd, met de bron erbij:
        beeld) en kon er alsnog een `T.a.v.`-regel bij een particuliere klant
        verschijnen. De voorwaarde vereist nu ook `klanttype == 'zakelijk'`.
 
+13. **Drie punten op verzoek van Lars (23 september 2026):**
+    1. **"Aantal systemen" is nu ook in te vullen bij een splitsysteem.** Bleek
+       een echte bug: de motor kon meerdere identieke splitsystemen op één
+       regel altijd al tellen (`aantal_systemen`), maar het scherm toonde dat
+       invulveld alleen bij multi-split en VRF. Meerdere splitsystemen op één
+       regel bleven daardoor op enkelvoud staan ("De binnenunit is" in plaats
+       van "De binnenunits zijn"), ook al werden er drie aangeboden.
+    2. **Geen standaard SA-nummer meer in een nieuwe brief.** Dit is niet
+       hetzelfde als punt 12.5 hierboven — die zorgde dat een léég SA-nummer
+       geen kaal "SA" meer opleverde. Het probleem hier: de beginstand van het
+       scherm (waarmee het opent, en waar "Nieuw" naar terugzet) had zelf een
+       ingevuld voorbeeld staan (`sa_nummer: "35738"`, `opsteller_initialen:
+       "RdJ"`), dus toonde een gloednieuwe brief toch een referentie die
+       niemand had ingetypt. Beide velden staan nu standaard leeg.
+    3. **Bijlage toevoegen (Word/PDF) bleek al te werken** — dit zat niet waar
+       Lars keek. De knop "Openen" bovenin is bewust beperkt tot `.json`: die
+       heropent een eerder opgeslagen offerte, geen bijlage. Het echte
+       datablad-veld ("Datablad toevoegen") staat onder *Uitvoering →
+       Technische specificaties → "In de brief zelf"* en accepteert al Word,
+       PDF, tekst en Markdown. Geen codewijziging; wel iets om in de uitleg
+       van het scherm duidelijker te maken.
+
 > **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
 > je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
 > kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren

@@ -87,6 +87,13 @@ dezelfde functie; `tests/test_samenstellen.py` legt de zes gevallen vast. Het
 scherm toont de uitkomst onder de installaties, zodat te zien is waar het
 enkelvoud/meervoud vandaan komt.
 
+Tot 23 september 2026 kon je `aantal_systemen` van een splitsysteem-regel
+nergens intypen: het veld bestond al in de motor (en in de tests) maar
+`bouwInstallaties` in `prototype.html` toonde het invulveld alleen als het
+systeem *geen* splitsysteem was. Meerdere identieke splitsystemen op één regel
+bleven daardoor altijd op enkelvoud staan, ook al klopte de motor er wel mee.
+Op verzoek van Lars staat er nu ook bij een splitsysteem een "Aantal systemen".
+
 **Blokselectie werkt op gewone antwoorden, niet op blok-id's.** Wie
 `condensafvoer: natuurlijk_verloop` en `aantal_binnenunits: 3` invult krijgt
 vanzelf het blok dat "de units zijn" zegt in plaats van "de unit is". Verschillen
@@ -146,6 +153,12 @@ komt te staan. Tot 17 september 2026 deed de code dat wel
 neer), wat in de voorvertoning een kaal "SA" liet zien voordat er iets was
 ingetypt. De regel voor de hele tool: laat nooit tekst zien die de gebruiker
 niet zelf heeft ingevuld of die niet uit de bronbrief komt.
+
+Dezelfde regel gold niet voor de beginstand van het scherm zelf: `sa_nummer` en
+`opsteller_initialen` stonden in de demo-offerte waarmee `prototype.html` opent
+(en waarnaar "Nieuw" terugzet) op een echt ogend voorbeeld ("35738", "RdJ"), dus
+liet een nieuwe brief een referentie zien die niemand had ingetypt. Beide
+velden staan sinds 23 september 2026 leeg in die beginstand.
 
 **De werkzaamhedenlijsten horen bij de systeemsoort.** Split, multi-split,
 cassette en kanaal delen één lijst; VRF heeft een eigen lijst met andere regels
