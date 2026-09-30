@@ -139,20 +139,22 @@ class TestOpmaakVanAlineas(unittest.TestCase):
         self.assertTrue(opsommingen[-1].witregel_erna)
 
     def test_de_werkzaamhedenlijst_staat_als_een_blok(self):
-        """Opsommingsregels tegen elkaar aan; alleen na een kop een witregel.
+        """Opsommingsregels tegen elkaar aan; alleen na een kop of de laatste
+        regel van een stuk een witregel.
 
         Zowel de kop van "inclusief" als die van "exclusief" krijgt een lege
-        regel eronder; tussen de twee koppen (het laatste "inclusief"-streepje
-        en de kop "Niet tot onze werkzaamheden behoren:") komt er geen. Pas na
-        de allerlaatste regel van "exclusief" komt er weer een. Op verzoek van
-        Lars (17 september 2026); wijkt af van de bronbrieven, die hier
-        nergens een lege regel zetten.
+        regel eronder; ook de laatste regel van "inclusief" (vlak voor de kop
+        "Niet tot onze werkzaamheden behoren:") en de laatste regel van
+        "exclusief" krijgen er een. Op verzoek van Lars (17 en 30 september
+        2026); wijkt af van de bronbrieven, die hier nergens een lege regel
+        zetten.
         """
         inclusief = self.brief.secties["werkzaamheden_inclusief"]
         exclusief = self.brief.secties["werkzaamheden_exclusief"]
         self.assertTrue(inclusief[0].witregel_erna, inclusief[0].tekst)
-        self.assertTrue(all(not a.witregel_erna for a in inclusief[1:]),
-                        [a.tekst for a in inclusief[1:] if a.witregel_erna])
+        self.assertTrue(all(not a.witregel_erna for a in inclusief[1:-1]),
+                        [a.tekst for a in inclusief[1:-1] if a.witregel_erna])
+        self.assertTrue(inclusief[-1].witregel_erna, inclusief[-1].tekst)
         self.assertTrue(exclusief[0].witregel_erna, exclusief[0].tekst)
         self.assertTrue(all(not a.witregel_erna for a in exclusief[1:-1]))
         self.assertTrue(exclusief[-1].witregel_erna)

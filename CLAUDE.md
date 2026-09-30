@@ -203,13 +203,14 @@ of de brief er verzorgd uitziet:
   `a.witregel_erna`.
 - *De werkzaamhedenlijst:* de opsommingsregels staan tegen elkaar aan, maar de
   koppen (`De installatie is aangeboden inclusief:` en `Niet tot onze
-  werkzaamheden behoren:`) krijgen elk een witregel eronder; tussen de twee
-  koppen zelf komt er geen, en pas na de allerlaatste regel weer wel. Dat
-  laatste is op verzoek van Lars (17 september 2026) — de bronbrieven zetten
-  hier nergens een lege regel. `AANEENGESLOTEN_SECTIES` in `samenstellen.py`
-  regelt dat. Los daarvan kan een blok met `witregel_tussen: true` — de
-  aansprakelijkheid — juist wél een lege regel tussen zijn opsommingsregels
-  krijgen; dat is wel nagemeten in de sjablonen en de verstuurde brieven.
+  werkzaamheden behoren:`) krijgen elk een witregel eronder, en de laatste
+  regel van elk van de twee stukken ook — dus ook vlak vóór `Niet tot onze
+  werkzaamheden behoren:` staat een witregel. Op verzoek van Lars (17 en 30
+  september 2026) — de bronbrieven zetten hier nergens een lege regel.
+  `AANEENGESLOTEN_SECTIES` in `samenstellen.py` regelt dat. Los daarvan kan een
+  blok met `witregel_tussen: true` — de aansprakelijkheid — juist wél een lege
+  regel tussen zijn opsommingsregels krijgen; dat is wel nagemeten in de
+  sjablonen en de verstuurde brieven.
 - *De briefkop is de uitzondering:* daar zit de witruimte tussen de secties en
   staat ze vast in het sjabloon — vier lege regels boven het adres, zes eronder,
   één na de betreft-regel, één na `Meerkerk <datum>` en drie na `Ref.`. Het

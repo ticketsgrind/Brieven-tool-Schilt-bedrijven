@@ -624,6 +624,14 @@ Doorgevoerd, met de bron erbij:
        PDF, tekst en Markdown. Geen codewijziging; wel iets om in de uitleg
        van het scherm duidelijker te maken.
 
+14. **Witregel vóór "Niet tot onze werkzaamheden behoren:" (Lars, 30 september
+    2026).** Tot nu toe kregen alleen de twee koppen van de werkzaamhedenlijst
+    een lege regel eronder (punt 12.4); tussen het laatste "inclusief"-streepje
+    en de kop "Niet tot onze werkzaamheden behoren:" bleef het aaneengesloten.
+    Dat wilde Lars niet meer: nu krijgt ook de laatste regel van "inclusief"
+    een witregel erna, zodat er altijd een lege regel vóór die tweede kop
+    staat. Wijkt verder af van de bronbrieven, net als punt 12.4.
+
 > **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
 > je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
 > kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren

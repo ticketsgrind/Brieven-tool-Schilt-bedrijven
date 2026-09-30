@@ -693,11 +693,11 @@ function naarAlineas(ingevuld,blok,reden){
 // no. en Ref. weer tegen elkaar aan staan. Zie sjabloonbody in maak_sjabloon.py.
 const KOPSECTIES_AANEEN=["geadresseerde","betreft","aanhef"];
 // De werkzaamhedenlijst: opsommingsregels staan tegen elkaar aan, zonder lege
-// regel na de kop erboven -- behalve de kop zelf, die krijgt er wél een; ook
-// tussen de twee koppen komt geen lege regel. Spiegelt AANEENGESLOTEN_SECTIES
-// in samenstellen.py.
+// regel na de kop erboven -- behalve de kop zelf en de laatste regel van elk
+// van de twee stukken, die allebei wél een lege regel erna krijgen. Zo staat
+// er ook altijd een witregel vóór "Niet tot onze werkzaamheden behoren:".
+// Spiegelt AANEENGESLOTEN_SECTIES in samenstellen.py.
 const AANEENGESLOTEN_SECTIES=["werkzaamheden_inclusief","werkzaamheden_exclusief"];
-const LAATSTE_AANEENGESLOTEN="werkzaamheden_exclusief";
 
 function zetWitregels(alineas,sectie){
   // Spiegelt _zet_witregels: na elke alinea een lege regel, behalve tussen twee
@@ -709,7 +709,7 @@ function zetWitregels(alineas,sectie){
     return alineas.map((a,n)=>Object.assign({},a,{witregel_erna:n===0}));
   if(AANEENGESLOTEN_SECTIES.includes(sectie))
     return alineas.map((a,n)=>Object.assign({},a,{witregel_erna:
-      n===0 || (n===alineas.length-1&&sectie===LAATSTE_AANEENGESLOTEN)}));
+      n===0 || n===alineas.length-1}));
   return alineas.map((a,n)=>{
     const volgende=alineas[n+1];
     const aaneengesloten=!!volgende&&(

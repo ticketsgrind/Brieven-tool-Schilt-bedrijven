@@ -141,13 +141,13 @@ def stel_samen(offerte: Mapping[str, Any], bib: Bibliotheek) -> Brief:
 KOPSECTIES_AANEEN = ("geadresseerde", "betreft", "aanhef")
 
 # De werkzaamhedenlijst: de opsommingsregels staan tegen elkaar aan, zonder
-# lege regel na de kop erboven -- behalve de kop zelf, die krijgt er wél een.
-# Ook tussen de twee koppen ("... inclusief:" -> "Niet tot onze ... behoren:")
-# komt geen lege regel, en pas na de allerlaatste opsommingsregel weer wel.
-# Op verzoek van Lars (17 september 2026); wijkt af van de bronbrieven, die
-# nergens in dit stuk een lege regel zetten.
+# lege regel na de kop erboven -- behalve de kop zelf, en de laatste regel van
+# elk van de twee stukken ("... inclusief:" en "Niet tot onze ... behoren:"),
+# die allebei wél een lege regel erna krijgen. Zo staat er ook altijd een
+# witregel vóór "Niet tot onze werkzaamheden behoren:". Op verzoek van Lars
+# (17 en 30 september 2026); wijkt af van de bronbrieven, die nergens in dit
+# stuk een lege regel zetten.
 AANEENGESLOTEN_SECTIES = ("werkzaamheden_inclusief", "werkzaamheden_exclusief")
-LAATSTE_AANEENGESLOTEN = "werkzaamheden_exclusief"
 
 
 def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
@@ -169,9 +169,7 @@ def _zet_witregels(alineas: list[Alinea], sectie: str = "") -> list[Alinea]:
                 for nummer, alinea in enumerate(alineas)]
     if sectie in AANEENGESLOTEN_SECTIES:
         laatste = len(alineas) - 1
-        return [replace(alinea, witregel_erna=(
-                    nummer == 0                                     # na de kop
-                    or (nummer == laatste and sectie == LAATSTE_AANEENGESLOTEN)))
+        return [replace(alinea, witregel_erna=(nummer == 0 or nummer == laatste))
                 for nummer, alinea in enumerate(alineas)]
 
     uit: list[Alinea] = []
