@@ -99,18 +99,44 @@ class TestZakelijkeBrief(unittest.TestCase):
         self.assertIn("€ 220,- per stuk", "\n".join(self.brief.regels("prijs")))
 
     def test_installatieregels_staan_bij_hun_ruimte(self):
-        # Kopregel en installatieregel horen te alterneren, niet eerst alle
-        # kopregels en daarna alle installatieregels.
+        # Kopregel, installatieregel en de systeemomschrijving van die regel
+        # horen te alterneren per regel, niet eerst alle kopregels en
+        # installatieregels en dan pas alle omschrijvingen (of, zoals tot 30
+        # september 2026, maar één omschrijving voor de hele brief).
         spec = self.brief.regels("specificatie")
-        self.assertEqual(len(spec), 4)
+        self.assertEqual(len(spec), 8)
         self.assertTrue(spec[0].startswith("T.b.v."))
         self.assertTrue(spec[1].startswith("Het leveren en monteren"))
-        self.assertTrue(spec[2].startswith("T.b.v."))
-        self.assertTrue(spec[3].startswith("Het leveren en monteren"))
+        self.assertTrue(spec[2].startswith("De binnenunits zijn uitgevoerd als"))
+        self.assertTrue(spec[3].startswith("Door de speciale vorm"))
+        self.assertTrue(spec[4].startswith("T.b.v."))
+        self.assertTrue(spec[5].startswith("Het leveren en monteren"))
+        self.assertTrue(spec[6].startswith("De binnenunit is uitgevoerd als"))
+        self.assertTrue(spec[7].startswith("Door de speciale vorm"))
 
     def test_telwoord_in_de_specificatie(self):
         self.assertIn("twee luchtgekoelde splitsystem inverterunits", self.brief.regels("specificatie")[1])
-        self.assertIn("één luchtgekoelde splitsystem inverterunit ", self.brief.regels("specificatie")[3])
+        self.assertIn("één luchtgekoelde splitsystem inverterunit ", self.brief.regels("specificatie")[5])
+
+    def test_systeemomschrijving_volgt_de_eigen_regel(self):
+        # De echte reden voor het bovenstaande: bij verschillende modellen op
+        # één offerte hoort elke regel zijn eigen omschrijving te krijgen, met
+        # het enkelvoud/meervoud van die regel -- niet van de hele brief.
+        # Nagemeten aan een voorbeeldbrief die Lars aanleverde (30 september
+        # 2026): een cassette-installatie van vier units en een
+        # wandmodel-installatie van twee units in dezelfde brief, allebei
+        # terecht in het meervoud.
+        offerte = voorbeeld("zakelijk-cassette-meervoud.yaml")
+        offerte["installaties"] = [
+            dict(offerte["installaties"][0], aantal_systemen=4, model_binnenunit="cassette"),
+            dict(offerte["installaties"][1], aantal_systemen=1, systeemsoort="multi-splitsystem",
+                 aantal_binnendelen=2, model_binnenunit="wand", type_buitendeel="CU-2Z41CBE"),
+        ]
+        brief = stel_samen(offerte, laad(WORTEL))
+        spec = brief.regels("specificatie")
+        self.assertTrue(any("cassette-units" in r for r in spec[:4]), spec)
+        self.assertTrue(any(r.startswith("De binnenunits zijn ontworpen voor montage hoog")
+                            for r in spec[4:]), spec)
 
     def test_organisatie_boven_het_adres(self):
         regels = self.brief.regels("geadresseerde")

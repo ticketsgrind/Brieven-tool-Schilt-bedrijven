@@ -147,7 +147,12 @@ letteraanduiding (`A.` / `B.`).
 ### 11. Systeemomschrijving — altijd
 Per model binnenunit één alinea, in enkelvoud- en meervoudvorm. Zes modellen
 gevonden: wand, cassette, kanaal (boven systeemplafond), vloer/laag-aan-de-muur,
-plafondonderbouw, VRF. Zie `teksten.yaml`, sectie `systeemomschrijving`.
+plafondonderbouw, VRF. In `teksten.yaml` staan de modelspecifieke blokken sinds
+30 september 2026 in de sectie `specificatie` (per installatieregel, vlak achter
+de regel waar ze bij horen — bijvoorbeeld cassette-tekst na regel 1, wand-tekst
+na regel 2); wat niet aan een model hangt (`systeem_opbouw_*`,
+`storingscontact_*`, `verse_lucht_*`) staat nog altijd eenmalig in de sectie
+`systeemomschrijving`.
 
 ### 12. Buitenunit — altijd
 Drie opstellingsvarianten (muursteun / plat dak / BigFoot-frame), elk in

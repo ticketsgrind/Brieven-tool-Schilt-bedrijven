@@ -87,7 +87,7 @@ verschillen zitten in de omliggende alinea's, niet in de opsomming zelf.
 |---|---|---|---|---|
 | `aantal_binnenunits` | getal | 1 t/m 3 | ja | Stuurt enkelvoud/meervoud in de hele brief |
 | `aantal_buitenunits` | getal | 1, 2 | ja | Stuurt enkelvoud/meervoud van de buitenunit-alinea's |
-| `model_binnenunit` | keuze | `wand`, `cassette`, `kanaal`, `vloer`, `plafondonderbouw`, `vrf` | ja | Bepaalt de omschrijvingsalinea |
+| `model_binnenunit` | keuze | `wand`, `cassette`, `kanaal`, `vloer`, `plafondonderbouw`, `vrf` | ja | Per installatieregel (sinds 30 september 2026); bepaalt de omschrijvingsalinea van díe regel |
 | `opstelling_buitenunit` | keuze | `muursteun`, `plat_dak`, `bigfoot`, `grond` | ja | Vier varianten aangetroffen |
 | `condensafvoer` | keuze | `riolering_derden`, `condenswaterpomp`, `natuurlijk_verloop`, `aanwezige_afvoer` | ja | |
 | `bediening` | keuze | `infrarood`, `bedraad` | ja | |

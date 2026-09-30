@@ -36,6 +36,7 @@ VASTE_VELDEN: list[tuple[str, str]] = [
 INSTALLATIEVELDEN: list[tuple[str, str]] = [
     ("merk", "het merk"),
     ("type_binnendeel", "het type binnendeel"),
+    ("model_binnenunit", "het model binnenunit"),
 ]
 
 

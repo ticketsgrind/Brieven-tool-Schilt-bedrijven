@@ -115,6 +115,25 @@ een lijst uit de offerte (`specificatie` → `installaties`, `prijs` →
 als geheel per regel herhaald — niet blok voor blok over alle regels, anders
 komen eerst alle ruimtekopjes en daarna pas alle installatieregels.
 
+**Een blok dat naar `regel` verwijst hoeft niet in zijn "eigen" sectie te
+staan.** De systeemomschrijving die bij het model van de binnenunit hoort
+(`systeem_wand_*`, `systeem_cassette_*`, `systeem_kanaal_*`, `systeem_vloer_*`,
+`systeem_plafondonderbouw_*`) stond tot 30 september 2026 in een eigen sectie
+`systeemomschrijving`, die niet in `LOOPSECTIES` zit en dus maar één keer wordt
+beoordeeld, met het toen nog hele-brief-brede `model_binnenunit`. Had een
+offerte twee installaties met een verschillend model — een wandmodel en een
+cassette-installatie op dezelfde brief, zoals in een voorbeeldbrief die Lars
+aanleverde (30 september 2026) — dan koos de
+brief toch maar één model voor de hele brief. De blokken staan nu in de sectie
+`specificatie` zelf, met `regel.model_binnenunit` en (via
+`_verrijk_installatie`) `regel.aantal_binnenunits`: omdat ze daarmee aaneen-
+gesloten staan met de andere `regel`-blokken van diezelfde sectie, herhaalt de
+motor ze automatisch per installatie, vlak na de specificatietekst van die
+regel — geen aparte lus nodig. `systeem_opbouw_*`, `storingscontact_*` en
+`verse_lucht_*` horen niet bij een model en bleven daarom in de sectie
+`systeemomschrijving`: die komen terecht één keer voor, na alle
+installatieregels, wat ook zo in de voorbeeldbrief staat.
+
 **De volgorde van de secties is die van `teksten.yaml`.** Een sectie staat waar
 haar eerste blok staat. Daarom heeft de aansprakelijkheid een eigen sectie onder
 de garantie: in alle sjablonen staat `Garantietermijn:` boven

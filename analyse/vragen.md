@@ -632,11 +632,52 @@ Doorgevoerd, met de bron erbij:
     een witregel erna, zodat er altijd een lege regel vóór die tweede kop
     staat. Wijkt verder af van de bronbrieven, net als punt 12.4.
 
-> **Vraag 34.** Een splitregel biedt nu altijd één systeem aan. Komt het voor dat
-> je op één regel bijvoorbeeld drie identieke splitsystemen aanbiedt? De motor
-> kan het (`aantal_systemen`), maar de zin begint met "Het leveren en monteren
-> van één luchtgekoelde splitsystem inverterunit" en het formulier vraagt er niet
-> naar.
+15. **Systeemomschrijving per installatieregel, niet meer voor de hele brief
+    (Lars, 30 september 2026).** Bleek een echte bug, aangetoond met een
+    voorbeeldbrief die Lars heeft aangeleverd: die offerte heeft een
+    cassette-installatie (vier units, meervoud) én een wandmodel-installatie
+    (twee units, meervoud) op dezelfde brief, elk met hun eigen omschrijving
+    vlak achter hun eigen specificatietekst. Onze tool kende `model_binnenunit`
+    tot nu toe maar één keer voor de hele brief, dus kreeg zo'n offerte altijd
+    maar één van de twee omschrijvingen. `model_binnenunit` is nu een veld per
+    installatieregel; zie de uitleg bij "Een blok dat naar `regel` verwijst
+    hoeft niet in zijn 'eigen' sectie te staan" in CLAUDE.md. Twee dingen die ik
+    bewust **niet** heb meeverhuisd, omdat de voorbeeldbrief er geen bewijs voor
+    geeft: `storingscontact` en `verse_luchtaansluiting` blijven een keuze voor
+    de hele brief, ook al zou het kunnen dat die net als het model per
+    installatie verschilt.
+
+    Bij het uitpluizen van die brief zijn nog twee dingen opgevallen die ik
+    **niet** heb aangepast, omdat ze een andere kwestie zijn dan waar Lars om
+    vroeg:
+    - De brief noemt bij een splitsysteem ook het type buitendeel
+      ("... met binnendeel type S-6071PU3E en buitendeel type U-71PZ3E5A.");
+      `spec_split` in `teksten.yaml` doet dat niet ("... fabrikaat Panasonic
+      type S-6071PU3E."). Vraag 33 hierboven gaat al over het merk; dit is
+      een aparte vraag over dezelfde zin.
+    - Er staat een veld `systeemsoort` op het niveau van de hele offerte
+      (naast `regel.systeemsoort` per installatie), dat nergens in het scherm
+      wordt ingevuld. `systeem_opbouw_enkel` in `teksten.yaml` toetst dat
+      hele-brief-brede veld (`aantal_binnenunits == 1 and systeemsoort ==
+      'splitsystem'`), waardoor die tekst in de praktijk nooit meegaat: het
+      scherm zet dat veld immers nooit. Ongebruikt sinds onbekend, dus met
+      opzet niet aangeraakt zonder het na te vragen.
+
+> **Vraag 36.** Hoort het type buitendeel ook in de zin van een splitsysteem
+> thuis (zoals in de voorbeeldbrief bij punt 15 hierboven), of is dat alleen
+> deze ene keer zo getypt? `spec_split` in `teksten.yaml` noemt nu alleen het
+> binnendeel.
+>
+> **Vraag 37.** Klopt het dat `systeem_opbouw_enkel` z'n voorwaarde nooit
+> uitkomt omdat die op een veld (`systeemsoort`, hele-brief-breed) let dat het
+> scherm niet vult? Zo ja, moet "De installatie bestaat uit één binnenunit en
+> één buitenunit..." er ooit uit springen bij één enkele splitsysteem-unit, of
+> is "De installaties bestaan uit één of meerdere..." (het meervoudsblok, dat
+> geen systeemsoort toetst) voor alle gevallen genoeg?
+
+> **Vraag 34 — beantwoord (Lars, 23 september 2026, punt 13.1 hierboven).** Ja,
+> dat komt voor. Er staat nu een veld "Aantal systemen" bij een splitsysteem-
+> regel.
 
 > **Vraag 32 — beantwoord (Lars, 28 augustus 2026).** Geen voorletters in de
 > aanhef; de bronbrieven hebben gelijk. Teruggedraaid.

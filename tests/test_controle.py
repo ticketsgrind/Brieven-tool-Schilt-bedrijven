@@ -55,7 +55,7 @@ class TestOntbrekendeGegevens(unittest.TestCase):
     def test_installatie_zonder_gegevens(self):
         kaal = offerte(installaties=[{"systeemsoort": "splitsystem"}])
         self.assertEqual(ontbrekende_gegevens(kaal),
-                         ["het merk", "het type binnendeel"])
+                         ["het merk", "het type binnendeel", "het model binnenunit"])
 
     def test_de_ruimte_mag_leeg_blijven(self):
         # Zonder ruimte komt er gewoon geen kopregel boven de installatie; dat
